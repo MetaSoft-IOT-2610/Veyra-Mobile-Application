@@ -7,8 +7,11 @@ environment:
   sdk: ^3.10.3
 
 dependencies:
+  dio: ^5.9.2
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
+  get_it: ^9.2.1
 
 dev_dependencies:
   flutter_test:

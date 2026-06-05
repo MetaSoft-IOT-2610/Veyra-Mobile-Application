@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:veyra_mobile_app/app/di/dependency_injection.dart';
+import 'package:veyra_mobile_app/app/observers/app_bloc_observer.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initDependencies();
+
+  Bloc.observer = AppBlocObserver();
+
   runApp(const MainApp());
 }
 
