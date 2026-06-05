@@ -24,7 +24,7 @@ Future<void> initDependencies() async {
 void _initSharedKernel() {
   // Registrar el cliente HTTP corporativo apuntando a tu backend de Spring Boot
   locator.registerLazySingleton<IHttpClient>(
-    () => DioHttpClientImpl(baseUrl: 'http://localhost:8080/api/v1/'), 
+    () => DioHttpClientImpl('http://localhost:8080/api/v1/'), 
   );
   
   // Aquí en el futuro registrarás ILocalStorage, IConnectivityService, etc.
