@@ -1,8 +1,11 @@
 import 'package:get_it/get_it.dart';
 import '../../shared/application/contracts/i_http_client.dart';
 import '../../shared/infrastructure/network/dio_http_client_impl.dart';
-// import '../../analytics/analytics_module.dart';
-// import '../../nursing/nursing_module.dart';
+
+// Importamos los barriles de los módulos activos
+import '../../analytics/analytics.dart';
+import '../../activities/activities.dart';
+import '../../nursing/nursing.dart';
 
 final locator = GetIt.instance;
 
@@ -12,20 +15,17 @@ Future<void> initDependencies() async {
   // 1. Inicializar Shared Kernel (Herramientas core)
   _initSharedKernel();
 
-  // 2. Inicializar Bounded Contexts (De forma aislada)
-  // initIamModule(locator);
-  // initNursingModule(locator);
-  // initAnalyticsModule(locator);
+  // 2. Inicializar Bounded Contexts
+  initAnalyticsModule(locator);
+  initActivitiesModule(locator);
+  initNursingModule(locator);
 }
 
 void _initSharedKernel() {
-  // Configuración de Dio con interceptores de Auth y Logging
-  // final dio = Dio(BaseOptions(baseUrl: 'https://api.tudominio.com'));
-  
-  // Registrar el cliente HTTP corporativo
+  // Registrar el cliente HTTP corporativo apuntando a tu backend de Spring Boot
   locator.registerLazySingleton<IHttpClient>(
-    () => DioHttpClientImpl(), // O la implementación que pases con Dio
+    () => DioHttpClientImpl(baseUrl: 'http://localhost:8080/api/v1/'), 
   );
   
-  // Aquí también se registrarían servicios como IAnalyticsTracker, ILocalStorage, etc.
+  // Aquí en el futuro registrarás ILocalStorage, IConnectivityService, etc.
 }

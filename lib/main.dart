@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:veyra_mobile_app/app/di/dependency_injection.dart';
-import 'package:veyra_mobile_app/app/observers/app_bloc_observer.dart';
+import 'app/di/dependency_injection.dart';
+import 'app/observers/app_bloc_observer.dart';
+import 'nursing/presentation/pages/admin_dashboard_page.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initDependencies();
 
   Bloc.observer = AppBlocObserver();
 
-  runApp(const MainApp());
+  await initDependencies();
+
+  runApp(const VeyraEnterpriseApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class VeyraEnterpriseApp extends StatelessWidget {
+  const VeyraEnterpriseApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MaterialApp(
+      title: 'Veyra Enterprise',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
       ),
+      home: const AdminDashboardPage(nursingHomeId: 1), 
     );
   }
 }
