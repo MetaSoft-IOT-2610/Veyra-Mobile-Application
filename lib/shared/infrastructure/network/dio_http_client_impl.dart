@@ -4,6 +4,8 @@ import 'package:dio/dio.dart'; // Comentado asumiendo que lo instalarás
 
 /// Implementación real del cliente HTTP usando Dio (recomendado para Enterprise)
 class DioHttpClientImpl implements IHttpClient {
+  DioHttpClientImpl(String s);
+
   // final Dio _dio;
   
   // DioHttpClientImpl(this._dio);
