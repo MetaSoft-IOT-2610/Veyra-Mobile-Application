@@ -1,6 +1,7 @@
+import 'package:veyra_mobile_app/analytics/infrastructure/models/operational_metrics.dart';
+
 import '../../../shared/application/contracts/i_http_client.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
-import '../models/operational_metrics_model.dart';
 
 abstract class AnalyticsRemoteDataSource {
   Future<OperationalMetricsModel> getOperationalMetrics(int nursingHomeId);
