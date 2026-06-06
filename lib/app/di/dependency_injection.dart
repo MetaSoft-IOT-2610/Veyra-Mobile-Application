@@ -7,12 +7,13 @@ import '../../shared/infrastructure/network/dio_http_client_impl.dart';
 import '../../analytics/analytics.dart';
 import '../../activities/activities.dart';
 import '../../nursing/nursing.dart';
+import '../../hcm/hcm.dart';
 
 final locator = GetIt.instance;
 
 /// Método principal que se llama en el main.dart antes de runApp()
 Future<void> initDependencies() async {
-  
+
   // 1. Inicializar Shared Kernel (Herramientas core)
   _initSharedKernel();
 
@@ -20,6 +21,7 @@ Future<void> initDependencies() async {
   initAnalyticsModule(locator);
   initActivitiesModule(locator);
   initNursingModule(locator);
+  initHcmModule(locator);
 }
 
 void _initSharedKernel() {
@@ -38,6 +40,6 @@ void _initSharedKernel() {
   locator.registerLazySingleton<IHttpClient>(
     () => DioHttpClientImpl(getBaseUrl()), // Pasamos la URL dinámica
   );
-  
+
   // Aquí en el futuro registrarás ILocalStorage, IConnectivityService, etc.
 }
