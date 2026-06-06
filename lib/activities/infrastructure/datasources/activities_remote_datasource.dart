@@ -14,12 +14,25 @@ class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
   @override
   Future<List<ActivityModel>> getActivities(int nursingHomeId) async {
     try {
-      // Petición al endpoint: GET /api/v1/nursing-homes/{nursingHomeId}/activities
       final response = await client.get('/api/v1/nursing-homes/$nursingHomeId/activities');
-      
-      // Asumimos que la respuesta es una lista JSON
-      final List<dynamic> data = response as List<dynamic>;
-      
+
+      List<dynamic> data;
+
+      if (response is List) {
+        data = response;
+      } else if (response is Map) {
+        if (response.containsKey('content')) {
+          data = response['content'] as List<dynamic>;
+        } else if (response.containsKey('data')) {
+          data = response['data'] as List<dynamic>;
+        } else {
+          print('DEBUG JSON ACTIVITIES: $response');
+          throw ParsingException(message: 'No se encontró la lista en el JSON del servidor.');
+        }
+      } else {
+        throw ParsingException(message: 'Formato de respuesta HTTP desconocido.');
+      }
+
       return data.map((json) => ActivityModel.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
       throw ServerException(message: 'Error al obtener las actividades: $e');
