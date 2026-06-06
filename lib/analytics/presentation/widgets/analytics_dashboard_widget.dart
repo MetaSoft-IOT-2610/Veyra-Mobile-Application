@@ -48,11 +48,26 @@ class AnalyticsDashboardWidget extends StatelessWidget {
               // Renderizado de Datos Reales
               if (state is AnalyticsLoaded)
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _MetricCard(title: 'Nuevos Ingresos', value: state.admissionsCount.toString()),
-                    _MetricCard(title: 'Bajas Staff', value: state.terminationsCount.toString(), isAlert: state.terminationsCount > 2),
-                    _MetricCard(title: 'Nuevos Contratos', value: state.hiresCount.toString()),
+                    Expanded( // <-- Envuelve la primera tarjeta
+                      child: _MetricCard(
+                        title: 'Nuevos Ingresos', 
+                        value: state.admissionsCount.toString(),
+                      ),
+                    ),
+                    Expanded( // <-- Envuelve la segunda tarjeta
+                      child: _MetricCard(
+                        title: 'Bajas Staff', 
+                        value: state.terminationsCount.toString(), 
+                        isAlert: state.terminationsCount > 2,
+                      ),
+                    ),
+                    Expanded( // <-- Envuelve la tercera tarjeta
+                      child: _MetricCard(
+                        title: 'Nuevos Contratos', 
+                        value: state.hiresCount.toString(),
+                      ),
+                    ),
                   ],
                 ),
             ],
