@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:veyra_mobile_app/analytics/presentation/widgets/analytics_dashboard_widget.dart';
 import 'package:veyra_mobile_app/activities/presentation/widgets/today_activities_widget.dart';
-//import 'package:veyra_mobile_app/hcm/presentation/widgets/active_staff_widget.dart';
+import 'package:veyra_mobile_app/hcm/presentation/widgets/active_staff_widget.dart';
 import 'package:veyra_mobile_app/nursing/presentation/widgets/resident_summary_widget.dart';
 
 class AdminDashboardPage extends StatelessWidget {
@@ -38,7 +38,7 @@ class AdminDashboardPage extends StatelessWidget {
                   TodayActivitiesWidget(nursingHomeId: nursingHomeId),
                   const SizedBox(height: 24),
 
-                  //ActiveStaffWidget(nursingHomeId: nursingHomeId),
+                  ActiveStaffWidget(nursingHomeId: nursingHomeId),
                   const SizedBox(height: 40),
                 ]),
               ),
