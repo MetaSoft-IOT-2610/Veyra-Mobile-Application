@@ -20,12 +20,21 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
       final hiresResponse = await client.get('/api/v1/nursing-homes/$nursingHomeId/analytics/staff-hires');
 
       return OperationalMetricsModel(
-        admissionsCount: admissionsResponse['count'] ?? 0,
-        terminationsCount: terminationsResponse['count'] ?? 0,
-        hiresCount: hiresResponse['count'] ?? 0,
+        admissionsCount: _extractCount(admissionsResponse),
+        terminationsCount: _extractCount(terminationsResponse),
+        hiresCount: _extractCount(hiresResponse),
       );
     } catch (e) {
       throw ServerException(message: 'Error al obtener métricas del servidor: $e');
     }
+  }
+
+  int _extractCount(dynamic response) {
+    if (response is int) return response;
+    if (response is Map) {
+      if (response.containsKey('count')) return (response['count'] as num).toInt();
+      if (response.containsKey('value')) return (response['value'] as num).toInt();
+    }
+    return 0;
   }
 }
