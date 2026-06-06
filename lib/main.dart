@@ -20,12 +20,13 @@ class VeyraEnterpriseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, // <-- Agrega esta línea
       title: 'Veyra Enterprise',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const AdminDashboardPage(nursingHomeId: 1), 
+      home: const AdminDashboardPage(nursingHomeId: 1),
     );
   }
 }
