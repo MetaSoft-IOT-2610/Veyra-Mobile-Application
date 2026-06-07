@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app/di/dependency_injection.dart';
 import 'app/observers/app_bloc_observer.dart';
+import 'iam/presentation/pages/login_page.dart';
 import 'nursing/presentation/pages/admin_dashboard_page.dart';
 
 void main() async {
@@ -26,7 +27,7 @@ class VeyraEnterpriseApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const AdminDashboardPage(nursingHomeId: 1),
+      home: LoginPage(),
     );
   }
 }
