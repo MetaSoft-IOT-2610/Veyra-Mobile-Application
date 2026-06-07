@@ -8,6 +8,7 @@ import '../../analytics/analytics.dart';
 import '../../activities/activities.dart';
 import '../../nursing/nursing.dart';
 import '../../hcm/hcm.dart';
+import '../../iam/iam.dart'; // <-- 1. IMPORTA EL BARRIL DE IAM
 
 final locator = GetIt.instance;
 
@@ -22,6 +23,7 @@ Future<void> initDependencies() async {
   initActivitiesModule(locator);
   initNursingModule(locator);
   initHcmModule(locator);
+  initIamModule(locator); // <-- 2. INICIALIZA EL MÓDULO IAM
 }
 
 void _initSharedKernel() {
@@ -38,7 +40,7 @@ void _initSharedKernel() {
 
   // Registrar el cliente HTTP corporativo apuntando a tu backend de Spring Boot
   locator.registerLazySingleton<IHttpClient>(
-    () => DioHttpClientImpl(getBaseUrl()), // Pasamos la URL dinámica
+        () => DioHttpClientImpl(getBaseUrl()), // Pasamos la URL dinámica
   );
 
   // Aquí en el futuro registrarás ILocalStorage, IConnectivityService, etc.

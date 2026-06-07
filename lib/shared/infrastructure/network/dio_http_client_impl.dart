@@ -3,28 +3,23 @@ import '../../application/contracts/i_http_client.dart';
 import '../../core/exceptions/exceptions.dart';
 import '../local/token_manager.dart';
 
-/// Enterprise-grade implementation of the HTTP client using the [Dio] package.
-///
-/// This client automatically handles base URLs, connection timeouts, and
-/// intercepts outgoing requests to inject authorization tokens.
 class DioHttpClientImpl implements IHttpClient {
   final Dio _dio;
 
-  /// Creates a new instance of [DioHttpClientImpl].
-  ///
-  /// The [baseUrl] parameter sets the root URL for all API requests.
-  /// It also configures default timeouts and sets up the JWT interceptor.
   DioHttpClientImpl(String baseUrl)
       : _dio = Dio(BaseOptions(
     baseUrl: baseUrl,
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
   )) {
-    // Interceptor to inject the JWT Token automatically into ALL requests
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
           final token = TokenManager.getToken();
+
+          print('🚀 [DIO] Interceptando petición hacia: ${options.path}');
+          print('🚀 [DIO] Token inyectado en la cabecera: $token');
+
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -34,11 +29,6 @@ class DioHttpClientImpl implements IHttpClient {
     );
   }
 
-  /// Performs an HTTP GET request to the specified [path].
-  ///
-  /// Optional [queryParameters] can be passed to append to the URL.
-  /// Returns the dynamic JSON data from the response.
-  /// Throws a [ServerException] if the request fails.
   @override
   Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
     try {
@@ -51,12 +41,6 @@ class DioHttpClientImpl implements IHttpClient {
     }
   }
 
-  /// Performs an HTTP POST request to the specified [path].
-  ///
-  /// The payload is passed through the [data] parameter.
-  /// Optional [queryParameters] can also be included.
-  /// Returns the dynamic JSON data from the response.
-  /// Throws a [ServerException] if the request fails.
   @override
   Future<dynamic> post(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
     try {
@@ -69,11 +53,6 @@ class DioHttpClientImpl implements IHttpClient {
     }
   }
 
-  /// Performs an HTTP PUT request to the specified [path].
-  ///
-  /// The payload is passed through the [data] parameter.
-  /// Returns the dynamic JSON data from the response.
-  /// Throws a [ServerException] if the request fails.
   @override
   Future<dynamic> put(String path, {dynamic data}) async {
     try {
@@ -86,11 +65,6 @@ class DioHttpClientImpl implements IHttpClient {
     }
   }
 
-  /// Performs an HTTP DELETE request to the specified [path].
-  ///
-  /// Optional [data] can be passed if the API requires a body for deletion.
-  /// Returns the dynamic JSON data from the response.
-  /// Throws a [ServerException] if the request fails.
   @override
   Future<dynamic> delete(String path, {dynamic data}) async {
     try {
@@ -103,16 +77,16 @@ class DioHttpClientImpl implements IHttpClient {
     }
   }
 
-  /// Centralized error handler that maps a [DioException] to the domain's [ServerException].
   ServerException _handleDioError(DioException e) {
     if (e.response != null) {
+      print('❌ [DIO] Error del servidor: ${e.response?.statusCode} - ${e.response?.data}');
       return ServerException(
         message: 'Server Error: ${e.response?.statusMessage ?? "Unknown payload"}',
         statusCode: e.response?.statusCode,
       );
     }
     else {
-      // Network error, timeout, or DNS resolution failure
+      print('❌ [DIO] Error de red puro: $e');
       return ServerException(
         message: 'Network Error: Failed to connect to the server.',
       );
