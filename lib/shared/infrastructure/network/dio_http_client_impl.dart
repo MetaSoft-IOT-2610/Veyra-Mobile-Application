@@ -17,13 +17,15 @@ class DioHttpClientImpl implements IHttpClient {
         onRequest: (options, handler) {
           final token = TokenManager.getToken();
 
-          print('🚀 [DIO] Interceptando petición hacia: ${options.path}');
-          print('🚀 [DIO] Token inyectado en la cabecera: $token');
-
-          if (token != null) {
+          if (token != null && token.isNotEmpty) {
+            // Force the header directly onto the map
             options.headers['Authorization'] = 'Bearer $token';
+            print('🚀 [DIO] Sending request ${options.path} with valid Token');
+          } else {
+            print('⚠️ [DIO] Sending request ${options.path} WITHOUT Token');
           }
-          return handler.next(options);
+
+          return handler.next(options); // Continue request
         },
       ),
     );
