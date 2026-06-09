@@ -30,6 +30,7 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         'username': username,
         'password': password,
       });
+      print('[IAM] JSON CRUDO DEL BACKEND: $response');
 
       if (response is Map) {
         // 1. Securely save the JWT token in memory
@@ -38,23 +39,22 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
           print('[IAM] Token saved successfully.');
         }
 
-        // 2. Extract the User ID and map it to the Administrator ID
-        if (response.containsKey('id')) {
-          final int userId = (response['id'] as num).toInt();
+        // 2. Extract the Aggregate ID (entityId) which directly maps to the Administrator ID
+        if (response.containsKey('entityId')) {
+          final int entityId = (response['entityId'] as num).toInt();
+          print('[IAM] Successfully extracted entityId: $entityId');
+          return entityId;
+        }
+        // Fallback for edge cases where the backend might only return the legacy id
+        else if (response.containsKey('id')) {
+          final int fallbackId = (response['id'] as num).toInt();
+          print('[IAM] Warning: entityId not found, falling back to legacy id: $fallbackId');
 
-          // TEMPORARY WORKAROUND (MOCK MAPPING)
-          // The backend currently returns the User ID instead of the Administrator ID.
-          // This mapping forces the correct Administrator ID to unblock frontend development.
-          // TODO: Remove this mapping once the backend DTO includes 'administratorId'.
-          if (userId == 2 && username == 'Renzo1') {
-            print('[IAM] Applying mock mapping: User 2 -> Admin 1');
-            return 1; // Real Administrator ID matching the database
-          }
-
-          return userId;
+          // Retornamos el ID real de respaldo sin forzar la entrada
+          return fallbackId;
         }
       }
-      throw ParsingException(message: 'Missing required auth fields in server response.');
+      throw ParsingException(message: 'Missing required auth fields (entityId) in server response.');
     } catch (e) {
       print('[IAM] Error in authenticate: $e');
       throw ServerException(message: 'Authentication failed. Please check your credentials.');
@@ -66,18 +66,22 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     try {
       print('[IAM] Requesting nursing home for admin ID: $administratorId');
 
-      // FIX: Removed '/api/v1/' to prevent URL duplication.
       final response = await client.get('administrators/$administratorId/nursing-homes');
 
-      // Defensive parsing to extract the Nursing Home ID
       if (response is Map && response.containsKey('id')) {
         return (response['id'] as num).toInt();
       }
 
       throw ParsingException(message: 'Nursing Home data could not be parsed from the response.');
     } catch (e) {
-      print('[IAM] Error in getNursingHomeId: $e');
-      throw ServerException(message: 'Error fetching Nursing Home details: $e');
+      print('[IAM] Error en getNursingHomeId: $e');
+
+      // Lanzamos la excepción real con código 404 para que la capa de presentación
+      // pueda redirigir a la pantalla de "Requiere Configuración Web".
+      throw ServerException(
+          message: 'No se encontró una Casa de Reposo asignada. Requiere configuración inicial.',
+          statusCode: 404
+      );
     }
   }
 }
