@@ -1,20 +1,35 @@
 import '../../domain/entities/operational_metrics.dart';
 
-/// DTO (Data Transfer Object) de Infraestructura.
-/// Se encarga exclusivamente de la serialización/deserialización de datos externos.
+/// Infrastructure Data Transfer Object (DTO) responsible for
+/// serializing and deserializing operational metrics received
+/// from external data sources.
+///
+/// This model belongs to the Infrastructure layer and should
+/// never contain business rules or domain logic.
+///
+/// Its primary responsibility is to transform raw JSON data
+/// into strongly typed objects and map them into domain entities.
 class OperationalMetricsModel {
+  /// Total number of admissions.
   final int admissionsCount;
+
+  /// Total number of employee terminations.
   final int terminationsCount;
+
+  /// Total number of hires.
   final int hiresCount;
 
+  /// Creates a new [OperationalMetricsModel].
   OperationalMetricsModel({
     required this.admissionsCount,
     required this.terminationsCount,
     required this.hiresCount,
   });
 
-  /// Factory para construir el modelo a partir de JSON.
-  /// Protegemos la app con valores por defecto (0) si el backend omite un campo.
+  /// Creates an instance from a JSON object.
+  ///
+  /// Missing fields are automatically assigned a default value
+  /// of `0` to improve resilience against incomplete API responses.
   factory OperationalMetricsModel.fromJson(Map<String, dynamic> json) {
     return OperationalMetricsModel(
       admissionsCount: json['admissionsCount'] as int? ?? 0,
@@ -23,7 +38,11 @@ class OperationalMetricsModel {
     );
   }
 
-  /// Método vital: Transforma este DTO técnico en una Entidad pura de negocio.
+  /// Converts this infrastructure model into a pure
+  /// domain [OperationalMetrics] entity.
+  ///
+  /// This transformation prevents infrastructure concerns
+  /// from leaking into the Domain layer.
   OperationalMetrics toEntity() {
     return OperationalMetrics(
       admissionsCount: admissionsCount,
