@@ -3,11 +3,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:veyra_mobile_app/app/di/dependency_injection.dart';
 import '../bloc/activities_bloc.dart';
 
+/// Presentation widget that displays today's scheduled activities.
+///
+/// This widget is responsible only for rendering UI and
+/// delegating business logic to the Activities BLoC.
 class TodayActivitiesWidget extends StatelessWidget {
+  /// Identifier of the nursing home whose activities
+  /// should be displayed.
   final int nursingHomeId;
 
+  /// Creates a new widget instance.
   const TodayActivitiesWidget({Key? key, required this.nursingHomeId}) : super(key: key);
 
+  /// Builds the widget tree and reacts to state changes
+  /// emitted by [ActivitiesBloc].
+  ///
+  /// States handled:
+  /// - Loading
+  /// - Error
+  /// - Loaded
+  ///
+  /// Displays activities sorted chronologically and
+  /// filtered to the current day.
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ActivitiesBloc>(
@@ -15,12 +32,12 @@ class TodayActivitiesWidget extends StatelessWidget {
       child: BlocBuilder<ActivitiesBloc, ActivitiesState>(
         builder: (context, state) {
           if (state is ActivitiesLoading) return const LinearProgressIndicator();
-          
+
           if (state is ActivitiesError) return const Text('Fallo al cargar agenda.');
 
           if (state is ActivitiesLoaded) {
             final activities = state.todayActivities;
-            
+
             return Card(
               child: Column(
                 children: [
@@ -43,7 +60,7 @@ class TodayActivitiesWidget extends StatelessWidget {
               ),
             );
           }
-          
+
           return const SizedBox.shrink();
         },
       ),

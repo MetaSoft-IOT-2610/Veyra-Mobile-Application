@@ -1,14 +1,31 @@
 import '../../domain/entities/activity.dart';
 import '../../domain/value_objects/activity_schedule.dart';
 
+/// Infrastructure Data Transfer Object (DTO)
+/// representing an activity received from the backend.
+///
+/// This model is responsible for JSON serialization,
+/// deserialization, and conversion into domain entities.
 class ActivityModel {
+  /// Unique activity identifier.
   final int id;
+
+  /// Activity title.
   final String name;
+
+  /// Activity description.
   final String description;
+
+  /// Activity start date and time in ISO format.
   final String startTime;
+
+  /// Activity end date and time in ISO format.
   final String endTime;
+
+  /// Raw status value received from the API.
   final String status;
 
+  /// Creates a new activity model.
   ActivityModel({
     required this.id,
     required this.name,
@@ -18,6 +35,7 @@ class ActivityModel {
     required this.status,
   });
 
+  /// Creates an instance from a JSON object.
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
     return ActivityModel(
       id: json['id'] as int,
@@ -29,7 +47,12 @@ class ActivityModel {
     );
   }
 
-  /// Transforma el DTO de infraestructura a una Entidad pura de Dominio.
+  /// Converts this DTO into a pure domain [Activity].
+  ///
+  /// During conversion:
+  /// - Dates are transformed into [DateTime].
+  /// - The schedule becomes an [ActivitySchedule].
+  /// - Raw status values are mapped to [ActivityStatus].
   Activity toEntity() {
     return Activity(
       id: id,
@@ -44,6 +67,7 @@ class ActivityModel {
     );
   }
 
+  /// Maps backend status strings into domain enum values.
   ActivityStatus _mapStatus(String rawStatus) {
     switch (rawStatus.toUpperCase()) {
       case 'IN_PROGRESS':
