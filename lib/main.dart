@@ -22,7 +22,7 @@ class VeyraEnterpriseApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false, // <-- Agrega esta línea
-      title: 'Veyra Enterprise',
+      title: 'Veyra Mobile App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
