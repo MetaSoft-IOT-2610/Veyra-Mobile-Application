@@ -39,8 +39,16 @@ class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
   @override
   Future<List<ActivityModel>> getActivities(int nursingHomeId) async {
     try {
+      final currentDate = DateTime.now();
+
+      final formattedDate = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
       // FIX: Pure relative path (without /api/v1/) to prevent URL duplication
-      final response = await client.get('nursing-homes/$nursingHomeId/activities');
+      final response = await client.get(
+        'nursing-homes/$nursingHomeId/activities',
+        queryParameters: {
+          'date': formattedDate,
+        },
+      );
 
       List<dynamic> data;
 
@@ -53,7 +61,7 @@ class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
         } else if (response.containsKey('data')) {
           data = response['data'] as List<dynamic>;
         } else {
-          print('🚨 [Activities] DEBUG JSON: $response');
+          print('[Activities] DEBUG JSON: $response');
           throw ParsingException(message: 'Could not find the activities list in the server JSON response.');
         }
       } else {
