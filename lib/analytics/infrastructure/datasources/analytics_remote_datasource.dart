@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:veyra_mobile_app/analytics/infrastructure/models/operational_metrics.dart';
 import '../../../shared/application/contracts/i_http_client.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
@@ -21,38 +22,55 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
 
   @override
   Future<OperationalMetricsModel> getOperationalMetrics(int nursingHomeId) async {
-    try {
-      // 1. Calculate the current year automatically
-      final currentYear = DateTime.now().year;
-      print('🚀 [Analytics] Fetching metrics for year: $currentYear');
+    // 1. Calculate the current year automatically.
+    // Limited to 2025 to prevent backend validation errors (year must be between 1900 and 2025).
+    final currentYear = math.min(DateTime.now().year, 2025);
+    print('[Analytics] Fetching metrics for year: $currentYear');
 
-      // 2. Fetch Admissions (Passing the REQUIRED 'year' query parameter)
+    int admissions = 0;
+    int terminations = 0;
+    int hires = 0;
+
+    // 2. Fetch Admissions (Defensive parsing)
+    try {
       final admissionsResponse = await client.get(
         'nursing-homes/$nursingHomeId/analytics/residents-admissions',
         queryParameters: {'year': currentYear},
       );
+      admissions = _extractTotal(admissionsResponse);
+    } catch (e) {
+      print('[Analytics] Warning: Error fetching admissions: $e');
+    }
 
-      // 3. Fetch Terminations (Assuming it also requires the 'year' parameter)
+    // 3. Fetch Terminations (Defensive parsing)
+    try {
       final terminationsResponse = await client.get(
         'nursing-homes/$nursingHomeId/analytics/staff-terminations',
         queryParameters: {'year': currentYear},
       );
+      terminations = _extractTotal(terminationsResponse);
+    } catch (e) {
+      print('[Analytics] Warning: Error fetching terminations (Probably 404): $e');
+    }
 
-      // 4. Fetch Hires (Assuming it also requires the 'year' parameter)
+    // 4. Fetch Hires (Defensive parsing)
+    try {
       final hiresResponse = await client.get(
         'nursing-homes/$nursingHomeId/analytics/staff-hires',
         queryParameters: {'year': currentYear},
       );
-
-      // 5. Map the results using the correct JSON key ('total') as per Swagger
-      return OperationalMetricsModel(
-        admissionsCount: _extractTotal(admissionsResponse),
-        terminationsCount: _extractTotal(terminationsResponse),
-        hiresCount: _extractTotal(hiresResponse),
-      );
+      hires = _extractTotal(hiresResponse);
     } catch (e) {
-      throw ServerException(message: 'Error fetching operational metrics from server: $e');
+      print('[Analytics] Warning: Error fetching hires: $e');
     }
+
+    // 5. Return the model with the successfully fetched data.
+    // If an endpoint fails, its corresponding value safely remains 0.
+    return OperationalMetricsModel(
+      admissionsCount: admissions,
+      terminationsCount: terminations,
+      hiresCount: hires,
+    );
   }
 
   /// Helper method to safely extract the 'total' value from the backend's Analytics JSON response.
@@ -65,7 +83,7 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
         return (response['total'] as num).toInt();
       }
     }
-    print('⚠️ [Analytics] Warning: "total" key not found in response. Falling back to 0.');
+    print('[Analytics] Warning: "total" key not found in response. Falling back to 0.');
     return 0; // Default fallback if the structure is empty or unexpected
   }
 }
