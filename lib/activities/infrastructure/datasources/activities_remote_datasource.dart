@@ -2,26 +2,44 @@ import '../../../shared/application/contracts/i_http_client.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
 import '../models/activity_model.dart';
 
-/// Remote data source interface responsible for fetching nursing home activities.
+/// Remote data source responsible for retrieving activity data
+/// from external services.
 abstract class ActivitiesRemoteDataSource {
-  /// Retrieves a list of activities scheduled for a specific nursing home.
+  /// Retrieves activities associated with a nursing home.
   ///
-  /// Requires the [nursingHomeId] to fetch the relevant data.
+  /// Parameters:
+  /// - [nursingHomeId]: Nursing home identifier.
+  ///
+  /// Returns a list of [ActivityModel] instances.
   Future<List<ActivityModel>> getActivities(int nursingHomeId);
 }
 
-/// Concrete implementation of [ActivitiesRemoteDataSource] using the corporate [IHttpClient].
+/// HTTP implementation of [ActivitiesRemoteDataSource].
+///
+/// Uses the application's standardized [IHttpClient]
+/// to communicate with remote APIs.
 class ActivitiesRemoteDataSourceImpl implements ActivitiesRemoteDataSource {
-  /// The HTTP client used to execute network requests.
+  /// HTTP client used to perform network requests.
   final IHttpClient client;
 
-  /// Creates a new instance of [ActivitiesRemoteDataSourceImpl] requiring an [IHttpClient].
+  /// Creates a new remote data source instance.
   ActivitiesRemoteDataSourceImpl({required this.client});
 
+
+  /// Retrieves activities from the backend service.
+  ///
+  /// Supports multiple response formats:
+  /// - Direct JSON arrays.
+  /// - Wrapped responses using `content`.
+  /// - Wrapped responses using `data`.
+  ///
+  /// Throws:
+  /// - [ParsingException] when the response format is invalid.
+  /// - [ServerException] when a communication error occurs.
   @override
   Future<List<ActivityModel>> getActivities(int nursingHomeId) async {
     try {
-      // ✅ FIX: Pure relative path (without /api/v1/) to prevent URL duplication
+      // FIX: Pure relative path (without /api/v1/) to prevent URL duplication
       final response = await client.get('nursing-homes/$nursingHomeId/activities');
 
       List<dynamic> data;

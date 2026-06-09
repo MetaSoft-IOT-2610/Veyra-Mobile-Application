@@ -1,13 +1,25 @@
 import '../../../shared/domain/value_objects/value_object.dart';
 
+/// Value Object representing the scheduled time range of an activity.
+///
+/// This object guarantees temporal consistency by enforcing
+/// business validation rules during construction.
 class ActivitySchedule extends ValueObject {
+  /// Activity start date and time.
   final DateTime startTime;
+
+  /// Activity end date and time.
   final DateTime endTime;
 
   const ActivitySchedule._(this.startTime, this.endTime);
 
-  /// Factory que valida la regla de negocio antes de instanciar.
-  /// Lanza un error de dominio si la validación falla.
+  /// Creates a valid activity schedule.
+  ///
+  /// Validation Rules:
+  /// - The end time cannot be earlier than the start time.
+  ///
+  /// Throws:
+  /// - [ArgumentError] when the schedule is invalid.
   factory ActivitySchedule({
     required DateTime startTime,
     required DateTime endTime,
@@ -18,7 +30,10 @@ class ActivitySchedule extends ValueObject {
     return ActivitySchedule._(startTime, endTime);
   }
 
-  /// Regla de negocio pura: ¿Está ocurriendo en este preciso instante?
+  /// Indicates whether the activity is currently taking place.
+  ///
+  /// Returns `true` when the current time falls between
+  /// [startTime] and [endTime].
   bool get isOngoing {
     final now = DateTime.now();
     return now.isAfter(startTime) && now.isBefore(endTime);
