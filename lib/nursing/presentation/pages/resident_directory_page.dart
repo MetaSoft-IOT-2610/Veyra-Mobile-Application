@@ -14,14 +14,15 @@ class ResidentDirectoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      // Disparamos el evento de la lista
       create: (_) => locator<NursingBloc>()
         ..add(LoadResidentListEvent(nursingHomeId: nursingHomeId)),
       child: Scaffold(
+        backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
-          title: const Text('Resident Directory'),
-          backgroundColor: Colors.blue.shade700,
-          foregroundColor: Colors.white,
+          title: const Text('Directorio de Residentes'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          elevation: 0,
         ),
         body: BlocBuilder<NursingBloc, NursingState>(
           builder: (context, state) {
@@ -29,74 +30,114 @@ class ResidentDirectoryPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
-            else if (state is NursingError) {
+            if (state is NursingError) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                    const SizedBox(height: 16),
-                    Text(state.message, textAlign: TextAlign.center),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => context.read<NursingBloc>().add(
-                        LoadResidentListEvent(nursingHomeId: nursingHomeId),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
                       ),
-                      child: const Text('Retry'),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.black54),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => context.read<NursingBloc>().add(
+                          LoadResidentListEvent(
+                            nursingHomeId: nursingHomeId,
+                          ),
+                        ),
+                        child: const Text('Reintentar'),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }
 
-            // Escuchamos el estado correcto
-            else if (state is NursingListLoaded) {
+            if (state is NursingListLoaded) {
               final residents = state.residents;
 
               if (residents.isEmpty) {
-                return const Center(child: Text('No residents registered.'));
+                return const Center(
+                  child: Text(
+                    'No hay residentes registrados en esta sede.',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                );
               }
 
               return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 itemCount: residents.length,
                 itemBuilder: (context, index) {
                   final resident = residents[index];
 
                   return Card(
-                    margin: const EdgeInsets.only(bottom: 12.0),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       leading: CircleAvatar(
                         backgroundColor: Colors.blue.shade100,
-                        child: Text(resident.firstName.substring(0, 1).toUpperCase()),
+                        foregroundColor: Colors.blue.shade800,
+                        child: Text(
+                          resident.firstName.isNotEmpty
+                              ? resident.firstName[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       title: Text(
                         resident.fullName,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      // Usamos status ya que roomNumber no existe en la entidad Resident
-                      subtitle: Text('Status: ${resident.status}'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('View details for ${resident.firstName}')),
-                        );
-                      },
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text('Ingreso: ${resident.admissionDate}'),
+                      ),
+                      trailing: _buildStatusChip(resident.status),
                     ),
                   );
                 },
               );
             }
 
-            return const Center(child: Text('Initializing resident loading...'));
+            return const SizedBox.shrink();
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          backgroundColor: Colors.blue.shade700,
-          child: const Icon(Icons.person_add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    final isActive = status.toUpperCase() == 'ACTIVE';
+    return Chip(
+      label: Text(
+        isActive ? 'Activo' : 'Inactivo',
+        style: TextStyle(
+          color: isActive ? Colors.green.shade800 : Colors.red.shade800,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
         ),
       ),
+      backgroundColor: isActive ? Colors.green.shade50 : Colors.red.shade50,
+      side: BorderSide.none,
+      padding: EdgeInsets.zero,
     );
   }
 }
