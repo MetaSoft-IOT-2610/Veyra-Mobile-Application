@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:veyra_mobile_app/iam/presentation/pages/setup_required_page.dart';
 import '../../../app/di/dependency_injection.dart';
 import '../../../nursing/presentation/pages/admin_dashboard_page.dart';
+import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
 import 'setup_required_page.dart';
 
@@ -95,7 +96,7 @@ class LoginPage extends StatelessWidget {
                     else if (state is AuthSuccess) {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (_) => AdminDashboardPage(
+                          builder: (_) => AdminMainLayoutPage(
                             nursingHomeId:
                             state.nursingHomeId,
                           ),
