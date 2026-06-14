@@ -43,14 +43,14 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         if (response.containsKey('entityId')) {
           final int entityId = (response['entityId'] as num).toInt();
           print('[IAM] Successfully extracted entityId: $entityId');
+          TokenManager.saveAdministratorId(entityId);
           return entityId;
         }
         // Fallback for edge cases where the backend might only return the legacy id
         else if (response.containsKey('id')) {
           final int fallbackId = (response['id'] as num).toInt();
           print('[IAM] Warning: entityId not found, falling back to legacy id: $fallbackId');
-
-          // Retornamos el ID real de respaldo sin forzar la entrada
+          TokenManager.saveAdministratorId(fallbackId);
           return fallbackId;
         }
       }
