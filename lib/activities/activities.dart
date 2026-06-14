@@ -4,5 +4,6 @@
 // 1. Exportamos el inicializador de inyección de dependencias
 export 'activities_module.dart';
 
-// 2. Exportamos los Widgets Públicos
+// 2. Exportamos los Widgets Públicos y Páginas
+export 'presentation/pages/activities_page.dart';
 export 'presentation/widgets/today_activities_widget.dart';
