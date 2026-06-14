@@ -4,11 +4,12 @@ import '../../shared/application/contracts/i_http_client.dart';
 import '../../shared/infrastructure/network/dio_http_client_impl.dart';
 
 // Import the active module barrels
+import '../../account/account.dart';
 import '../../analytics/analytics.dart';
 import '../../activities/activities.dart';
 import '../../nursing/nursing.dart';
 import '../../hcm/hcm.dart';
-import '../../iam/iam.dart'; // <-- 1. ADDED: IAM import
+import '../../iam/iam.dart';
 
 final locator = GetIt.instance;
 
@@ -22,8 +23,8 @@ Future<void> initDependencies() async {
   initActivitiesModule(locator);
   initNursingModule(locator);
   initHcmModule(locator);
-
-  initIamModule(locator); // <-- 2. ADDED: IAM initialization
+  initIamModule(locator);
+  initAccountModule(locator);
 }
 
 /// Initializes core services like the HTTP Client
