@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
+import '../../../profiles/presentation/pages/create_person_profile_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
-import 'family_home_page.dart';
 import 'sign_up_page.dart';
 import 'setup_required_page.dart';
 
@@ -95,7 +95,7 @@ class LoginPage extends StatelessWidget {
                       if (state.session.isFamily) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (_) => const FamilyHomePage(),
+                            builder: (_) => CreatePersonProfilePage(),
                           ),
                         );
                         return;

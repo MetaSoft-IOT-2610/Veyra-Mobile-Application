@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../profiles/domain/entities/person_profile.dart';
 import '../../../shared/infrastructure/local/token_manager.dart';
 import 'login_page.dart';
 
 class FamilyHomePage extends StatelessWidget {
-  const FamilyHomePage({Key? key}) : super(key: key);
+  final PersonProfile? profile;
+
+  const FamilyHomePage({Key? key, this.profile}) : super(key: key);
 
   void _signOut(BuildContext context) {
     TokenManager.clear();
@@ -48,11 +51,25 @@ class FamilyHomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Your family account is ready. Resident information will appear here once it is linked from the web platform.',
+              Text(
+                profile == null
+                    ? 'Your family account is ready. Resident information will appear here once it is linked from the web platform.'
+                    : 'Profile created for ${profile!.fullName}. Resident information will appear here once it is linked from the web platform.',
                 style: TextStyle(fontSize: 16, color: Colors.black54),
                 textAlign: TextAlign.center,
               ),
+              if (profile != null) ...[
+                const SizedBox(height: 20),
+                Card(
+                  elevation: 1,
+                  child: ListTile(
+                    leading: const Icon(Icons.assignment_ind),
+                    title: Text(profile!.fullName),
+                    subtitle: Text('DNI: ${profile!.dni}'),
+                    trailing: Text('#${profile!.id}'),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
