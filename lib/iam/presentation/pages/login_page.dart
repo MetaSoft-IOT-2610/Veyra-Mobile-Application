@@ -5,7 +5,6 @@ import '../../../profiles/presentation/pages/create_person_profile_page.dart';
 import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
-import 'admin_sign_up_page.dart';
 import 'sign_up_page.dart';
 import 'setup_required_page.dart';
 
@@ -243,18 +242,6 @@ class LoginPage extends StatelessWidget {
                                   );
                                 },
                           child: const Text('Create a new account'),
-                        ),
-                        TextButton(
-                          onPressed: state is AuthLoading
-                              ? null
-                              : () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => AdminSignUpPage(),
-                                    ),
-                                  );
-                                },
-                          child: const Text('Create administrator account'),
                         ),
                       ],
                     );

@@ -2,17 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../bloc/auth_bloc.dart';
 import 'login_page.dart';
 
-/// Page used to register a new family account.
-class SignUpPage extends StatelessWidget {
-  SignUpPage({Key? key}) : super(key: key);
+enum SignUpRole { family, administrator }
 
+/// Page used to register a new account based on the selected user role.
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({Key? key}) : super(key: key);
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  SignUpRole _selectedRole = SignUpRole.family;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,26 +79,64 @@ class SignUpPage extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => LoginPage()),
                       );
                     }
+
+                    if (state is AuthAdministratorSignUpSuccess) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => CreateNursingHomePage(
+                            administratorId: state.administratorId,
+                          ),
+                        ),
+                      );
+                    }
                   },
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
+                    final isFamily = _selectedRole == SignUpRole.family;
 
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.person_add_alt_1,
+                        Icon(
+                          isFamily
+                              ? Icons.family_restroom
+                              : Icons.admin_panel_settings,
                           size: 72,
                           color: Colors.blue,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Create Family Account',
+                        Text(
+                          isFamily
+                              ? 'Create Family Account'
+                              : 'Create Administrator Account',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        SegmentedButton<SignUpRole>(
+                          segments: const [
+                            ButtonSegment<SignUpRole>(
+                              value: SignUpRole.family,
+                              icon: Icon(Icons.family_restroom),
+                              label: Text('Family'),
+                            ),
+                            ButtonSegment<SignUpRole>(
+                              value: SignUpRole.administrator,
+                              icon: Icon(Icons.business),
+                              label: Text('Administrator'),
+                            ),
+                          ],
+                          selected: {_selectedRole},
+                          onSelectionChanged: isLoading
+                              ? null
+                              : (selection) {
+                                  setState(() {
+                                    _selectedRole = selection.first;
+                                  });
+                                },
                         ),
                         const SizedBox(height: 28),
                         TextField(
@@ -123,8 +178,22 @@ class SignUpPage extends StatelessWidget {
                                 ? null
                                 : () {
                                     FocusScope.of(context).unfocus();
-                                    context.read<AuthBloc>().add(
-                                      PerformSignUpEvent(
+                                    final bloc = context.read<AuthBloc>();
+
+                                    if (isFamily) {
+                                      bloc.add(
+                                        PerformSignUpEvent(
+                                          username: _usernameController.text,
+                                          password: _passwordController.text,
+                                          confirmPassword:
+                                              _confirmPasswordController.text,
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    bloc.add(
+                                      PerformAdministratorSignUpEvent(
                                         username: _usernameController.text,
                                         password: _passwordController.text,
                                         confirmPassword:
@@ -148,9 +217,11 @@ class SignUpPage extends StatelessWidget {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Create Account',
-                                    style: TextStyle(fontSize: 18),
+                                : Text(
+                                    isFamily
+                                        ? 'Create Family Account'
+                                        : 'Create Administrator Account',
+                                    style: const TextStyle(fontSize: 18),
                                   ),
                           ),
                         ),
