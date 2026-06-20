@@ -7,8 +7,7 @@ import '../bloc/nursing_bloc.dart';
 class CreateResidentPage extends StatefulWidget {
   final int nursingHomeId;
 
-  const CreateResidentPage({Key? key, required this.nursingHomeId})
-    : super(key: key);
+  const CreateResidentPage({super.key, required this.nursingHomeId});
 
   @override
   State<CreateResidentPage> createState() => _CreateResidentPageState();

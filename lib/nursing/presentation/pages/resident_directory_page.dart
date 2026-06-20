@@ -8,8 +8,7 @@ import 'resident_detail_page.dart';
 class ResidentDirectoryPage extends StatelessWidget {
   final int nursingHomeId;
 
-  const ResidentDirectoryPage({Key? key, required this.nursingHomeId})
-    : super(key: key);
+  const ResidentDirectoryPage({super.key, required this.nursingHomeId});
 
   @override
   Widget build(BuildContext context) {

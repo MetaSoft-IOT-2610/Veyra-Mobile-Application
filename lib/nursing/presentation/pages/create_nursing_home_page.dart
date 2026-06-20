@@ -10,8 +10,7 @@ import '../bloc/nursing_home_setup_bloc.dart';
 class CreateNursingHomePage extends StatelessWidget {
   final int administratorId;
 
-  CreateNursingHomePage({Key? key, required this.administratorId})
-    : super(key: key);
+  CreateNursingHomePage({super.key, required this.administratorId});
 
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();

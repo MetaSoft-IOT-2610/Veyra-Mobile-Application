@@ -1,6 +1,8 @@
 /// Archivo Barril (Barrel File) del Bounded Context Nursing.
 
 // 1. Exportamos el inicializador de inyección de dependencias
+library;
+
 export 'nursing_module.dart';
 
 // 2. Exportamos las páginas y widgets públicos

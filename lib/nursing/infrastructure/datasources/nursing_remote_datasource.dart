@@ -173,8 +173,9 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
         'nursing-homes/$nursingHomeId/rooms/$residentId',
         data: {'roomNumber': roomNumber},
       );
-      if (response is Map<String, dynamic>)
+      if (response is Map<String, dynamic>) {
         return ResidentModel.fromJson(response);
+      }
       throw ParsingException(
         message: 'Resident room assignment could not be parsed.',
       );
@@ -307,10 +308,10 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
       if (response.containsKey('content')) {
         return response['content'] as List<dynamic>;
       }
-      if (response.containsKey('data'))
+      if (response.containsKey('data')) {
         return response['data'] as List<dynamic>;
+      }
 
-      print('[Nursing] DEBUG JSON: $response');
       throw ParsingException(
         message: 'Could not find the list in the JSON response.',
       );

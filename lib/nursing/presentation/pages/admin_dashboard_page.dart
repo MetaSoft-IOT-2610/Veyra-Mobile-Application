@@ -7,22 +7,18 @@ import 'package:veyra_mobile_app/nursing/presentation/widgets/resident_summary_w
 class AdminDashboardPage extends StatelessWidget {
   final int nursingHomeId;
 
-  const AdminDashboardPage({
-    Key? key,
-    required this.nursingHomeId,
-  }) : super(key: key);
+  const AdminDashboardPage({super.key, required this.nursingHomeId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: const Text('Visión General de la Residencia'),
         elevation: 0,
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-        },
+        onRefresh: () async {},
         child: CustomScrollView(
           slivers: [
             SliverPadding(
