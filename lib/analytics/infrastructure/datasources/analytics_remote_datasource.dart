@@ -21,7 +21,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
   AnalyticsRemoteDataSourceImpl({required this.client});
 
   @override
-  Future<OperationalMetricsModel> getOperationalMetrics(int nursingHomeId) async {
+  Future<OperationalMetricsModel> getOperationalMetrics(
+    int nursingHomeId,
+  ) async {
     // 1. Calculate the current year automatically.
     // Limited to 2025 to prevent backend validation errors (year must be between 1900 and 2025).
     final currentYear = math.min(DateTime.now().year, 2025);
@@ -34,7 +36,7 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
     // 2. Fetch Admissions (Defensive parsing)
     try {
       final admissionsResponse = await client.get(
-        'nursing-homes/$nursingHomeId/analytics/residents-admissions',
+        'nursing-homes/$nursingHomeId/residents-admissions',
         queryParameters: {'year': currentYear},
       );
       admissions = _extractTotal(admissionsResponse);
@@ -45,18 +47,20 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
     // 3. Fetch Terminations (Defensive parsing)
     try {
       final terminationsResponse = await client.get(
-        'nursing-homes/$nursingHomeId/analytics/staff-terminations',
+        'nursing-homes/$nursingHomeId/staff-terminations',
         queryParameters: {'year': currentYear},
       );
       terminations = _extractTotal(terminationsResponse);
     } catch (e) {
-      print('[Analytics] Warning: Error fetching terminations (Probably 404): $e');
+      print(
+        '[Analytics] Warning: Error fetching terminations (Probably 404): $e',
+      );
     }
 
     // 4. Fetch Hires (Defensive parsing)
     try {
       final hiresResponse = await client.get(
-        'nursing-homes/$nursingHomeId/analytics/staff-hires',
+        'nursing-homes/$nursingHomeId/staff-hires',
         queryParameters: {'year': currentYear},
       );
       hires = _extractTotal(hiresResponse);
@@ -83,7 +87,9 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
         return (response['total'] as num).toInt();
       }
     }
-    print('[Analytics] Warning: "total" key not found in response. Falling back to 0.');
+    print(
+      '[Analytics] Warning: "total" key not found in response. Falling back to 0.',
+    );
     return 0; // Default fallback if the structure is empty or unexpected
   }
 }
