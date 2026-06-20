@@ -13,24 +13,42 @@ class SignUpCommand {
     required String password,
     required String confirmPassword,
   }) async {
-    final trimmedUsername = username.trim();
+    final validation = _validate(username, password, confirmPassword);
+    if (validation != null) return Result.failure(validation);
 
-    if (trimmedUsername.isEmpty || password.trim().isEmpty) {
-      return Result.failure(
-        const ValidationFailure('Username and password are required.'),
-      );
+    return _repository.signUp(username.trim(), password);
+  }
+
+  Future<Result<Failure, int>> executeAdministrator({
+    required String username,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    final validation = _validate(username, password, confirmPassword);
+    if (validation != null) return Result.failure(validation);
+
+    return _repository.signUpAdministrator(username.trim(), password);
+  }
+
+  ValidationFailure? _validate(
+    String username,
+    String password,
+    String confirmPassword,
+  ) {
+    if (username.trim().isEmpty || password.trim().isEmpty) {
+      return const ValidationFailure('Username and password are required.');
     }
 
     if (password.length < 6) {
-      return Result.failure(
-        const ValidationFailure('Password must have at least 6 characters.'),
+      return const ValidationFailure(
+        'Password must have at least 6 characters.',
       );
     }
 
     if (password != confirmPassword) {
-      return Result.failure(const ValidationFailure('Passwords do not match.'));
+      return const ValidationFailure('Passwords do not match.');
     }
 
-    return _repository.signUp(trimmedUsername, password);
+    return null;
   }
 }

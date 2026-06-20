@@ -14,4 +14,10 @@ abstract class IAuthRepository {
 
   /// Registers a new family user.
   Future<Result<Failure, void>> signUp(String username, String password);
+
+  /// Registers a new administrator and returns its aggregate identifier.
+  Future<Result<Failure, int>> signUpAdministrator(
+    String username,
+    String password,
+  );
 }

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
 import '../../../profiles/presentation/pages/create_person_profile_page.dart';
+import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
+import 'admin_sign_up_page.dart';
 import 'sign_up_page.dart';
 import 'setup_required_page.dart';
 
@@ -96,6 +98,18 @@ class LoginPage extends StatelessWidget {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (_) => CreatePersonProfilePage(),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (state.session.requiresNursingHomeSetup &&
+                          state.session.administratorId != null) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => CreateNursingHomePage(
+                              administratorId: state.session.administratorId!,
+                            ),
                           ),
                         );
                         return;
@@ -229,6 +243,18 @@ class LoginPage extends StatelessWidget {
                                   );
                                 },
                           child: const Text('Create a new account'),
+                        ),
+                        TextButton(
+                          onPressed: state is AuthLoading
+                              ? null
+                              : () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => AdminSignUpPage(),
+                                    ),
+                                  );
+                                },
+                          child: const Text('Create administrator account'),
                         ),
                       ],
                     );

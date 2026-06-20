@@ -15,6 +15,9 @@ abstract class IamRemoteDataSource {
 
   /// Registers a new family user in IAM.
   Future<void> signUp(String username, String password);
+
+  /// Registers a new administrator user and aggregate.
+  Future<int> signUpAdministrator(String username, String password);
 }
 
 /// Implementation of [IamRemoteDataSource] using the corporate HTTP client.
@@ -100,6 +103,29 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     } catch (e) {
       print('[IAM] Error in signUp: $e');
       throw ServerException(message: 'Sign up failed. Please try again.');
+    }
+  }
+
+  @override
+  Future<int> signUpAdministrator(String username, String password) async {
+    try {
+      final response = await client.post(
+        'administrators',
+        data: {'username': username, 'password': password},
+      );
+
+      if (response is Map && response.containsKey('id')) {
+        return (response['id'] as num).toInt();
+      }
+
+      throw ParsingException(
+        message: 'Administrator data could not be parsed.',
+      );
+    } catch (e) {
+      print('[IAM] Error in signUpAdministrator: $e');
+      throw ServerException(
+        message: 'Administrator sign up failed. Please try again.',
+      );
     }
   }
 

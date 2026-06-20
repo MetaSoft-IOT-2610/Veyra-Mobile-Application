@@ -39,14 +39,30 @@ class AuthRepositoryImpl implements IAuthRepository {
           );
         }
 
-        final nursingHomeId = await remoteDataSource.getNursingHomeId(adminId);
+        try {
+          final nursingHomeId = await remoteDataSource.getNursingHomeId(
+            adminId,
+          );
 
-        return Result.success(
-          AuthSession(
-            roles: authenticatedUser.roles,
-            nursingHomeId: nursingHomeId,
-          ),
-        );
+          return Result.success(
+            AuthSession(
+              roles: authenticatedUser.roles,
+              administratorId: adminId,
+              nursingHomeId: nursingHomeId,
+            ),
+          );
+        } on ServerException catch (e) {
+          if (e.statusCode == 404) {
+            return Result.success(
+              AuthSession(
+                roles: authenticatedUser.roles,
+                administratorId: adminId,
+                requiresNursingHomeSetup: true,
+              ),
+            );
+          }
+          rethrow;
+        }
       }
 
       return Result.failure(
@@ -74,6 +90,28 @@ class AuthRepositoryImpl implements IAuthRepository {
       );
     } catch (e) {
       return Result.failure(ServerFailure('Unexpected sign up error: $e'));
+    }
+  }
+
+  @override
+  Future<Result<Failure, int>> signUpAdministrator(
+    String username,
+    String password,
+  ) async {
+    try {
+      final administratorId = await remoteDataSource.signUpAdministrator(
+        username,
+        password,
+      );
+      return Result.success(administratorId);
+    } on ServerException catch (e) {
+      return Result.failure(
+        ServerFailure(e.message, code: e.statusCode?.toString()),
+      );
+    } catch (e) {
+      return Result.failure(
+        ServerFailure('Unexpected administrator sign up error: $e'),
+      );
     }
   }
 }

@@ -26,6 +26,18 @@ class PerformSignUpEvent extends AuthEvent {
   });
 }
 
+class PerformAdministratorSignUpEvent extends AuthEvent {
+  final String username;
+  final String password;
+  final String confirmPassword;
+
+  PerformAdministratorSignUpEvent({
+    required this.username,
+    required this.password,
+    required this.confirmPassword,
+  });
+}
+
 /// States emitted by the [AuthBloc].
 abstract class AuthState {}
 
@@ -34,6 +46,12 @@ class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 
 class AuthSignUpSuccess extends AuthState {}
+
+class AuthAdministratorSignUpSuccess extends AuthState {
+  final int administratorId;
+
+  AuthAdministratorSignUpSuccess(this.administratorId);
+}
 
 /// State emitted when authentication is successful.
 class AuthSuccess extends AuthState {
@@ -79,6 +97,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       result.fold(
         (failure) => emit(AuthError(failure.message)),
         (_) => emit(AuthSignUpSuccess()),
+      );
+    });
+
+    on<PerformAdministratorSignUpEvent>((event, emit) async {
+      emit(AuthLoading());
+
+      final result = await _signUpCommand.executeAdministrator(
+        username: event.username,
+        password: event.password,
+        confirmPassword: event.confirmPassword,
+      );
+
+      result.fold(
+        (failure) => emit(AuthError(failure.message)),
+        (administratorId) =>
+            emit(AuthAdministratorSignUpSuccess(administratorId)),
       );
     });
   }
