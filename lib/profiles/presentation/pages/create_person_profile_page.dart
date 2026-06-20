@@ -5,8 +5,16 @@ import '../../../app/di/dependency_injection.dart';
 import '../../../iam/presentation/pages/family_home_page.dart';
 import '../bloc/person_profile_bloc.dart';
 
-class CreatePersonProfilePage extends StatelessWidget {
-  CreatePersonProfilePage({Key? key}) : super(key: key);
+class CreatePersonProfilePage extends StatefulWidget {
+  const CreatePersonProfilePage({Key? key}) : super(key: key);
+
+  @override
+  State<CreatePersonProfilePage> createState() =>
+      _CreatePersonProfilePageState();
+}
+
+class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
+  int _currentStep = 0;
 
   final TextEditingController _dniController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -22,6 +30,8 @@ class CreatePersonProfilePage extends StatelessWidget {
   final TextEditingController _countryController = TextEditingController(
     text: 'Peru',
   );
+
+  bool get _isPersonalStep => _currentStep == 0;
 
   @override
   Widget build(BuildContext context) {
@@ -85,92 +95,105 @@ class CreatePersonProfilePage extends StatelessWidget {
                             color: Colors.blue.shade700,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Personal Information',
+                          Text(
+                            _isPersonalStep
+                                ? 'Personal Information'
+                                : 'Address Information',
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 20),
-                          _textField(
-                            controller: _dniController,
-                            label: 'DNI',
-                            icon: Icons.badge,
-                            keyboardType: TextInputType.number,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _firstNameController,
-                            label: 'First Name',
-                            icon: Icons.person,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _lastNameController,
-                            label: 'Last Name',
-                            icon: Icons.person_outline,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _birthDateController,
-                            label: 'Birth Date (YYYY-MM-DD)',
-                            icon: Icons.calendar_today,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _ageController,
-                            label: 'Age',
-                            icon: Icons.cake,
-                            keyboardType: TextInputType.number,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _emailController,
-                            label: 'Email',
-                            icon: Icons.email,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _phoneController,
-                            label: 'Phone Number',
-                            icon: Icons.phone,
-                            keyboardType: TextInputType.phone,
-                          ),
-                          const SizedBox(height: 20),
-                          const Divider(),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _streetController,
-                            label: 'Street',
-                            icon: Icons.route,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _numberController,
-                            label: 'Street Number',
-                            icon: Icons.tag,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _cityController,
-                            label: 'City',
-                            icon: Icons.location_city,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _postalCodeController,
-                            label: 'Postal Code',
-                            icon: Icons.local_post_office,
-                          ),
-                          const SizedBox(height: 12),
-                          _textField(
-                            controller: _countryController,
-                            label: 'Country',
-                            icon: Icons.public,
-                          ),
+                          if (_isPersonalStep) ...[
+                            _textField(
+                              controller: _dniController,
+                              label: 'DNI',
+                              icon: Icons.badge,
+                              keyboardType: TextInputType.number,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _firstNameController,
+                              label: 'First Name',
+                              icon: Icons.person,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _lastNameController,
+                              label: 'Last Name',
+                              icon: Icons.person_outline,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _birthDateController,
+                              label: 'Birth Date (YYYY-MM-DD)',
+                              icon: Icons.calendar_today,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _ageController,
+                              label: 'Age',
+                              icon: Icons.cake,
+                              keyboardType: TextInputType.number,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _emailController,
+                              label: 'Email',
+                              icon: Icons.email,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _phoneController,
+                              label: 'Phone Number',
+                              icon: Icons.phone,
+                              keyboardType: TextInputType.phone,
+                            ),
+                          ] else ...[
+                            _textField(
+                              controller: _streetController,
+                              label: 'Street',
+                              icon: Icons.route,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _numberController,
+                              label: 'Street Number',
+                              icon: Icons.tag,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _cityController,
+                              label: 'City',
+                              icon: Icons.location_city,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _postalCodeController,
+                              label: 'Postal Code',
+                              icon: Icons.local_post_office,
+                            ),
+                            const SizedBox(height: 12),
+                            _textField(
+                              controller: _countryController,
+                              label: 'Country',
+                              icon: Icons.public,
+                            ),
+                          ],
                           const SizedBox(height: 24),
+                          if (!_isPersonalStep)
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                onPressed: isLoading
+                                    ? null
+                                    : () => setState(() => _currentStep = 0),
+                                icon: const Icon(Icons.arrow_back),
+                                label: const Text('Back'),
+                              ),
+                            ),
                           SizedBox(
                             width: double.infinity,
                             height: 50,
@@ -179,23 +202,12 @@ class CreatePersonProfilePage extends StatelessWidget {
                                   ? null
                                   : () {
                                       FocusScope.of(context).unfocus();
-                                      context.read<PersonProfileBloc>().add(
-                                        CreatePersonProfileEvent(
-                                          dni: _dniController.text,
-                                          firstName: _firstNameController.text,
-                                          lastName: _lastNameController.text,
-                                          birthDate: _birthDateController.text,
-                                          age: _ageController.text,
-                                          emailAddress: _emailController.text,
-                                          street: _streetController.text,
-                                          number: _numberController.text,
-                                          city: _cityController.text,
-                                          postalCode:
-                                              _postalCodeController.text,
-                                          country: _countryController.text,
-                                          phoneNumber: _phoneController.text,
-                                        ),
-                                      );
+                                      if (_isPersonalStep) {
+                                        setState(() => _currentStep = 1);
+                                        return;
+                                      }
+
+                                      _submit(context);
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue,
@@ -213,8 +225,10 @@ class CreatePersonProfilePage extends StatelessWidget {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text(
-                                      'Create Profile',
+                                  : Text(
+                                      _isPersonalStep
+                                          ? 'Next'
+                                          : 'Create Profile',
                                       style: TextStyle(fontSize: 18),
                                     ),
                             ),
@@ -228,6 +242,25 @@ class CreatePersonProfilePage extends StatelessWidget {
             );
           },
         ),
+      ),
+    );
+  }
+
+  void _submit(BuildContext context) {
+    context.read<PersonProfileBloc>().add(
+      CreatePersonProfileEvent(
+        dni: _dniController.text,
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        birthDate: _birthDateController.text,
+        age: _ageController.text,
+        emailAddress: _emailController.text,
+        street: _streetController.text,
+        number: _numberController.text,
+        city: _cityController.text,
+        postalCode: _postalCodeController.text,
+        country: _countryController.text,
+        phoneNumber: _phoneController.text,
       ),
     );
   }
