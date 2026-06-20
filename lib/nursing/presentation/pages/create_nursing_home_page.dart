@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../account/presentation/pages/subscription_setup_page.dart';
 import '../../../app/di/dependency_injection.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
+import '../../../shared/infrastructure/local/token_manager.dart';
 import '../bloc/nursing_home_setup_bloc.dart';
 
 class CreateNursingHomePage extends StatelessWidget {
@@ -48,6 +50,9 @@ class CreateNursingHomePage extends StatelessWidget {
             }
 
             if (state is NursingHomeSetupCreated) {
+              final userId = TokenManager.getUserId();
+              TokenManager.saveNursingHomeId(state.nursingHome.id);
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Nursing home created successfully.'),
@@ -57,8 +62,12 @@ class CreateNursingHomePage extends StatelessWidget {
 
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) =>
-                      AdminMainLayoutPage(nursingHomeId: state.nursingHome.id),
+                  builder: (_) => userId == null
+                      ? AdminMainLayoutPage(nursingHomeId: state.nursingHome.id)
+                      : SubscriptionSetupPage(
+                          userId: userId,
+                          nursingHomeId: state.nursingHome.id,
+                        ),
                 ),
               );
             }

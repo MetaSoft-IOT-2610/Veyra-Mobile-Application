@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
+import '../../../shared/infrastructure/local/token_manager.dart';
 import '../../domain/entities/subscription.dart';
 import '../bloc/account_bloc.dart';
+import 'subscription_setup_page.dart';
 
 class ProfilePage extends StatelessWidget {
+  final int userId;
   final int administratorId;
 
-  const ProfilePage({Key? key, required this.administratorId}) : super(key: key);
+  const ProfilePage({
+    Key? key,
+    required this.userId,
+    required this.administratorId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => locator<AccountBloc>()
-        ..add(LoadActiveSubscriptionEvent(administratorId)),
+      create: (_) =>
+          locator<AccountBloc>()..add(LoadActiveSubscriptionEvent(userId)),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
@@ -51,8 +58,8 @@ class ProfilePage extends StatelessWidget {
                         icon: const Icon(Icons.refresh),
                         label: const Text('Reintentar'),
                         onPressed: () => context.read<AccountBloc>().add(
-                              LoadActiveSubscriptionEvent(administratorId),
-                            ),
+                          LoadActiveSubscriptionEvent(userId),
+                        ),
                       ),
                     ],
                   ),
@@ -67,8 +74,68 @@ class ProfilePage extends StatelessWidget {
               );
             }
 
+            if (state is AccountNoSubscription) {
+              return _NoSubscriptionContent(userId: userId);
+            }
+
             return const SizedBox.shrink();
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _NoSubscriptionContent extends StatelessWidget {
+  final int userId;
+
+  const _NoSubscriptionContent({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    final nursingHomeId = TokenManager.getNursingHomeId();
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.workspace_premium_outlined,
+              color: Colors.blue.shade700,
+              size: 56,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'No active subscription',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Choose a nursing home plan to enable the full administrator dashboard.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add_card),
+              label: const Text('Choose plan'),
+              onPressed: nursingHomeId == null
+                  ? null
+                  : () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => SubscriptionSetupPage(
+                            userId: userId,
+                            nursingHomeId: nursingHomeId,
+                          ),
+                        ),
+                      );
+                    },
+            ),
+          ],
         ),
       ),
     );
@@ -124,18 +191,16 @@ class _ProfileHeader extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Administrador',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               'ID: $administratorId',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.grey),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
           ],
         ),
@@ -161,14 +226,17 @@ class _SubscriptionCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.workspace_premium, color: Colors.amber, size: 26),
+                const Icon(
+                  Icons.workspace_premium,
+                  color: Colors.amber,
+                  size: 26,
+                ),
                 const SizedBox(width: 10),
                 Text(
                   'Suscripción',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Spacer(),
                 _StatusBadge(isActive: subscription.isActive),
@@ -248,10 +316,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade600),
         const SizedBox(width: 10),
-        Text(
-          '$label:',
-          style: TextStyle(color: Colors.grey.shade600),
-        ),
+        Text('$label:', style: TextStyle(color: Colors.grey.shade600)),
         const Spacer(),
         Text(
           value,
@@ -281,10 +346,7 @@ class _ReadOnlyNotice extends StatelessWidget {
           Expanded(
             child: Text(
               'Para gestionar tu plan o renovar tu suscripción, accede a la plataforma web.',
-              style: TextStyle(
-                color: Colors.blue.shade700,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.blue.shade700, fontSize: 13),
             ),
           ),
         ],
