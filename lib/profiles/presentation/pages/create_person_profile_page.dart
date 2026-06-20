@@ -32,6 +32,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
   );
 
   bool get _isPersonalStep => _currentStep == 0;
+  DateTime? _selectedBirthDate;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +130,8 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
                               controller: _birthDateController,
                               label: 'Birth Date (YYYY-MM-DD)',
                               icon: Icons.calendar_today,
+                              readOnly: true,
+                              onTap: () => _pickBirthDate(context),
                             ),
                             const SizedBox(height: 12),
                             _textField(
@@ -136,6 +139,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
                               label: 'Age',
                               icon: Icons.cake,
                               keyboardType: TextInputType.number,
+                              readOnly: true,
                             ),
                             const SizedBox(height: 12),
                             _textField(
@@ -265,15 +269,54 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
     );
   }
 
+  Future<void> _pickBirthDate(BuildContext context) async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate:
+          _selectedBirthDate ?? DateTime(now.year - 30, now.month, now.day),
+      firstDate: DateTime(now.year - 120),
+      lastDate: now,
+    );
+
+    if (pickedDate == null) return;
+
+    setState(() {
+      _selectedBirthDate = pickedDate;
+      _birthDateController.text =
+          '${pickedDate.year.toString().padLeft(4, '0')}-'
+          '${pickedDate.month.toString().padLeft(2, '0')}-'
+          '${pickedDate.day.toString().padLeft(2, '0')}';
+      _ageController.text = _calculateAge(pickedDate, now).toString();
+    });
+  }
+
+  int _calculateAge(DateTime birthDate, DateTime today) {
+    var age = today.year - birthDate.year;
+    final hasNotHadBirthdayThisYear =
+        today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day);
+
+    if (hasNotHadBirthdayThisYear) {
+      age--;
+    }
+
+    return age;
+  }
+
   Widget _textField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
     TextInputType? keyboardType,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      readOnly: readOnly,
+      onTap: onTap,
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         labelText: label,
