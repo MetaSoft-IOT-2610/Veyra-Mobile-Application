@@ -10,6 +10,7 @@ import '../../activities/activities.dart';
 import '../../nursing/nursing.dart';
 import '../../hcm/hcm.dart';
 import '../../iam/iam.dart';
+import '../../profiles/profiles.dart';
 
 final locator = GetIt.instance;
 
@@ -25,6 +26,7 @@ Future<void> initDependencies() async {
   initHcmModule(locator);
   initIamModule(locator);
   initAccountModule(locator);
+  initProfilesModule(locator);
 }
 
 /// Initializes core services like the HTTP Client
@@ -34,7 +36,7 @@ void _initSharedKernel() {
     if (kIsWeb) {
       return 'http://localhost:8080/api/v1/'; // Web browsers (Chrome, Edge, Safari)
     } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080/api/v1/';  // Android Emulators
+      return 'http://10.0.2.2:8080/api/v1/'; // Android Emulators
     } else {
       return 'http://localhost:8080/api/v1/'; // iOS Simulators or Desktop
     }
@@ -42,6 +44,6 @@ void _initSharedKernel() {
 
   // Register the corporate HTTP client pointing to the Spring Boot backend
   locator.registerLazySingleton<IHttpClient>(
-        () => DioHttpClientImpl(getBaseUrl()),
+    () => DioHttpClientImpl(getBaseUrl()),
   );
 }

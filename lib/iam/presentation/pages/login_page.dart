@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:veyra_mobile_app/iam/presentation/pages/setup_required_page.dart';
 import '../../../app/di/dependency_injection.dart';
-import '../../../nursing/presentation/pages/admin_dashboard_page.dart';
+import '../../../profiles/presentation/pages/create_person_profile_page.dart';
+import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
+import 'sign_up_page.dart';
 import 'setup_required_page.dart';
 
 /// Authentication page responsible for handling user login.
@@ -23,12 +24,10 @@ class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
 
   /// Controller used to capture the username input.
-  final TextEditingController _usernameController =
-  TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
 
   /// Controller used to capture the password input.
-  final TextEditingController _passwordController =
-  TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   /// Builds the login page and provides the [AuthBloc]
   /// through dependency injection.
@@ -68,9 +67,10 @@ class LoginPage extends StatelessWidget {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
                       // FIX: Verificamos si es el error de "Base de datos vacía / Sin Casa de Reposo"
-                      if (state.message.contains('Requiere configuración inicial') ||
+                      if (state.message.contains(
+                            'Requiere configuración inicial',
+                          ) ||
                           state.message.contains('404')) {
-
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (_) => const SetupRequiredPage(),
@@ -87,18 +87,37 @@ class LoginPage extends StatelessWidget {
                         );
                       }
                     }
-
                     /// Authentication succeeded.
                     ///
                     /// Redirects the user to the nursing home's
                     /// administrative dashboard using the identifier
                     /// returned by the authentication process.
                     else if (state is AuthSuccess) {
+                      if (state.session.isFamily) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => CreatePersonProfilePage(),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (state.session.requiresNursingHomeSetup &&
+                          state.session.administratorId != null) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => CreateNursingHomePage(
+                              administratorId: state.session.administratorId!,
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (_) => AdminMainLayoutPage(
-                            nursingHomeId:
-                            state.nursingHomeId,
+                            nursingHomeId: state.session.nursingHomeId!,
                           ),
                         ),
                       );
@@ -133,15 +152,11 @@ class LoginPage extends StatelessWidget {
 
                         /// Username input field.
                         TextField(
-                          controller:
-                          _usernameController,
-                          decoration:
-                          const InputDecoration(
+                          controller: _usernameController,
+                          decoration: const InputDecoration(
                             labelText: 'Username',
-                            border:
-                            OutlineInputBorder(),
-                            prefixIcon:
-                            Icon(Icons.person),
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.person),
                           ),
                         ),
 
@@ -152,16 +167,12 @@ class LoginPage extends StatelessWidget {
                         /// Characters are hidden to
                         /// improve security.
                         TextField(
-                          controller:
-                          _passwordController,
+                          controller: _passwordController,
                           obscureText: true,
-                          decoration:
-                          const InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Password',
-                            border:
-                            OutlineInputBorder(),
-                            prefixIcon:
-                            Icon(Icons.lock),
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.lock),
                           ),
                         ),
 
@@ -176,67 +187,61 @@ class LoginPage extends StatelessWidget {
                           height: 50,
 
                           child: ElevatedButton(
-                            style:
-                            ElevatedButton.styleFrom(
-                              backgroundColor:
-                              Colors.blue,
-                              foregroundColor:
-                              Colors.white,
-                              shape:
-                              RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius
-                                    .circular(8),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
 
-                            onPressed:
-                            state is AuthLoading
+                            onPressed: state is AuthLoading
                                 ? null
                                 : () {
-                              /// Hides the
-                              /// keyboard before
-                              /// processing login.
-                              FocusScope.of(
-                                context,
-                              ).unfocus();
+                                    /// Hides the
+                                    /// keyboard before
+                                    /// processing login.
+                                    FocusScope.of(context).unfocus();
 
-                              /// Dispatches the
-                              /// login request.
-                              context
-                                  .read<
-                                  AuthBloc>()
-                                  .add(
-                                PerformLoginEvent(
-                                  _usernameController
-                                      .text,
-                                  _passwordController
-                                      .text,
-                                ),
-                              );
-                            },
+                                    /// Dispatches the
+                                    /// login request.
+                                    context.read<AuthBloc>().add(
+                                      PerformLoginEvent(
+                                        _usernameController.text,
+                                        _passwordController.text,
+                                      ),
+                                    );
+                                  },
 
                             /// Displays a loading indicator
                             /// while authentication is running.
-                            child: state
-                            is AuthLoading
+                            child: state is AuthLoading
                                 ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child:
-                              CircularProgressIndicator(
-                                color:
-                                Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
                                 : const Text(
-                              'Sign In',
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
+                                    'Sign In',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: state is AuthLoading
+                              ? null
+                              : () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => SignUpPage(),
+                                    ),
+                                  );
+                                },
+                          child: const Text('Create a new account'),
                         ),
                       ],
                     );
