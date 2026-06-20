@@ -1,5 +1,6 @@
 import '../../../shared/core/failures/failures.dart';
 import '../../../shared/core/result/result.dart';
+import '../entities/auth_session.dart';
 
 /// Contract for Authentication and Identity Management operations.
 ///
@@ -8,7 +9,9 @@ import '../../../shared/core/result/result.dart';
 abstract class IAuthRepository {
   /// Authenticates a user with [username] and [password].
   ///
-  /// Returns a [Result] containing the [nursingHomeId] associated with the
-  /// authenticated administrator upon success, or a [Failure] if it fails.
-  Future<Result<Failure, int>> login(String username, String password);
+  /// Returns a [Result] containing the authenticated session destination.
+  Future<Result<Failure, AuthSession>> login(String username, String password);
+
+  /// Registers a new family user.
+  Future<Result<Failure, void>> signUp(String username, String password);
 }
