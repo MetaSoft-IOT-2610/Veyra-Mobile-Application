@@ -26,7 +26,12 @@ class AuthRepositoryImpl implements IAuthRepository {
       );
 
       if (authenticatedUser.isFamily) {
-        return Result.success(AuthSession(roles: authenticatedUser.roles));
+        return Result.success(
+          AuthSession(
+            roles: authenticatedUser.roles,
+            userId: authenticatedUser.id,
+          ),
+        );
       }
 
       if (authenticatedUser.isAdministrator) {
@@ -47,6 +52,7 @@ class AuthRepositoryImpl implements IAuthRepository {
           return Result.success(
             AuthSession(
               roles: authenticatedUser.roles,
+              userId: authenticatedUser.id,
               administratorId: adminId,
               nursingHomeId: nursingHomeId,
             ),
@@ -56,6 +62,7 @@ class AuthRepositoryImpl implements IAuthRepository {
             return Result.success(
               AuthSession(
                 roles: authenticatedUser.roles,
+                userId: authenticatedUser.id,
                 administratorId: adminId,
                 requiresNursingHomeSetup: true,
               ),

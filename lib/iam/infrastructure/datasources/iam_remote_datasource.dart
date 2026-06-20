@@ -53,6 +53,7 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         if (id == null) {
           throw ParsingException(message: 'Missing user id in auth response.');
         }
+        TokenManager.saveUserId(id);
 
         final roles = (response['roles'] as List<dynamic>? ?? [])
             .map((role) => role.toString())
@@ -115,7 +116,9 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
       );
 
       if (response is Map && response.containsKey('id')) {
-        return (response['id'] as num).toInt();
+        final nursingHomeId = (response['id'] as num).toInt();
+        TokenManager.saveNursingHomeId(nursingHomeId);
+        return nursingHomeId;
       }
 
       throw ParsingException(
