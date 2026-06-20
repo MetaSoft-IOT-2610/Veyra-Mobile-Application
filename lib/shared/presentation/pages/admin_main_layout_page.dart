@@ -14,8 +14,7 @@ import '../../../shared/infrastructure/local/token_manager.dart';
 class AdminMainLayoutPage extends StatefulWidget {
   final int nursingHomeId;
 
-  const AdminMainLayoutPage({Key? key, required this.nursingHomeId})
-    : super(key: key);
+  const AdminMainLayoutPage({super.key, required this.nursingHomeId});
 
   @override
   State<AdminMainLayoutPage> createState() => _AdminMainLayoutPageState();
@@ -37,7 +36,10 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
     final int administratorId = TokenManager.getAdministratorId() ?? 0;
 
     _pageBuilders = [
-      (_) => AdminDashboardPage(nursingHomeId: widget.nursingHomeId),
+      (_) => AdminDashboardPage(
+        nursingHomeId: widget.nursingHomeId,
+        onOpenStaffDirectory: () => _selectTab(2),
+      ),
       (_) => ResidentDirectoryPage(nursingHomeId: widget.nursingHomeId),
       (_) => StaffDirectoryPage(nursingHomeId: widget.nursingHomeId),
       (_) => ActivitiesPage(nursingHomeId: widget.nursingHomeId),
@@ -57,10 +59,7 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
-          setState(() {
-            _pages[index] ??= _pageBuilders[index](context);
-            _currentIndex = index;
-          });
+          _selectTab(index);
         },
         backgroundColor: Colors.white,
         indicatorColor: Colors.blue.shade100,
@@ -93,5 +92,12 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
         ],
       ),
     );
+  }
+
+  void _selectTab(int index) {
+    setState(() {
+      _pages[index] ??= _pageBuilders[index](context);
+      _currentIndex = index;
+    });
   }
 }

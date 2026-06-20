@@ -2,6 +2,8 @@
 /// Expone únicamente las interfaces públicas que otros módulos tienen permitido consumir.
 
 // 1. Exportamos el módulo de Inyección de Dependencias
+library;
+
 export 'analytics_module.dart';
 
 // 2. Exportamos los Widgets Públicos
