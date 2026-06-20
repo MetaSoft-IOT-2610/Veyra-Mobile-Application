@@ -26,11 +26,11 @@ class OperationalMetrics extends Entity<int> {
   ///
   /// All other parameters are required.
   const OperationalMetrics({
-    int id = 0,
+    super.id = 0,
     required this.admissionsCount,
     required this.terminationsCount,
     required this.hiresCount,
-  }) : super(id: id);
+  });
 
   /// Business Rule #1: Determines whether the organization is growing
   /// its workforce.
