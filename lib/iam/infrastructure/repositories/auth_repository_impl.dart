@@ -110,7 +110,18 @@ class AuthRepositoryImpl implements IAuthRepository {
         username,
         password,
       );
-      return Result.success(administratorId);
+      final authenticatedUser = await remoteDataSource.authenticate(
+        username,
+        password,
+      );
+
+      if (!authenticatedUser.isAdministrator) {
+        return Result.failure(
+          const ServerFailure('The created account is not an administrator.'),
+        );
+      }
+
+      return Result.success(authenticatedUser.entityId ?? administratorId);
     } on ServerException catch (e) {
       return Result.failure(
         ServerFailure(e.message, code: e.statusCode?.toString()),

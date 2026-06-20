@@ -116,9 +116,9 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
       );
 
       if (response is Map && response.containsKey('id')) {
-        final nursingHomeId = (response['id'] as num).toInt();
-        TokenManager.saveNursingHomeId(nursingHomeId);
-        return nursingHomeId;
+        final administratorId = (response['id'] as num).toInt();
+        TokenManager.saveAdministratorId(administratorId);
+        return administratorId;
       }
 
       throw ParsingException(
@@ -142,7 +142,9 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
       );
 
       if (response is Map && response.containsKey('id')) {
-        return (response['id'] as num).toInt();
+        final nursingHomeId = (response['id'] as num).toInt();
+        TokenManager.saveNursingHomeId(nursingHomeId);
+        return nursingHomeId;
       }
 
       throw ParsingException(
