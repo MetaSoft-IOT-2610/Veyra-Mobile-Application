@@ -18,24 +18,30 @@ class SubscriptionModel {
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
     return SubscriptionModel(
       id: (json['id'] as num? ?? 0).toInt(),
-      plan: json['plan'] as String?
-          ?? json['planName'] as String?
-          ?? 'N/A',
+      plan:
+          json['plan'] as String? ??
+          json['planName'] as String? ??
+          json['planType'] as String? ??
+          'N/A',
       status: json['status'] as String? ?? 'UNKNOWN',
-      startDate: json['startDate'] as String?
-          ?? json['start_date'] as String?
-          ?? '',
-      endDate: json['endDate'] as String?
-          ?? json['end_date'] as String?
-          ?? '',
+      startDate:
+          json['startDate'] as String? ??
+          json['start_date'] as String? ??
+          json['currentPeriodStart'] as String? ??
+          '',
+      endDate:
+          json['endDate'] as String? ??
+          json['end_date'] as String? ??
+          json['currentPeriodEnd'] as String? ??
+          '',
     );
   }
 
   Subscription toEntity() => Subscription(
-        id: id,
-        plan: plan,
-        status: status,
-        startDate: startDate,
-        endDate: endDate,
-      );
+    id: id,
+    plan: plan,
+    status: status,
+    startDate: startDate,
+    endDate: endDate,
+  );
 }

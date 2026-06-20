@@ -18,7 +18,33 @@ class AccountRepositoryImpl implements IAccountRepository {
       final model = await remoteDataSource.getActiveSubscription(userId);
       return Result.success(model.toEntity());
     } on ServerException catch (e) {
-      return Result.failure(ServerFailure(e.message));
+      return Result.failure(
+        ServerFailure(e.message, code: e.statusCode?.toString()),
+      );
+    } catch (e) {
+      return Result.failure(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Result<Failure, Subscription>> createSubscription({
+    required int userId,
+    required String planType,
+    required String period,
+    required String paymentMethodId,
+  }) async {
+    try {
+      final model = await remoteDataSource.createSubscription(
+        userId: userId,
+        planType: planType,
+        period: period,
+        paymentMethodId: paymentMethodId,
+      );
+      return Result.success(model.toEntity());
+    } on ServerException catch (e) {
+      return Result.failure(
+        ServerFailure(e.message, code: e.statusCode?.toString()),
+      );
     } catch (e) {
       return Result.failure(ServerFailure('Unexpected error: $e'));
     }

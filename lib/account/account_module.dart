@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'domain/repositories/i_account_repository.dart';
 import 'infrastructure/datasources/account_remote_datasource.dart';
 import 'infrastructure/repositories/account_repository_impl.dart';
+import 'application/commands/create_subscription_command.dart';
 import 'application/queries/get_active_subscription_query.dart';
 import 'presentation/bloc/account_bloc.dart';
 
@@ -14,11 +15,9 @@ void initAccountModule(GetIt locator) {
     () => AccountRepositoryImpl(remoteDataSource: locator()),
   );
 
-  locator.registerLazySingleton(
-    () => GetActiveSubscriptionQuery(locator()),
-  );
+  locator.registerLazySingleton(() => GetActiveSubscriptionQuery(locator()));
 
-  locator.registerFactory(
-    () => AccountBloc(locator()),
-  );
+  locator.registerLazySingleton(() => CreateSubscriptionCommand(locator()));
+
+  locator.registerFactory(() => AccountBloc(locator(), locator()));
 }
