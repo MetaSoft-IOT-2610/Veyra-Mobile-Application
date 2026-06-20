@@ -1,67 +1,397 @@
+import 'package:dio/dio.dart';
+
 import '../../../shared/application/contracts/i_http_client.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
+import '../models/resident_health_models.dart';
 import '../models/resident_model.dart';
 import '../models/room_model.dart';
 
-/// Remote data source interface responsible for fetching nursing-related data.
 abstract class NursingRemoteDataSource {
-  /// Retrieves a list of residents associated with a specific nursing home.
-  ///
-  /// Requires the [nursingHomeId] to fetch the relevant data.
   Future<List<ResidentModel>> getResidents(int nursingHomeId);
 
-  /// Retrieves a list of rooms available in a specific nursing home.
-  ///
-  /// Requires the [nursingHomeId] to fetch the relevant data.
+  Future<ResidentModel> createResident({
+    required int nursingHomeId,
+    required String dni,
+    required String firstName,
+    required String lastName,
+    required DateTime birthDate,
+    required int age,
+    required String emailAddress,
+    required String street,
+    required String number,
+    required String city,
+    required String postalCode,
+    required String country,
+    required String phoneNumber,
+    required String legalRepresentativeFirstName,
+    required String legalRepresentativeLastName,
+    required String legalRepresentativePhoneNumber,
+    required String emergencyContactFirstName,
+    required String emergencyContactLastName,
+    required String emergencyContactPhoneNumber,
+  });
+
   Future<List<RoomModel>> getRooms(int nursingHomeId);
+
+  Future<ResidentModel> assignRoom({
+    required int nursingHomeId,
+    required int residentId,
+    required String roomNumber,
+  });
+
+  Future<List<ResidentAllergyModel>> getAllergies(int residentId);
+
+  Future<ResidentAllergyModel> registerAllergy({
+    required int residentId,
+    required String allergenName,
+    required String reaction,
+    required String typeOfAllergy,
+    required String severityLevel,
+  });
+
+  Future<List<ResidentMedicalConditionModel>> getMedicalConditions(
+    int residentId,
+  );
+
+  Future<ResidentMedicalConditionModel> registerMedicalCondition({
+    required int residentId,
+    required String diagnosisName,
+    required DateTime diagnosisDate,
+    required String status,
+    required String notes,
+  });
+
+  Future<List<ResidentVitalSignModel>> getVitalSigns(int residentId);
 }
 
-/// Concrete implementation of [NursingRemoteDataSource] using the corporate [IHttpClient].
 class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
-  /// The HTTP client used to execute network requests.
   final IHttpClient client;
 
-  /// Creates a new instance of [NursingRemoteDataSourceImpl] requiring an [IHttpClient].
   NursingRemoteDataSourceImpl({required this.client});
 
   @override
   Future<List<ResidentModel>> getResidents(int nursingHomeId) async {
     try {
-      // ✅ FIX: Pure relative path (without /api/v1/) to prevent URL duplication
-      final response = await client.get('nursing-homes/$nursingHomeId/residents');
+      final response = await client.get(
+        'nursing-homes/$nursingHomeId/residents',
+      );
       final data = _extractList(response);
-      return data.map((json) => ResidentModel.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => ResidentModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       throw ServerException(message: 'Error fetching residents: $e');
     }
   }
 
   @override
+  Future<ResidentModel> createResident({
+    required int nursingHomeId,
+    required String dni,
+    required String firstName,
+    required String lastName,
+    required DateTime birthDate,
+    required int age,
+    required String emailAddress,
+    required String street,
+    required String number,
+    required String city,
+    required String postalCode,
+    required String country,
+    required String phoneNumber,
+    required String legalRepresentativeFirstName,
+    required String legalRepresentativeLastName,
+    required String legalRepresentativePhoneNumber,
+    required String emergencyContactFirstName,
+    required String emergencyContactLastName,
+    required String emergencyContactPhoneNumber,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        'dni': dni,
+        'firstName': firstName,
+        'lastName': lastName,
+        'birthDate': _formatDate(birthDate),
+        'age': age,
+        'emailAddress': emailAddress,
+        'street': street,
+        'number': number,
+        'city': city,
+        'postalCode': postalCode,
+        'country': country,
+        'phoneNumber': phoneNumber,
+        'legalRepresentativeFirstName': legalRepresentativeFirstName,
+        'legalRepresentativeLastName': legalRepresentativeLastName,
+        'legalRepresentativePhoneNumber': legalRepresentativePhoneNumber,
+        'emergencyContactFirstName': emergencyContactFirstName,
+        'emergencyContactLastName': emergencyContactLastName,
+        'emergencyContactPhoneNumber': emergencyContactPhoneNumber,
+        'photo': MultipartFile.fromBytes(
+          _placeholderPhotoBytes,
+          filename: 'resident-photo.png',
+        ),
+      });
+
+      final response = await client.post(
+        'nursing-homes/$nursingHomeId/residents',
+        data: formData,
+      );
+
+      if (response is Map<String, dynamic>) {
+        return ResidentModel.fromJson(response);
+      }
+
+      throw ParsingException(
+        message: 'Resident data could not be parsed from the response.',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Error creating resident: $e');
+    }
+  }
+
+  @override
   Future<List<RoomModel>> getRooms(int nursingHomeId) async {
     try {
-      // ✅ FIX: Pure relative path (without /api/v1/) to prevent URL duplication
       final response = await client.get('nursing-homes/$nursingHomeId/rooms');
       final data = _extractList(response);
-      return data.map((json) => RoomModel.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => RoomModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       throw ServerException(message: 'Error fetching rooms: $e');
     }
   }
 
-  /// Helper method to safely extract a list from dynamic JSON responses.
-  ///
-  /// Handles both direct JSON arrays and paginated/wrapped responses containing
-  /// a 'content' or 'data' key. Throws a [ParsingException] if the format is invalid.
+  @override
+  Future<ResidentModel> assignRoom({
+    required int nursingHomeId,
+    required int residentId,
+    required String roomNumber,
+  }) async {
+    try {
+      final response = await client.post(
+        'nursing-homes/$nursingHomeId/rooms/$residentId',
+        data: {'roomNumber': roomNumber},
+      );
+      if (response is Map<String, dynamic>) {
+        return ResidentModel.fromJson(response);
+      }
+      throw ParsingException(
+        message: 'Resident room assignment could not be parsed.',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Error assigning room: $e');
+    }
+  }
+
+  @override
+  Future<List<ResidentAllergyModel>> getAllergies(int residentId) async {
+    try {
+      final response = await client.get('residents/$residentId/allergies');
+      final data = _extractList(response);
+      return data
+          .map(
+            (json) =>
+                ResidentAllergyModel.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+    } on ServerException catch (e) {
+      if (e.statusCode == 404) return [];
+      throw ServerException(
+        message: 'Error fetching allergies: $e',
+        statusCode: e.statusCode,
+      );
+    } catch (e) {
+      throw ServerException(message: 'Error fetching allergies: $e');
+    }
+  }
+
+  @override
+  Future<ResidentAllergyModel> registerAllergy({
+    required int residentId,
+    required String allergenName,
+    required String reaction,
+    required String typeOfAllergy,
+    required String severityLevel,
+  }) async {
+    try {
+      final response = await client.post(
+        'residents/$residentId/allergies',
+        data: {
+          'allergenName': allergenName,
+          'reaction': reaction,
+          'typeOfAllergy': typeOfAllergy,
+          'severityLevel': severityLevel,
+        },
+      );
+      if (response is Map<String, dynamic>) {
+        return ResidentAllergyModel.fromJson(response);
+      }
+      throw ParsingException(message: 'Allergy data could not be parsed.');
+    } catch (e) {
+      throw ServerException(message: 'Error registering allergy: $e');
+    }
+  }
+
+  @override
+  Future<List<ResidentMedicalConditionModel>> getMedicalConditions(
+    int residentId,
+  ) async {
+    try {
+      final response = await client.get(
+        'residents/$residentId/medical-conditions',
+      );
+      final data = _extractList(response);
+      return data
+          .map(
+            (json) => ResidentMedicalConditionModel.fromJson(
+              json as Map<String, dynamic>,
+            ),
+          )
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Error fetching medical conditions: $e');
+    }
+  }
+
+  @override
+  Future<ResidentMedicalConditionModel> registerMedicalCondition({
+    required int residentId,
+    required String diagnosisName,
+    required DateTime diagnosisDate,
+    required String status,
+    required String notes,
+  }) async {
+    try {
+      final response = await client.post(
+        'residents/$residentId/medical-conditions',
+        data: {
+          'diagnosisName': diagnosisName,
+          'diagnosisDate': _formatDate(diagnosisDate),
+          'status': status,
+          'notes': notes,
+        },
+      );
+      if (response is Map<String, dynamic>) {
+        return ResidentMedicalConditionModel.fromJson(response);
+      }
+      throw ParsingException(
+        message: 'Medical condition data could not be parsed.',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Error registering medical condition: $e');
+    }
+  }
+
+  @override
+  Future<List<ResidentVitalSignModel>> getVitalSigns(int residentId) async {
+    try {
+      final response = await client.get('resident/$residentId/vital-signs');
+      final data = response is Map && response['content'] is List
+          ? response['content'] as List<dynamic>
+          : _extractList(response);
+      return data
+          .map(
+            (json) =>
+                ResidentVitalSignModel.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Error fetching vital signs: $e');
+    }
+  }
+
   List<dynamic> _extractList(dynamic response) {
     if (response is List) {
       return response;
     } else if (response is Map) {
-      if (response.containsKey('content')) return response['content'] as List<dynamic>;
-      if (response.containsKey('data')) return response['data'] as List<dynamic>;
+      if (response.containsKey('content')) {
+        return response['content'] as List<dynamic>;
+      }
+      if (response.containsKey('data')) {
+        return response['data'] as List<dynamic>;
+      }
 
-      print('🚨 [Nursing] DEBUG JSON: $response');
-      throw ParsingException(message: 'Could not find the list in the JSON response.');
+      throw ParsingException(
+        message: 'Could not find the list in the JSON response.',
+      );
     }
     throw ParsingException(message: 'Unknown HTTP response format.');
   }
+
+  String _formatDate(DateTime value) {
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
+  }
+
+  static const List<int> _placeholderPhotoBytes = [
+    0x89,
+    0x50,
+    0x4E,
+    0x47,
+    0x0D,
+    0x0A,
+    0x1A,
+    0x0A,
+    0x00,
+    0x00,
+    0x00,
+    0x0D,
+    0x49,
+    0x48,
+    0x44,
+    0x52,
+    0x00,
+    0x00,
+    0x00,
+    0x01,
+    0x00,
+    0x00,
+    0x00,
+    0x01,
+    0x08,
+    0x06,
+    0x00,
+    0x00,
+    0x00,
+    0x1F,
+    0x15,
+    0xC4,
+    0x89,
+    0x00,
+    0x00,
+    0x00,
+    0x0A,
+    0x49,
+    0x44,
+    0x41,
+    0x54,
+    0x78,
+    0x9C,
+    0x63,
+    0x00,
+    0x01,
+    0x00,
+    0x00,
+    0x05,
+    0x00,
+    0x01,
+    0x0D,
+    0x0A,
+    0x2D,
+    0xB4,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x49,
+    0x45,
+    0x4E,
+    0x44,
+    0xAE,
+    0x42,
+    0x60,
+    0x82,
+  ];
 }

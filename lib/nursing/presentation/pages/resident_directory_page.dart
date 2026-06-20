@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/di/dependency_injection.dart';
 import '../bloc/nursing_bloc.dart';
+import 'create_resident_page.dart';
+import 'resident_detail_page.dart';
 
 class ResidentDirectoryPage extends StatelessWidget {
   final int nursingHomeId;
 
-  const ResidentDirectoryPage({
-    Key? key,
-    required this.nursingHomeId,
-  }) : super(key: key);
+  const ResidentDirectoryPage({super.key, required this.nursingHomeId});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => locator<NursingBloc>()
-        ..add(LoadResidentListEvent(nursingHomeId: nursingHomeId)),
+      create: (_) =>
+          locator<NursingBloc>()
+            ..add(LoadResidentListEvent(nursingHomeId: nursingHomeId)),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
@@ -23,6 +23,26 @@ class ResidentDirectoryPage extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
           elevation: 0,
+        ),
+        floatingActionButton: Builder(
+          builder: (context) => FloatingActionButton.extended(
+            icon: const Icon(Icons.person_add_alt_1),
+            label: const Text('Registrar'),
+            onPressed: () async {
+              final created = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      CreateResidentPage(nursingHomeId: nursingHomeId),
+                ),
+              );
+
+              if (created == true && context.mounted) {
+                context.read<NursingBloc>().add(
+                  LoadResidentListEvent(nursingHomeId: nursingHomeId),
+                );
+              }
+            },
+          ),
         ),
         body: BlocBuilder<NursingBloc, NursingState>(
           builder: (context, state) {
@@ -51,9 +71,7 @@ class ResidentDirectoryPage extends StatelessWidget {
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () => context.read<NursingBloc>().add(
-                          LoadResidentListEvent(
-                            nursingHomeId: nursingHomeId,
-                          ),
+                          LoadResidentListEvent(nursingHomeId: nursingHomeId),
                         ),
                         child: const Text('Reintentar'),
                       ),
@@ -67,10 +85,25 @@ class ResidentDirectoryPage extends StatelessWidget {
               final residents = state.residents;
 
               if (residents.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No hay residentes registrados en esta sede.',
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.elderly_outlined,
+                          size: 56,
+                          color: Colors.blue.shade700,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'No hay residentes registrados en esta sede.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -88,6 +121,16 @@ class ResidentDirectoryPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ListTile(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ResidentDetailPage(
+                              nursingHomeId: nursingHomeId,
+                              resident: resident,
+                            ),
+                          ),
+                        );
+                      },
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
@@ -108,7 +151,20 @@ class ResidentDirectoryPage extends StatelessWidget {
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text('Ingreso: ${resident.admissionDate}'),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Person profile: ${resident.personProfileId}'),
+                            if (resident.legalRepresentativeName.isNotEmpty)
+                              Text(
+                                'Representative: ${resident.legalRepresentativeName}',
+                              ),
+                            if (resident.emergencyContactName.isNotEmpty)
+                              Text(
+                                'Emergency: ${resident.emergencyContactName}',
+                              ),
+                          ],
+                        ),
                       ),
                       trailing: _buildStatusChip(resident.status),
                     ),
