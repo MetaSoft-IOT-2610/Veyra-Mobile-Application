@@ -16,15 +16,19 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
   ) async {
     emit(AnalyticsLoading());
 
-    final result = await _getOperationalMetricsQuery.execute(event.nursingHomeId);
+    final result = await _getOperationalMetricsQuery.execute(
+      event.nursingHomeId,
+    );
 
     result.fold(
-      (failure) => emit(AnalyticsError(failure.message)), 
-      (metrics) => emit(AnalyticsLoaded(                   
-        admissionsCount: metrics.admissionsCount,
-        terminationsCount: metrics.terminationsCount,
-        hiresCount: metrics.hiresCount,
-      )),
+      (failure) => emit(AnalyticsError(failure.message)),
+      (metrics) => emit(
+        AnalyticsLoaded(
+          admissionsCount: metrics.admissionsCount,
+          terminationsCount: metrics.terminationsCount,
+          hiresCount: metrics.hiresCount,
+        ),
+      ),
     );
   }
 }
