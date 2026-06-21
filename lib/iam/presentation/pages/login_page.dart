@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
+import '../../../doctor/presentation/pages/doctor_portal_page.dart';
 import '../../../profiles/presentation/pages/create_person_profile_page.dart';
 import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
@@ -94,6 +95,18 @@ class LoginPage extends StatelessWidget {
                     /// administrative dashboard using the identifier
                     /// returned by the authentication process.
                     else if (state is AuthSuccess) {
+                      if (state.session.isDoctor) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => DoctorPortalPage(
+                              staffId: state.session.staffId!,
+                              nursingHomeId: state.session.nursingHomeId!,
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
                       if (state.session.isFamily) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
