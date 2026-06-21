@@ -49,12 +49,48 @@ class StaffRemoteDataSourceImpl implements StaffRemoteDataSource {
     try {
       final response = await client.get('nursing-homes/$nursingHomeId/staff');
       final data = _extractList(response);
-      return data
-          .map((json) => StaffModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      return Future.wait(
+        data.map((json) => _enrichStaff(json as Map<String, dynamic>)),
+      );
+    } on ServerException catch (e) {
+      if (e.statusCode == 404) return [];
+      throw ServerException(
+        message: 'Error fetching staff: $e',
+        statusCode: e.statusCode,
+      );
     } catch (e) {
       throw ServerException(message: 'Error fetching staff: $e');
     }
+  }
+
+  Future<StaffModel> _enrichStaff(Map<String, dynamic> staffJson) async {
+    final enrichedJson = Map<String, dynamic>.from(staffJson);
+    final personProfileId =
+        (staffJson['personProfileId'] as num?)?.toInt() ?? 0;
+
+    if (personProfileId > 0) {
+      try {
+        final profileResponse = await client.get(
+          'person-profiles/$personProfileId',
+        );
+        if (profileResponse is Map) {
+          enrichedJson.addAll(Map<String, dynamic>.from(profileResponse));
+          enrichedJson['id'] = staffJson['id'];
+          enrichedJson['personProfileId'] = personProfileId;
+          enrichedJson['status'] = staffJson['status'];
+          enrichedJson['emergencyContactFirstName'] =
+              staffJson['emergencyContactFirstName'];
+          enrichedJson['emergencyContactLastName'] =
+              staffJson['emergencyContactLastName'];
+          enrichedJson['emergencyContactPhoneNumber'] =
+              staffJson['emergencyContactPhoneNumber'];
+        }
+      } on ServerException catch (e) {
+        if (e.statusCode != 404) rethrow;
+      }
+    }
+
+    return StaffModel.fromJson(enrichedJson);
   }
 
   @override

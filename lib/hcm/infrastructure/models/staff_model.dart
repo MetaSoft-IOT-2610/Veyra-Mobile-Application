@@ -30,11 +30,18 @@ class StaffModel {
   });
 
   factory StaffModel.fromJson(Map<String, dynamic> json) {
+    final fullName = json['fullName'] as String? ?? '';
+    final nameParts = fullName.trim().split(RegExp(r'\s+'));
+    final parsedFirstName = fullName.trim().isEmpty ? '' : nameParts.first;
+    final parsedLastName = nameParts.length > 1
+        ? nameParts.skip(1).join(' ')
+        : '';
+
     return StaffModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
       personProfileId: (json['personProfileId'] as num?)?.toInt() ?? 0,
-      firstName: json['firstName'] as String? ?? '',
-      lastName: json['lastName'] as String? ?? '',
+      firstName: json['firstName'] as String? ?? parsedFirstName,
+      lastName: json['lastName'] as String? ?? parsedLastName,
       dni: json['dni'] as String? ?? '',
       emailAddress: json['emailAddress'] as String? ?? '',
       phoneNumber: json['phoneNumber'] as String? ?? '',

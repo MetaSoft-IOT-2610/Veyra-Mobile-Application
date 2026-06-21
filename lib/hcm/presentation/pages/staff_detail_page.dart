@@ -19,12 +19,7 @@ class StaffDetailPage extends StatelessWidget {
           locator<StaffBloc>()..add(LoadStaffContractsEvent(staffMember.id)),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(
-          title: Text(staffMember.fullName),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: Text(staffMember.fullName)),
         body: BlocConsumer<StaffBloc, StaffState>(
           listener: (context, state) {
             if (state is StaffError) {

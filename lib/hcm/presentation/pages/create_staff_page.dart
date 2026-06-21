@@ -59,9 +59,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
         backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
           title: const Text('Register staff'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16),
