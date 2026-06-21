@@ -552,11 +552,7 @@ class _FamilyTab extends StatelessWidget {
                               selected: selected,
                               onTap: () => setState(() => selectedUser = user),
                               title: Text(user.displayName),
-                              subtitle: Text(
-                                user.hasEmailUsername
-                                    ? user.email
-                                    : 'Email not available: ${user.username}',
-                              ),
+                              subtitle: Text(user.email),
                               trailing: Icon(
                                 selected
                                     ? Icons.check_circle
@@ -592,17 +588,6 @@ class _FamilyTab extends StatelessWidget {
                         );
                         return;
                       }
-                      if (!user.hasEmailUsername) {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'The selected account must use an email username.',
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-
                       bloc.add(
                         CreateResidentRelativeEvent(
                           nursingHomeId: nursingHomeId,
@@ -648,7 +633,7 @@ class _SelectedFamilyPreview extends StatelessWidget {
                   user.displayName,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(user.hasEmailUsername ? user.email : user.username),
+                Text(user.email),
               ],
             ),
           ),

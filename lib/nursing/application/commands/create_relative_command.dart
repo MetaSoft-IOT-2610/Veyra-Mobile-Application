@@ -26,14 +26,6 @@ class CreateRelativeCommand {
       );
     }
 
-    if (!familyUser.hasEmailUsername) {
-      return Result.failure(
-        const ValidationFailure(
-          'The selected family account must use an email as username.',
-        ),
-      );
-    }
-
     return _repository.createRelative(
       nursingHomeId: nursingHomeId,
       residentId: residentId,

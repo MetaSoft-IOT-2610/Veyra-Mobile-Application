@@ -14,7 +14,7 @@ class FamilyUser extends Entity<int> {
 
   bool get hasEmailUsername => _emailPattern.hasMatch(username.trim());
 
-  String get email => hasEmailUsername ? username.trim() : '';
+  String get email => username.trim();
 
   String get displayName {
     final value = username.trim();
