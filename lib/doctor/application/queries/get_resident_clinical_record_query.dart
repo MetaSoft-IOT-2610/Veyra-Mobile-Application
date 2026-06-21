@@ -9,7 +9,9 @@ class GetResidentClinicalRecordQuery {
 
   GetResidentClinicalRecordQuery(this._repository);
 
-  Future<Result<Failure, ResidentClinicalRecord>> execute(int residentId) async {
+  Future<Result<Failure, ResidentClinicalRecord>> execute(
+    int residentId,
+  ) async {
     if (residentId <= 0) {
       return Result.failure(
         const ValidationFailure('A valid resident is required.'),
@@ -25,12 +27,18 @@ class GetResidentClinicalRecordQuery {
     var conditions = <ResidentMedicalCondition>[];
     var vitalSigns = <ResidentVitalSign>[];
 
-    allergyResult.fold((value) => failure ??= value, (value) => allergies = value);
+    allergyResult.fold(
+      (value) => failure ??= value,
+      (value) => allergies = value,
+    );
     conditionResult.fold(
       (value) => failure ??= value,
       (value) => conditions = value,
     );
-    vitalResult.fold((value) => failure ??= value, (value) => vitalSigns = value);
+    vitalResult.fold(
+      (value) => failure ??= value,
+      (value) => vitalSigns = value,
+    );
 
     if (failure != null) return Result.failure(failure!);
     return Result.success(
