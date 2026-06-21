@@ -6,7 +6,9 @@ import 'infrastructure/datasources/nursing_remote_datasource.dart';
 import 'infrastructure/repositories/nursing_home_setup_repository_impl.dart';
 import 'infrastructure/repositories/nursing_repository_impl.dart';
 import 'application/commands/create_nursing_home_command.dart';
+import 'application/commands/create_relative_command.dart';
 import 'application/commands/create_resident_command.dart';
+import 'application/queries/get_resident_relatives_query.dart';
 import 'application/queries/get_resident_summary_query.dart';
 import 'application/queries/get_resident_list_query.dart';
 import 'presentation/bloc/nursing_home_setup_bloc.dart';
@@ -32,13 +34,21 @@ void initNursingModule(GetIt locator) {
   // 3. Use Cases / Queries
   locator.registerLazySingleton(() => GetResidentSummaryQuery(locator()));
   locator.registerLazySingleton(() => GetResidentListQuery(locator()));
+  locator.registerLazySingleton(() => GetResidentRelativesQuery(locator()));
   locator.registerLazySingleton(() => CreateNursingHomeCommand(locator()));
   locator.registerLazySingleton(() => CreateResidentCommand(locator()));
+  locator.registerLazySingleton(() => CreateRelativeCommand(locator()));
 
   // 4. BLoCs (Siempre como Factory)
   locator.registerFactory(
-    // Ahora pasamos los dos casos de uso al BLoC
-    () => NursingBloc(locator(), locator(), locator(), locator()),
+    () => NursingBloc(
+      locator(),
+      locator(),
+      locator(),
+      locator(),
+      locator(),
+      locator(),
+    ),
   );
   locator.registerFactory(() => NursingHomeSetupBloc(locator()));
 }
