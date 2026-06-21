@@ -2,165 +2,187 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../../shared/presentation/theme/app_colors.dart';
 import '../bloc/activities_bloc.dart';
 
-/// Dashboard widget responsible for displaying today's
-/// scheduled activities for a nursing home.
-///
-/// This widget:
-/// - Retrieves today's activities through the Activities BLoC.
-/// - Displays loading, error, and success states.
-/// - Presents activity schedules in a user-friendly format.
-/// - Highlights completed activities visually.
-///
-/// Architecture:
-/// - Layer: Presentation
-/// - Pattern: BLoC
-/// - Data Source: ActivitiesBloc
-///
-/// The widget is designed to be embedded inside dashboard
-/// screens and overview pages.
 class TodayActivitiesWidget extends StatelessWidget {
-  /// Identifier of the nursing home whose activities
-  /// should be displayed.
-  final int nursingHomeId;
-
-  /// Creates a new [TodayActivitiesWidget].
-  ///
-  /// Requires a valid [nursingHomeId] to retrieve
-  /// activity information.
   const TodayActivitiesWidget({super.key, required this.nursingHomeId});
 
-  /// Formats a [DateTime] value into a user-friendly
-  /// HH:mm representation.
-  ///
-  /// Example:
-  /// - 09:30
-  /// - 14:45
-  ///
-  /// Parameters:
-  /// - [time]: DateTime to format.
-  ///
-  /// Returns:
-  /// - A formatted time string.
-  String _formatTime(DateTime time) {
-    return '${time.hour.toString().padLeft(2, '0')}:'
-        '${time.minute.toString().padLeft(2, '0')}';
-  }
+  final int nursingHomeId;
 
-  /// Builds the widget tree.
-  ///
-  /// A new [ActivitiesBloc] instance is provided and
-  /// immediately instructed to load today's activities
-  /// for the specified nursing home.
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ActivitiesBloc>(
       create: (_) =>
           locator<ActivitiesBloc>()
             ..add(FetchTodayActivitiesEvent(nursingHomeId: nursingHomeId)),
-
       child: BlocBuilder<ActivitiesBloc, ActivitiesState>(
         builder: (context, state) {
-          /// Loading state.
-          ///
-          /// Displays a compact loading indicator while
-          /// activities are being retrieved.
           if (state is ActivitiesLoading) {
-            return const LinearProgressIndicator();
-          }
-
-          /// Error state.
-          ///
-          /// Displays the error returned by the application layer.
-          if (state is ActivitiesError) {
-            return Text(
-              'Error: ${state.message}',
-              style: const TextStyle(color: Colors.red),
-            );
-          }
-
-          /// Success state.
-          ///
-          /// Displays today's activities.
-          if (state is ActivitiesLoaded) {
-            final activities = state.todayActivities;
-
-            return Card(
-              elevation: 2,
-
-              child: Column(
-                children: [
-                  /// Section header.
-                  const ListTile(
-                    title: Text(
-                      'Today\'s Activities',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    trailing: Icon(Icons.calendar_today, color: Colors.blue),
-                  ),
-
-                  const Divider(height: 1),
-
-                  /// Empty state.
-                  ///
-                  /// Displayed when no activities are scheduled
-                  /// for the current day.
-                  if (activities.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text('No activities scheduled for today.'),
-                    ),
-
-                  /// Activity list.
-                  ///
-                  /// Each activity displays:
-                  /// - Title
-                  /// - Time range
-                  /// - Completion indicator (if applicable)
-                  ...activities.map((activity) {
-                    final startTimeStr = _formatTime(
-                      activity.schedule.startTime,
-                    );
-
-                    final endTimeStr = _formatTime(activity.schedule.endTime);
-
-                    return ListTile(
-                      /// Activity icon.
-                      leading: const Icon(
-                        Icons.event_available,
-                        color: Colors.green,
-                      ),
-
-                      /// Activity title.
-                      ///
-                      /// Uses the domain entity's `title`
-                      /// property, aligned with the backend's
-                      /// ubiquitous language.
-                      title: Text(activity.title),
-
-                      /// Scheduled time range.
-                      subtitle: Text('$startTimeStr - $endTimeStr'),
-
-                      /// Visual indicator for completed activities.
-                      trailing: activity.status.name == 'completed'
-                          ? const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 20,
-                            )
-                          : null,
-                    );
-                  }),
-                ],
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: LinearProgressIndicator(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
             );
           }
+          if (state is ActivitiesError) {
+            return _Message(
+              icon: Icons.cloud_off_outlined,
+              text: state.message,
+              color: AppColors.danger,
+            );
+          }
+          if (state is! ActivitiesLoaded) return const SizedBox.shrink();
+          if (state.todayActivities.isEmpty) {
+            return const _Message(
+              icon: Icons.event_available_outlined,
+              text: 'No hay actividades programadas para hoy.',
+              color: AppColors.primary,
+            );
+          }
 
-          /// Initial or unknown state.
-          return const SizedBox.shrink();
+          return Column(
+            children: state.todayActivities
+                .take(5)
+                .map(
+                  (activity) => _ActivityTile(
+                    title: activity.title,
+                    time:
+                        '${_time(activity.schedule.startTime)} - '
+                        '${_time(activity.schedule.endTime)}',
+                    completed: activity.status.name == 'completed',
+                    ongoing: activity.schedule.isOngoing,
+                  ),
+                )
+                .toList(),
+          );
         },
       ),
     );
   }
+
+  String _time(DateTime value) =>
+      '${value.hour.toString().padLeft(2, '0')}:'
+      '${value.minute.toString().padLeft(2, '0')}';
+}
+
+class _ActivityTile extends StatelessWidget {
+  const _ActivityTile({
+    required this.title,
+    required this.time,
+    required this.completed,
+    required this.ongoing,
+  });
+
+  final String title;
+  final String time;
+  final bool completed;
+  final bool ongoing;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = completed
+        ? AppColors.success
+        : ongoing
+        ? AppColors.cyan
+        : AppColors.primary;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 9),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              completed ? Icons.check_rounded : Icons.schedule_rounded,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  time,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (ongoing && !completed)
+            const _StatusLabel(text: 'EN CURSO', color: AppColors.cyan),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusLabel extends StatelessWidget {
+  const _StatusLabel({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Text(
+      text,
+      style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w800),
+    ),
+  );
+}
+
+class _Message extends StatelessWidget {
+  const _Message({required this.icon, required this.text, required this.color});
+
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(18),
+    child: Row(
+      children: [
+        Icon(icon, color: color),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+        ),
+      ],
+    ),
+  );
 }
