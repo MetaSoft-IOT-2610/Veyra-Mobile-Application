@@ -30,12 +30,7 @@ class CreateNursingHomePage extends StatelessWidget {
       create: (_) => locator<NursingHomeSetupBloc>(),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(
-          title: const Text('Create Nursing Home'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text('Create Nursing Home')),
         body: BlocConsumer<NursingHomeSetupBloc, NursingHomeSetupState>(
           listener: (context, state) {
             if (state is NursingHomeSetupError) {

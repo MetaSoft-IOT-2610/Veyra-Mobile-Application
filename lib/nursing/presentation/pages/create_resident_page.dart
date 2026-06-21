@@ -60,12 +60,7 @@ class _CreateResidentPageState extends State<CreateResidentPage> {
       create: (_) => locator<NursingBloc>(),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(
-          title: const Text('Register Resident'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text('Register Resident')),
         body: BlocConsumer<NursingBloc, NursingState>(
           listener: (context, state) {
             if (state is NursingError) {

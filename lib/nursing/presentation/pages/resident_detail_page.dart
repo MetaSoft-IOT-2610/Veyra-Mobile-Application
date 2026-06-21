@@ -48,9 +48,6 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
           backgroundColor: Colors.blue.shade50,
           appBar: AppBar(
             title: Text(_resident.fullName),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black87,
-            elevation: 0,
             bottom: const TabBar(
               isScrollable: true,
               tabs: [
