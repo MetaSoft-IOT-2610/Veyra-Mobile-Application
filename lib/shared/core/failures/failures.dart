@@ -11,17 +11,17 @@ abstract class Failure {
 
 /// Errores provenientes del backend (HTTP 500, 404, etc.)
 class ServerFailure extends Failure {
-  const ServerFailure(String message, {String? code}) : super(message, code: code);
+  const ServerFailure(super.message, {super.code});
 }
 
 /// Errores de validación de reglas de negocio o formularios (HTTP 400)
 class ValidationFailure extends Failure {
-  const ValidationFailure(String message) : super(message);
+  const ValidationFailure(super.message);
 }
 
 /// Errores de almacenamiento local (SQLite/Hive)
 class CacheFailure extends Failure {
-  const CacheFailure(String message) : super(message);
+  const CacheFailure(super.message);
 }
 
 /// Errores cuando no hay internet disponible
