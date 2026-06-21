@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
-import '../../../shared/infrastructure/local/token_manager.dart';
 import '../../domain/entities/subscription.dart';
 import '../bloc/account_bloc.dart';
-import 'subscription_setup_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final int userId;
@@ -75,7 +73,7 @@ class ProfilePage extends StatelessWidget {
             }
 
             if (state is AccountNoSubscription) {
-              return _NoSubscriptionContent(userId: userId);
+              return const _NoSubscriptionContent();
             }
 
             return const SizedBox.shrink();
@@ -87,14 +85,10 @@ class ProfilePage extends StatelessWidget {
 }
 
 class _NoSubscriptionContent extends StatelessWidget {
-  final int userId;
-
-  const _NoSubscriptionContent({required this.userId});
+  const _NoSubscriptionContent();
 
   @override
   Widget build(BuildContext context) {
-    final nursingHomeId = TokenManager.getNursingHomeId();
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -114,26 +108,9 @@ class _NoSubscriptionContent extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Choose a nursing home plan to enable the full administrator dashboard.',
+              'Subscription information is not available for this account.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade700),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.add_card),
-              label: const Text('Choose plan'),
-              onPressed: nursingHomeId == null
-                  ? null
-                  : () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => SubscriptionSetupPage(
-                            userId: userId,
-                            nursingHomeId: nursingHomeId,
-                          ),
-                        ),
-                      );
-                    },
             ),
           ],
         ),
