@@ -1,6 +1,7 @@
 import '../../../shared/core/failures/failures.dart';
 import '../../../shared/core/result/result.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
+import '../../domain/entities/family_user.dart';
 import '../../domain/entities/relative.dart';
 import '../../domain/entities/resident.dart';
 import '../../domain/entities/resident_health_record.dart';
@@ -189,12 +190,21 @@ class NursingRepositoryImpl implements INursingRepository {
   }
 
   @override
+  Future<Result<Failure, List<FamilyUser>>> getFamilyUsers() async {
+    return _run(() async {
+      final models = await remoteDataSource.getFamilyUsers();
+      return models.map((model) => model.toEntity()).toList();
+    });
+  }
+
+  @override
   Future<Result<Failure, Relative>> createRelative({
     required int nursingHomeId,
     required int residentId,
     required String firstName,
     required String lastName,
     required String email,
+    required int userId,
   }) async {
     return _run(() async {
       final model = await remoteDataSource.createRelative(
@@ -203,6 +213,7 @@ class NursingRepositoryImpl implements INursingRepository {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        userId: userId,
       );
       return model.toEntity();
     });

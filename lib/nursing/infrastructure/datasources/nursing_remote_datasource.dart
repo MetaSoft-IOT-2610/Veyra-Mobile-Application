@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../shared/application/contracts/i_http_client.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
+import '../models/family_user_model.dart';
 import '../models/resident_health_models.dart';
 import '../models/resident_model.dart';
 import '../models/relative_model.dart';
@@ -64,6 +65,8 @@ abstract class NursingRemoteDataSource {
 
   Future<List<ResidentVitalSignModel>> getVitalSigns(int residentId);
 
+  Future<List<FamilyUserModel>> getFamilyUsers();
+
   Future<List<RelativeModel>> getRelatives(int nursingHomeId);
 
   Future<RelativeModel> createRelative({
@@ -72,6 +75,7 @@ abstract class NursingRemoteDataSource {
     required String firstName,
     required String lastName,
     required String email,
+    required int userId,
   });
 }
 
@@ -328,12 +332,27 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
   }
 
   @override
+  Future<List<FamilyUserModel>> getFamilyUsers() async {
+    try {
+      final response = await client.get('users');
+      final data = _extractList(response);
+      return data
+          .map((json) => FamilyUserModel.fromJson(json as Map<String, dynamic>))
+          .where((user) => user.roles.contains('ROLE_FAMILIAR'))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Error fetching family users: $e');
+    }
+  }
+
+  @override
   Future<RelativeModel> createRelative({
     required int nursingHomeId,
     required int residentId,
     required String firstName,
     required String lastName,
     required String email,
+    required int userId,
   }) async {
     try {
       final response = await client.post(
@@ -346,6 +365,13 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
         },
       );
       if (response is Map<String, dynamic>) {
+        final linkedResponse = await client.post(
+          'relatives/user-link',
+          data: {'email': email, 'userId': userId},
+        );
+        if (linkedResponse is Map<String, dynamic>) {
+          return RelativeModel.fromJson(linkedResponse);
+        }
         return RelativeModel.fromJson(response);
       }
       throw ParsingException(message: 'Relative data could not be parsed.');

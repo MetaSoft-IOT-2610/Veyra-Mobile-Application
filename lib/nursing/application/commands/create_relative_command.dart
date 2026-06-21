@@ -1,5 +1,6 @@
 import '../../../shared/core/failures/failures.dart';
 import '../../../shared/core/result/result.dart';
+import '../../domain/entities/family_user.dart';
 import '../../domain/entities/relative.dart';
 import '../../domain/repositories/i_nursing_repository.dart';
 
@@ -11,9 +12,7 @@ class CreateRelativeCommand {
   Future<Result<Failure, Relative>> execute({
     required int nursingHomeId,
     required int residentId,
-    required String firstName,
-    required String lastName,
-    required String email,
+    required FamilyUser familyUser,
   }) async {
     if (nursingHomeId <= 0 || residentId <= 0) {
       return Result.failure(
@@ -21,30 +20,27 @@ class CreateRelativeCommand {
       );
     }
 
-    if (firstName.trim().isEmpty ||
-        lastName.trim().isEmpty ||
-        email.trim().isEmpty) {
+    if (familyUser.id <= 0) {
       return Result.failure(
-        const ValidationFailure('Complete the family member information.'),
+        const ValidationFailure('Select a valid family account.'),
       );
     }
 
-    if (!_isValidEmail(email.trim())) {
+    if (!familyUser.hasEmailUsername) {
       return Result.failure(
-        const ValidationFailure('Enter a valid family member email.'),
+        const ValidationFailure(
+          'The selected family account must use an email as username.',
+        ),
       );
     }
 
     return _repository.createRelative(
       nursingHomeId: nursingHomeId,
       residentId: residentId,
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim(),
+      firstName: familyUser.firstName,
+      lastName: familyUser.lastName,
+      email: familyUser.email,
+      userId: familyUser.id,
     );
-  }
-
-  bool _isValidEmail(String value) {
-    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);
   }
 }

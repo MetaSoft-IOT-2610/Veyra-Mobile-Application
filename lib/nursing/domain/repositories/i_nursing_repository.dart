@@ -2,6 +2,7 @@ import 'package:veyra_mobile_app/nursing/domain/entities/resident.dart';
 
 import '../../../shared/core/result/result.dart';
 import '../../../shared/core/failures/failures.dart';
+import '../entities/family_user.dart';
 import '../entities/relative.dart';
 import '../entities/resident_health_record.dart';
 import '../entities/room.dart';
@@ -68,6 +69,8 @@ abstract class INursingRepository {
     int residentId,
   );
 
+  Future<Result<Failure, List<FamilyUser>>> getFamilyUsers();
+
   Future<Result<Failure, List<Relative>>> getRelatives(int nursingHomeId);
 
   Future<Result<Failure, Relative>> createRelative({
@@ -76,5 +79,6 @@ abstract class INursingRepository {
     required String firstName,
     required String lastName,
     required String email,
+    required int userId,
   });
 }
