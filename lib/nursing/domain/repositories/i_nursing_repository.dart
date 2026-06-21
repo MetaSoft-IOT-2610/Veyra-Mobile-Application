@@ -2,6 +2,7 @@ import 'package:veyra_mobile_app/nursing/domain/entities/resident.dart';
 
 import '../../../shared/core/result/result.dart';
 import '../../../shared/core/failures/failures.dart';
+import '../entities/relative.dart';
 import '../entities/resident_health_record.dart';
 import '../entities/room.dart';
 
@@ -66,4 +67,14 @@ abstract class INursingRepository {
   Future<Result<Failure, List<ResidentVitalSign>>> getVitalSigns(
     int residentId,
   );
+
+  Future<Result<Failure, List<Relative>>> getRelatives(int nursingHomeId);
+
+  Future<Result<Failure, Relative>> createRelative({
+    required int nursingHomeId,
+    required int residentId,
+    required String firstName,
+    required String lastName,
+    required String email,
+  });
 }
