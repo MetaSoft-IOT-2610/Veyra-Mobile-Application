@@ -39,12 +39,7 @@ class _SubscriptionSetupPageState extends State<SubscriptionSetupPage> {
       create: (_) => locator<AccountBloc>(),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(
-          title: const Text('Subscription'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text('Subscription')),
         body: BlocConsumer<AccountBloc, AccountState>(
           listener: (context, state) {
             if (state is AccountError) {

@@ -65,12 +65,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
       create: (_) => locator<PersonProfileBloc>(),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(
-          title: const Text('Complete Profile'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text('Complete Profile')),
         body: BlocConsumer<PersonProfileBloc, PersonProfileState>(
           listener: (context, state) {
             if (state is PersonProfileError) {
@@ -92,9 +87,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
               );
 
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => const FamilyPortalPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const FamilyPortalPage()),
               );
             }
           },

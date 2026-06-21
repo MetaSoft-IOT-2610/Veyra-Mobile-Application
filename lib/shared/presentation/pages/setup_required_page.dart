@@ -17,11 +17,7 @@ class SetupRequiredPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Setup Required'),
-        backgroundColor: Colors.teal.shade700,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('Setup Required')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),

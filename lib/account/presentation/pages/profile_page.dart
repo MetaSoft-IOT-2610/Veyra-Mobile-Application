@@ -21,12 +21,7 @@ class ProfilePage extends StatelessWidget {
           locator<AccountBloc>()..add(LoadActiveSubscriptionEvent(userId)),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(
-          title: const Text('Mi Cuenta'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text('Mi Cuenta')),
         body: BlocBuilder<AccountBloc, AccountState>(
           builder: (context, state) {
             if (state is AccountLoading) {
