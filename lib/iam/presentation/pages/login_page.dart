@@ -1,252 +1,199 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../app/di/dependency_injection.dart';
 import '../../../doctor/presentation/pages/doctor_portal_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
+import '../widgets/login/login_card.dart';
+import '../widgets/login/login_footer_text.dart';
+import '../widgets/login/login_header.dart';
 import 'family_home_page.dart';
 import 'setup_required_page.dart';
 
-/// Authentication page responsible for handling user login.
-///
-/// This page serves as the entry point to the application and
-/// allows users to authenticate using their credentials.
-///
-/// Responsibilities:
-/// - Capture user credentials.
-/// - Dispatch authentication requests through [AuthBloc].
-/// - Display loading and error states.
-/// - Redirect authenticated users to the appropriate dashboard.
-/// - Provide a simple and secure login experience.
-class LoginPage extends StatelessWidget {
-  /// Creates a new [LoginPage].
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
-  /// Controller used to capture the username input.
-  final TextEditingController _usernameController = TextEditingController();
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
-  /// Controller used to capture the password input.
-  final TextEditingController _passwordController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _passwordFocusNode = FocusNode();
 
-  /// Builds the login page and provides the [AuthBloc]
-  /// through dependency injection.
-  ///
-  /// State Handling:
-  /// - [AuthLoading]: Displays a loading indicator and disables login.
-  /// - [AuthError]: Displays an error message or redirects to Setup.
-  /// - [AuthSuccess]: Navigates to the dashboard.
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _submitLogin(BuildContext context) {
+    if (!_formKey.currentState!.validate()) return;
+
+    FocusScope.of(context).unfocus();
+
+    context.read<AuthBloc>().add(
+      PerformLoginEvent(
+        _usernameController.text.trim(),
+        _passwordController.text,
+      ),
+    );
+  }
+
+  void _handleAuthError(BuildContext context, AuthError state) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    if (_isSetupRequiredError(state.message)) {
+      _goToPage(context, const SetupRequiredPage());
+      return;
+    }
+
+    _showErrorMessage(context, state.message);
+  }
+
+  bool _isSetupRequiredError(String message) {
+    return message.contains('Requiere configuración inicial') ||
+        message.contains('404');
+  }
+
+  void _handleAuthSuccess(BuildContext context, AuthSuccess state) {
+    final session = state.session;
+
+    if (session.isDoctor) {
+      final staffId = session.staffId;
+      final nursingHomeId = session.nursingHomeId;
+
+      if (staffId == null || nursingHomeId == null) {
+        _showErrorMessage(
+          context,
+          'No se pudo cargar la información del doctor.',
+        );
+        return;
+      }
+
+      _goToPage(
+        context,
+        DoctorPortalPage(staffId: staffId, nursingHomeId: nursingHomeId),
+      );
+      return;
+    }
+
+    if (session.isFamily) {
+      _goToPage(
+        context,
+        session.requiresPersonProfileSetup
+            ? const SetupRequiredPage()
+            : const FamilyHomePage(),
+      );
+      return;
+    }
+
+    if (session.requiresNursingHomeSetup && session.administratorId != null) {
+      _goToPage(context, const SetupRequiredPage());
+      return;
+    }
+
+    final nursingHomeId = session.nursingHomeId;
+
+    if (nursingHomeId == null) {
+      _showErrorMessage(
+        context,
+        'No se pudo cargar la casa de reposo asociada a esta cuenta.',
+      );
+      return;
+    }
+
+    _goToPage(context, AdminMainLayoutPage(nursingHomeId: nursingHomeId));
+  }
+
+  void _goToPage(BuildContext context, Widget page) {
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => page));
+  }
+
+  void _showErrorMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.red.shade700,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      /// Injects the authentication BLoC from the service locator.
       create: (_) => locator<AuthBloc>(),
       child: Scaffold(
-        backgroundColor: Colors.blue.shade50,
+        resizeToAvoidBottomInset: true,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFEAF7F6), Color(0xFFF7FBFF), Color(0xFFE8F1FF)],
+            ),
+          ),
+          child: SafeArea(
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthError) {
+                  _handleAuthError(context, state);
+                }
 
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+                if (state is AuthSuccess) {
+                  _handleAuthSuccess(context, state);
+                }
+              },
+              builder: (context, state) {
+                final isLoading = state is AuthLoading;
 
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-
-                child: BlocConsumer<AuthBloc, AuthState>(
-                  /// Handles side effects such as navigation
-                  /// and displaying error messages.
-                  listener: (context, state) {
-                    /// Authentication failed.
-                    if (state is AuthError) {
-                      // Ocultamos cualquier mensaje previo
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-                      // FIX: Verificamos si es el error de "Base de datos vacía / Sin Casa de Reposo"
-                      if (state.message.contains(
-                            'Requiere configuración inicial',
-                          ) ||
-                          state.message.contains('404')) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const SetupRequiredPage(),
-                          ),
-                        );
-                      }
-                      // Si es un error normal (contraseña incorrecta, sin internet, etc.)
-                      else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.message),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                    /// Authentication succeeded.
-                    ///
-                    /// Redirects the user to the nursing home's
-                    /// administrative dashboard using the identifier
-                    /// returned by the authentication process.
-                    else if (state is AuthSuccess) {
-                      if (state.session.isDoctor) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => DoctorPortalPage(
-                              staffId: state.session.staffId!,
-                              nursingHomeId: state.session.nursingHomeId!,
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 24,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight - 48,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 430),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const LoginHeader(),
+                                const SizedBox(height: 28),
+                                LoginCard(
+                                  formKey: _formKey,
+                                  usernameController: _usernameController,
+                                  passwordController: _passwordController,
+                                  passwordFocusNode: _passwordFocusNode,
+                                  isLoading: isLoading,
+                                  onSubmit: () => _submitLogin(context),
+                                ),
+                                const SizedBox(height: 20),
+                                const LoginFooterText(),
+                              ],
                             ),
                           ),
-                        );
-                        return;
-                      }
-
-                      if (state.session.isFamily) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                state.session.requiresPersonProfileSetup
-                                ? const SetupRequiredPage()
-                                : const FamilyHomePage(),
-                          ),
-                        );
-                        return;
-                      }
-
-                      if (state.session.requiresNursingHomeSetup &&
-                          state.session.administratorId != null) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const SetupRequiredPage(),
-                          ),
-                        );
-                        return;
-                      }
-
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) => AdminMainLayoutPage(
-                            nursingHomeId: state.session.nursingHomeId!,
-                          ),
                         ),
-                      );
-                    }
-                  },
-
-                  /// Rebuilds the UI whenever the authentication
-                  /// state changes.
-                  builder: (context, state) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        /// Application logo/icon.
-                        const Icon(
-                          Icons.health_and_safety,
-                          size: 80,
-                          color: Colors.blue,
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// Application title.
-                        const Text(
-                          'Veyra Mobile App',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 32),
-
-                        /// Username input field.
-                        TextField(
-                          controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.person),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// Password input field.
-                        ///
-                        /// Characters are hidden to
-                        /// improve security.
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.lock),
-                          ),
-                        ),
-
-                        const SizedBox(height: 32),
-
-                        /// Login button.
-                        ///
-                        /// Disabled while authentication
-                        /// is in progress.
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-
-                            onPressed: state is AuthLoading
-                                ? null
-                                : () {
-                                    /// Hides the
-                                    /// keyboard before
-                                    /// processing login.
-                                    FocusScope.of(context).unfocus();
-
-                                    /// Dispatches the
-                                    /// login request.
-                                    context.read<AuthBloc>().add(
-                                      PerformLoginEvent(
-                                        _usernameController.text,
-                                        _passwordController.text,
-                                      ),
-                                    );
-                                  },
-
-                            /// Displays a loading indicator
-                            /// while authentication is running.
-                            child: state is AuthLoading
-                                ? const SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Sign In',
-                                    style: TextStyle(fontSize: 18),
-                                  ),
-                          ),
-                        ),
-                      ],
+                      ),
                     );
                   },
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),
