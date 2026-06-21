@@ -10,7 +10,7 @@ enum SignUpRole { family, administrator }
 
 /// Page used to register a new account based on the selected user role.
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+  const SignUpPage({super.key});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();

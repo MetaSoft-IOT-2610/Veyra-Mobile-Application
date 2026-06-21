@@ -22,7 +22,7 @@ import 'setup_required_page.dart';
 /// - Provide a simple and secure login experience.
 class LoginPage extends StatelessWidget {
   /// Creates a new [LoginPage].
-  LoginPage({Key? key}) : super(key: key);
+  LoginPage({super.key});
 
   /// Controller used to capture the username input.
   final TextEditingController _usernameController = TextEditingController();
