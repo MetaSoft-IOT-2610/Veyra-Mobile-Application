@@ -533,7 +533,7 @@ class _FamilyTab extends StatelessWidget {
             child: familyUsers.isEmpty
                 ? const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text('No family accounts available.'),
+                    child: Text('No family email accounts available.'),
                   )
                 : Column(
                     mainAxisSize: MainAxisSize.min,

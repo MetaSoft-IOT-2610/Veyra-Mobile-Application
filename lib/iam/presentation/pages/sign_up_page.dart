@@ -141,11 +141,16 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 28),
                         TextField(
                           controller: _usernameController,
+                          keyboardType: isFamily
+                              ? TextInputType.emailAddress
+                              : TextInputType.text,
                           textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.person),
+                          decoration: InputDecoration(
+                            labelText: isFamily ? 'Email' : 'Username',
+                            border: const OutlineInputBorder(),
+                            prefixIcon: Icon(
+                              isFamily ? Icons.email_outlined : Icons.person,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

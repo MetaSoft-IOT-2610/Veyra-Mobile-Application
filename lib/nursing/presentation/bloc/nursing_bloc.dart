@@ -310,7 +310,10 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
             .toSet(),
       );
       familyUsers = value
-          .where((user) => !assignedUserIds.contains(user.id))
+          .where(
+            (user) =>
+                user.hasEmailUsername && !assignedUserIds.contains(user.id),
+          )
           .toList();
     });
     allergiesResult.fold((failure) => error ??= failure.message, (value) {
