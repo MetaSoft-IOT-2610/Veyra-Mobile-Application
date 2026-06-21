@@ -11,6 +11,7 @@ import '../../nursing/nursing.dart';
 import '../../hcm/hcm.dart';
 import '../../iam/iam.dart';
 import '../../profiles/profiles.dart';
+import '../../family/family.dart';
 
 final locator = GetIt.instance;
 
@@ -27,6 +28,7 @@ Future<void> initDependencies() async {
   initIamModule(locator);
   initAccountModule(locator);
   initProfilesModule(locator);
+  initFamilyModule(locator);
 }
 
 /// Initializes core services like the HTTP Client
