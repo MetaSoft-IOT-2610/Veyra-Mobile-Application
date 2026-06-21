@@ -11,16 +11,23 @@ class AnalyticsRepositoryImpl implements IAnalyticsRepository {
   AnalyticsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Result<Failure, OperationalMetrics>> getOperationalMetrics(int nursingHomeId) async {
+  Future<Result<Failure, OperationalMetrics>> getOperationalMetrics(
+    int nursingHomeId,
+  ) async {
     try {
-      final metricsModel = await remoteDataSource.getOperationalMetrics(nursingHomeId);
+      final metricsModel = await remoteDataSource.getOperationalMetrics(
+        nursingHomeId,
+      );
 
       return Result.success(metricsModel.toEntity());
-
     } on ServerException catch (e) {
-      return Result.failure(ServerFailure(e.message, code: e.statusCode?.toString()));
+      return Result.failure(
+        ServerFailure(e.message, code: e.statusCode?.toString()),
+      );
     } catch (e) {
-      return Result.failure(ServerFailure('Error inesperado procesando métricas: $e'));
+      return Result.failure(
+        ServerFailure('Error inesperado procesando métricas: $e'),
+      );
     }
   }
 }

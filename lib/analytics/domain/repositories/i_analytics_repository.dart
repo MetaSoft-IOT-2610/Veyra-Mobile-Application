@@ -27,6 +27,6 @@ abstract class IAnalyticsRepository {
   ///     await repository.getOperationalMetrics(1);
   /// ```
   Future<Result<Failure, OperationalMetrics>> getOperationalMetrics(
-      int nursingHomeId,
-      );
+    int nursingHomeId,
+  );
 }
