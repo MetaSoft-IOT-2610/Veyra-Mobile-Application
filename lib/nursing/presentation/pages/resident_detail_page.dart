@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../domain/entities/family_user.dart';
+import '../../domain/entities/relative.dart';
 import '../../domain/entities/resident.dart';
 import '../../domain/entities/resident_health_record.dart';
 import '../bloc/nursing_bloc.dart';
@@ -32,11 +34,15 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          locator<NursingBloc>()
-            ..add(LoadResidentDetailsEvent(residentId: _resident.id)),
+      create: (_) => locator<NursingBloc>()
+        ..add(
+          LoadResidentDetailsEvent(
+            nursingHomeId: widget.nursingHomeId,
+            residentId: _resident.id,
+          ),
+        ),
       child: DefaultTabController(
-        length: 3,
+        length: 4,
         child: Scaffold(
           backgroundColor: Colors.blue.shade50,
           appBar: AppBar(
@@ -45,10 +51,12 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
             foregroundColor: Colors.black87,
             elevation: 0,
             bottom: const TabBar(
+              isScrollable: true,
               tabs: [
                 Tab(icon: Icon(Icons.info_outline), text: 'Details'),
                 Tab(icon: Icon(Icons.meeting_room_outlined), text: 'Room'),
                 Tab(icon: Icon(Icons.monitor_heart_outlined), text: 'Health'),
+                Tab(icon: Icon(Icons.family_restroom_outlined), text: 'Family'),
               ],
             ),
           ),
@@ -74,7 +82,10 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                   ),
                 );
                 context.read<NursingBloc>().add(
-                  LoadResidentDetailsEvent(residentId: _resident.id),
+                  LoadResidentDetailsEvent(
+                    nursingHomeId: widget.nursingHomeId,
+                    residentId: _resident.id,
+                  ),
                 );
               }
             },
@@ -93,6 +104,13 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                     allergies: details?.allergies ?? const [],
                     conditions: details?.medicalConditions ?? const [],
                     vitalSigns: details?.vitalSigns ?? const [],
+                  ),
+                  _FamilyTab(
+                    nursingHomeId: widget.nursingHomeId,
+                    resident: _resident,
+                    isLoading: state is NursingLoading,
+                    familyUsers: details?.familyUsers ?? const [],
+                    relatives: details?.relatives ?? const [],
                   ),
                 ],
               );
@@ -447,6 +465,179 @@ class _HealthTab extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FamilyTab extends StatelessWidget {
+  final int nursingHomeId;
+  final Resident resident;
+  final bool isLoading;
+  final List<FamilyUser> familyUsers;
+  final List<Relative> relatives;
+
+  const _FamilyTab({
+    required this.nursingHomeId,
+    required this.resident,
+    required this.isLoading,
+    required this.familyUsers,
+    required this.relatives,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) return const Center(child: CircularProgressIndicator());
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _ListSection(
+          title: 'Assigned family',
+          icon: Icons.family_restroom_outlined,
+          action: () => _showRelativeDialog(context),
+          emptyText: 'No relatives assigned to this resident.',
+          children: relatives
+              .map(
+                (relative) => ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.shade50,
+                    foregroundColor: Colors.blue.shade700,
+                    child: const Icon(Icons.person_outline),
+                  ),
+                  title: Text(relative.fullName),
+                  subtitle: Text(relative.email),
+                  trailing: _Badge(
+                    relative.hasUser ? 'User #${relative.userId}' : 'Pending',
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  void _showRelativeDialog(BuildContext context) {
+    final bloc = context.read<NursingBloc>();
+    final messenger = ScaffoldMessenger.of(context);
+    FamilyUser? selectedUser;
+
+    showDialog<void>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Assign family to ${resident.fullName}'),
+          content: SizedBox(
+            width: 420,
+            child: familyUsers.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text('No family email accounts available.'),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 320),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: familyUsers.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final user = familyUsers[index];
+                            final selected = selectedUser?.id == user.id;
+                            return ListTile(
+                              selected: selected,
+                              onTap: () => setState(() => selectedUser = user),
+                              title: Text(user.displayName),
+                              subtitle: Text(user.email),
+                              trailing: Icon(
+                                selected
+                                    ? Icons.check_circle
+                                    : Icons.person_outline,
+                                color: selected ? Colors.blue : null,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      if (selectedUser != null) ...[
+                        const SizedBox(height: 12),
+                        _SelectedFamilyPreview(user: selectedUser!),
+                      ],
+                    ],
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: familyUsers.isEmpty
+                  ? null
+                  : () {
+                      final user = selectedUser;
+                      if (user == null) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Select a family account.'),
+                          ),
+                        );
+                        return;
+                      }
+                      bloc.add(
+                        CreateResidentRelativeEvent(
+                          nursingHomeId: nursingHomeId,
+                          residentId: resident.id,
+                          familyUser: user,
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    },
+              child: const Text('Assign'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectedFamilyPreview extends StatelessWidget {
+  final FamilyUser user;
+
+  const _SelectedFamilyPreview({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.person_add_alt_1, color: Colors.blue.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.displayName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(user.email),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

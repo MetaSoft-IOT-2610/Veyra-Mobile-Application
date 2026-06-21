@@ -1,8 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../application/commands/create_relative_command.dart';
 import '../../application/commands/create_resident_command.dart';
+import '../../application/queries/get_family_users_query.dart';
+import '../../application/queries/get_resident_relatives_query.dart';
 import '../../application/queries/get_resident_summary_query.dart';
 import '../../application/queries/get_resident_list_query.dart';
 import '../../application/dto/resident_summary_dto.dart';
+import '../../domain/entities/family_user.dart';
+import '../../domain/entities/relative.dart';
 import '../../domain/entities/resident.dart';
 import '../../domain/entities/resident_health_record.dart';
 import '../../domain/repositories/i_nursing_repository.dart';
@@ -63,8 +68,13 @@ class CreateResidentEvent extends NursingEvent {
 }
 
 class LoadResidentDetailsEvent extends NursingEvent {
+  final int nursingHomeId;
   final int residentId;
-  LoadResidentDetailsEvent({required this.residentId});
+
+  LoadResidentDetailsEvent({
+    required this.nursingHomeId,
+    required this.residentId,
+  });
 }
 
 class AssignResidentRoomEvent extends NursingEvent {
@@ -111,6 +121,18 @@ class RegisterMedicalConditionEvent extends NursingEvent {
   });
 }
 
+class CreateResidentRelativeEvent extends NursingEvent {
+  final int nursingHomeId;
+  final int residentId;
+  final FamilyUser familyUser;
+
+  CreateResidentRelativeEvent({
+    required this.nursingHomeId,
+    required this.residentId,
+    required this.familyUser,
+  });
+}
+
 // STATES
 abstract class NursingState {}
 
@@ -134,11 +156,15 @@ class NursingResidentCreated extends NursingState {
 }
 
 class ResidentDetailsLoaded extends NursingState {
+  final List<FamilyUser> familyUsers;
+  final List<Relative> relatives;
   final List<ResidentAllergy> allergies;
   final List<ResidentMedicalCondition> medicalConditions;
   final List<ResidentVitalSign> vitalSigns;
 
   ResidentDetailsLoaded({
+    required this.familyUsers,
+    required this.relatives,
     required this.allergies,
     required this.medicalConditions,
     required this.vitalSigns,
@@ -162,6 +188,9 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
   final GetResidentSummaryQuery _getResidentSummaryQuery;
   final GetResidentListQuery _getResidentListQuery;
   final CreateResidentCommand _createResidentCommand;
+  final GetFamilyUsersQuery _getFamilyUsersQuery;
+  final GetResidentRelativesQuery _getResidentRelativesQuery;
+  final CreateRelativeCommand _createRelativeCommand;
   final INursingRepository _repository;
 
   // Inyectamos ambos casos de uso
@@ -169,6 +198,9 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     this._getResidentSummaryQuery,
     this._getResidentListQuery,
     this._createResidentCommand,
+    this._getFamilyUsersQuery,
+    this._getResidentRelativesQuery,
+    this._createRelativeCommand,
     this._repository,
   ) : super(NursingInitial()) {
     on<LoadResidentSummaryEvent>(_onLoadResidentSummary);
@@ -178,6 +210,7 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     on<AssignResidentRoomEvent>(_onAssignRoom);
     on<RegisterResidentAllergyEvent>(_onRegisterAllergy);
     on<RegisterMedicalConditionEvent>(_onRegisterMedicalCondition);
+    on<CreateResidentRelativeEvent>(_onCreateRelative);
   }
 
   Future<void> _onLoadResidentSummary(
@@ -246,6 +279,10 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     Emitter<NursingState> emit,
   ) async {
     emit(NursingLoading());
+    final relativesResult = await _getResidentRelativesQuery.getAll(
+      event.nursingHomeId,
+    );
+    final familyUsersResult = await _getFamilyUsersQuery.execute();
     final allergiesResult = await _repository.getAllergies(event.residentId);
     final conditionsResult = await _repository.getMedicalConditions(
       event.residentId,
@@ -253,10 +290,32 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     final vitalsResult = await _repository.getVitalSigns(event.residentId);
 
     String? error;
+    List<FamilyUser> familyUsers = [];
+    List<Relative> relatives = [];
     List<ResidentAllergy> allergies = [];
     List<ResidentMedicalCondition> conditions = [];
     List<ResidentVitalSign> vitals = [];
 
+    relativesResult.fold((failure) => error ??= failure.message, (value) {
+      relatives = value
+          .where((relative) => relative.residentId == event.residentId)
+          .toList();
+    });
+    familyUsersResult.fold((failure) => error ??= failure.message, (value) {
+      final assignedUserIds = relativesResult.fold(
+        (_) => <int>{},
+        (allRelatives) => allRelatives
+            .map((relative) => relative.userId)
+            .whereType<int>()
+            .toSet(),
+      );
+      familyUsers = value
+          .where(
+            (user) =>
+                user.hasEmailUsername && !assignedUserIds.contains(user.id),
+          )
+          .toList();
+    });
     allergiesResult.fold((failure) => error ??= failure.message, (value) {
       allergies = value;
     });
@@ -274,10 +333,28 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
 
     emit(
       ResidentDetailsLoaded(
+        familyUsers: familyUsers,
+        relatives: relatives,
         allergies: allergies,
         medicalConditions: conditions,
         vitalSigns: vitals,
       ),
+    );
+  }
+
+  Future<void> _onCreateRelative(
+    CreateResidentRelativeEvent event,
+    Emitter<NursingState> emit,
+  ) async {
+    emit(NursingLoading());
+    final result = await _createRelativeCommand.execute(
+      nursingHomeId: event.nursingHomeId,
+      residentId: event.residentId,
+      familyUser: event.familyUser,
+    );
+    result.fold(
+      (failure) => emit(NursingError(failure.message)),
+      (_) => emit(ResidentActionSuccess('Relative assigned successfully.')),
     );
   }
 

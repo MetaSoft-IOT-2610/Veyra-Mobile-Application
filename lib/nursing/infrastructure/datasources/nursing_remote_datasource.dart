@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 
 import '../../../shared/application/contracts/i_http_client.dart';
 import '../../../shared/core/exceptions/exceptions.dart';
+import '../models/family_user_model.dart';
 import '../models/resident_health_models.dart';
 import '../models/resident_model.dart';
+import '../models/relative_model.dart';
 import '../models/room_model.dart';
 
 abstract class NursingRemoteDataSource {
@@ -62,6 +64,19 @@ abstract class NursingRemoteDataSource {
   });
 
   Future<List<ResidentVitalSignModel>> getVitalSigns(int residentId);
+
+  Future<List<FamilyUserModel>> getFamilyUsers();
+
+  Future<List<RelativeModel>> getRelatives(int nursingHomeId);
+
+  Future<RelativeModel> createRelative({
+    required int nursingHomeId,
+    required int residentId,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required int userId,
+  });
 }
 
 class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
@@ -299,6 +314,121 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
     } catch (e) {
       throw ServerException(message: 'Error fetching vital signs: $e');
     }
+  }
+
+  @override
+  Future<List<RelativeModel>> getRelatives(int nursingHomeId) async {
+    try {
+      final response = await client.get(
+        'nursing-homes/$nursingHomeId/relatives',
+      );
+      final data = _extractList(response);
+      return data
+          .map((json) => RelativeModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Error fetching relatives: $e');
+    }
+  }
+
+  @override
+  Future<List<FamilyUserModel>> getFamilyUsers() async {
+    try {
+      final response = await client.get('users');
+      final data = _extractList(response);
+      return data
+          .map((json) => FamilyUserModel.fromJson(json as Map<String, dynamic>))
+          .where((user) => user.roles.contains('ROLE_FAMILIAR'))
+          .toList();
+    } catch (e) {
+      throw ServerException(message: 'Error fetching family users: $e');
+    }
+  }
+
+  @override
+  Future<RelativeModel> createRelative({
+    required int nursingHomeId,
+    required int residentId,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required int userId,
+  }) async {
+    try {
+      final normalizedEmail = email.trim().toLowerCase();
+      final existingRelatives = await getRelatives(nursingHomeId);
+      final existingRelative = _findRelativeByEmail(
+        existingRelatives,
+        normalizedEmail,
+      );
+
+      if (existingRelative != null) {
+        if (existingRelative.residentId != residentId) {
+          throw ServerException(
+            message:
+                'This family account is already assigned to another resident.',
+          );
+        }
+
+        if (existingRelative.userId != null &&
+            existingRelative.userId != userId) {
+          throw ServerException(
+            message:
+                'This relative is already linked to another family account.',
+          );
+        }
+
+        if (existingRelative.userId == userId) {
+          return existingRelative;
+        }
+
+        return await _linkUserToRelative(email: email, userId: userId);
+      }
+
+      final response = await client.post(
+        'nursing-homes/$nursingHomeId/relatives',
+        data: {
+          'firstName': firstName,
+          'lastName': lastName,
+          'email': email,
+          'residentId': residentId,
+        },
+      );
+      if (response is Map<String, dynamic>) {
+        return await _linkUserToRelative(email: email, userId: userId);
+      }
+      throw ParsingException(message: 'Relative data could not be parsed.');
+    } catch (e) {
+      throw ServerException(message: 'Error creating relative: $e');
+    }
+  }
+
+  Future<RelativeModel> _linkUserToRelative({
+    required String email,
+    required int userId,
+  }) async {
+    final linkedResponse = await client.post(
+      'relatives/user-link',
+      data: {'email': email, 'userId': userId},
+    );
+    if (linkedResponse is Map<String, dynamic>) {
+      return RelativeModel.fromJson(linkedResponse);
+    }
+    throw ParsingException(
+      message: 'Linked relative data could not be parsed.',
+    );
+  }
+
+  RelativeModel? _findRelativeByEmail(
+    List<RelativeModel> relatives,
+    String normalizedEmail,
+  ) {
+    for (final relative in relatives) {
+      if (relative.email.trim().toLowerCase() == normalizedEmail) {
+        return relative;
+      }
+    }
+    return null;
   }
 
   List<dynamic> _extractList(dynamic response) {

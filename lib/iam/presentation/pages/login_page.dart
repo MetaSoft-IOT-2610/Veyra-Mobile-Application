@@ -5,6 +5,7 @@ import '../../../profiles/presentation/pages/create_person_profile_page.dart';
 import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
+import 'family_home_page.dart';
 import 'sign_up_page.dart';
 import 'setup_required_page.dart';
 
@@ -21,7 +22,7 @@ import 'setup_required_page.dart';
 /// - Provide a simple and secure login experience.
 class LoginPage extends StatelessWidget {
   /// Creates a new [LoginPage].
-  LoginPage({Key? key}) : super(key: key);
+  LoginPage({super.key});
 
   /// Controller used to capture the username input.
   final TextEditingController _usernameController = TextEditingController();
@@ -96,7 +97,12 @@ class LoginPage extends StatelessWidget {
                       if (state.session.isFamily) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (_) => CreatePersonProfilePage(),
+                            builder: (_) =>
+                                state.session.requiresPersonProfileSetup
+                                ? CreatePersonProfilePage(
+                                    accountEmail: state.session.username ?? '',
+                                  )
+                                : const FamilyHomePage(),
                           ),
                         );
                         return;

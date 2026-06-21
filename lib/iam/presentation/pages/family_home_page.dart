@@ -7,7 +7,7 @@ import 'login_page.dart';
 class FamilyHomePage extends StatelessWidget {
   final PersonProfile? profile;
 
-  const FamilyHomePage({Key? key, this.profile}) : super(key: key);
+  const FamilyHomePage({super.key, this.profile});
 
   void _signOut(BuildContext context) {
     TokenManager.clear();

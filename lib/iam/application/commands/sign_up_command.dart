@@ -16,6 +16,12 @@ class SignUpCommand {
     final validation = _validate(username, password, confirmPassword);
     if (validation != null) return Result.failure(validation);
 
+    if (!_isValidEmail(username.trim())) {
+      return Result.failure(
+        const ValidationFailure('Family account username must be an email.'),
+      );
+    }
+
     return _repository.signUp(username.trim(), password);
   }
 
@@ -50,5 +56,9 @@ class SignUpCommand {
     }
 
     return null;
+  }
+
+  bool _isValidEmail(String value) {
+    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);
   }
 }

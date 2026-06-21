@@ -6,7 +6,7 @@ import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../bloc/auth_bloc.dart';
 
 class AdminSignUpPage extends StatelessWidget {
-  AdminSignUpPage({Key? key}) : super(key: key);
+  AdminSignUpPage({super.key});
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();

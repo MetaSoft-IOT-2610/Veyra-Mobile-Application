@@ -16,7 +16,7 @@ import 'login_page.dart';
 /// - Clear the active session before returning to the login page.
 class SetupRequiredPage extends StatelessWidget {
   /// Creates a new [SetupRequiredPage].
-  const SetupRequiredPage({Key? key}) : super(key: key);
+  const SetupRequiredPage({super.key});
 
   /// Performs a secure logout operation.
   ///
