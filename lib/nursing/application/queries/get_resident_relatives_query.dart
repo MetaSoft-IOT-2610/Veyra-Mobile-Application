@@ -12,7 +12,7 @@ class GetResidentRelativesQuery {
     required int nursingHomeId,
     required int residentId,
   }) async {
-    final result = await _repository.getRelatives(nursingHomeId);
+    final result = await getAll(nursingHomeId);
     return result.fold(
       (failure) => Result.failure(failure),
       (relatives) => Result.success(
@@ -20,6 +20,14 @@ class GetResidentRelativesQuery {
             .where((relative) => relative.residentId == residentId)
             .toList(),
       ),
+    );
+  }
+
+  Future<Result<Failure, List<Relative>>> getAll(int nursingHomeId) async {
+    final result = await _repository.getRelatives(nursingHomeId);
+    return result.fold(
+      (failure) => Result.failure(failure),
+      (relatives) => Result.success(relatives),
     );
   }
 }
