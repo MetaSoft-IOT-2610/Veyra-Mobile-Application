@@ -26,10 +26,14 @@ class AuthRepositoryImpl implements IAuthRepository {
       );
 
       if (authenticatedUser.isFamily) {
+        final hasPersonProfile = await remoteDataSource
+            .hasPersonProfileForEmail(authenticatedUser.username);
         return Result.success(
           AuthSession(
             roles: authenticatedUser.roles,
             userId: authenticatedUser.id,
+            username: authenticatedUser.username,
+            requiresPersonProfileSetup: !hasPersonProfile,
           ),
         );
       }
@@ -53,6 +57,7 @@ class AuthRepositoryImpl implements IAuthRepository {
             AuthSession(
               roles: authenticatedUser.roles,
               userId: authenticatedUser.id,
+              username: authenticatedUser.username,
               administratorId: adminId,
               nursingHomeId: nursingHomeId,
             ),
@@ -63,6 +68,7 @@ class AuthRepositoryImpl implements IAuthRepository {
               AuthSession(
                 roles: authenticatedUser.roles,
                 userId: authenticatedUser.id,
+                username: authenticatedUser.username,
                 administratorId: adminId,
                 requiresNursingHomeSetup: true,
               ),

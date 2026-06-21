@@ -13,6 +13,9 @@ abstract class IamRemoteDataSource {
   /// Retrieves the Nursing Home ID managed by the specified [administratorId].
   Future<int> getNursingHomeId(int administratorId);
 
+  /// Checks whether a person profile already exists for a family email.
+  Future<bool> hasPersonProfileForEmail(String email);
+
   /// Registers a new family user in IAM.
   Future<void> signUp(String username, String password);
 
@@ -160,6 +163,24 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
             'No se encontró una Casa de Reposo asignada. Requiere configuración inicial.',
         statusCode: 404,
       );
+    }
+  }
+
+  @override
+  Future<bool> hasPersonProfileForEmail(String email) async {
+    try {
+      final response = await client.get('person-profiles');
+      if (response is! List) return false;
+
+      final normalizedEmail = email.trim().toLowerCase();
+      return response.whereType<Map>().any(
+        (profile) =>
+            profile['emailAddress']?.toString().trim().toLowerCase() ==
+            normalizedEmail,
+      );
+    } on ServerException catch (e) {
+      if (e.statusCode == 404) return false;
+      rethrow;
     }
   }
 }
