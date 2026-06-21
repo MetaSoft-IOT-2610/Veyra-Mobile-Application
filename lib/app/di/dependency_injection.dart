@@ -41,7 +41,5 @@ void _initSharedKernel() {
   );
 
   // Register the corporate HTTP client pointing to the Spring Boot backend
-  locator.registerLazySingleton<IHttpClient>(
-    () => DioHttpClientImpl(baseUrl),
-  );
+  locator.registerLazySingleton<IHttpClient>(() => DioHttpClientImpl(baseUrl));
 }
