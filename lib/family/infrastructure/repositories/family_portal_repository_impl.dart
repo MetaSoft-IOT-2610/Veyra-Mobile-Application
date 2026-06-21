@@ -18,10 +18,10 @@ class FamilyPortalRepositoryImpl implements IFamilyPortalRepository {
         FamilyPortalData(
           relative: data.relative.toEntity(),
           resident: data.resident.toEntity(),
+          residentProfile: data.residentProfile.toEntity(),
           allergies: data.allergies.map((item) => item.toEntity()).toList(),
-          medicalConditions: data.medicalConditions
-              .map((item) => item.toEntity())
-              .toList(),
+          medications: data.medications.map((item) => item.toEntity()).toList(),
+          devices: data.devices.map((item) => item.toEntity()).toList(),
           vitalSigns: data.vitalSigns.map((item) => item.toEntity()).toList(),
           activities: data.activities.map((item) => item.toEntity()).toList(),
         ),

@@ -6,6 +6,7 @@ import '../../../app/di/dependency_injection.dart';
 import '../../../iam/presentation/pages/login_page.dart';
 import '../../../nursing/domain/entities/resident_health_record.dart';
 import '../../../shared/infrastructure/local/token_manager.dart';
+import '../../domain/entities/family_health_data.dart';
 import '../../domain/entities/family_portal_data.dart';
 import '../bloc/family_portal_bloc.dart';
 
@@ -37,7 +38,7 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
   void _signOut() {
     TokenManager.clear();
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => LoginPage()),
+      MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
     );
   }
@@ -49,15 +50,15 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
-          title: const Text('Family Portal'),
+          title: const Text('Mi familiar'),
           actions: [
             IconButton(
-              tooltip: 'Refresh',
+              tooltip: 'Actualizar',
               onPressed: () => _bloc.add(LoadFamilyPortalEvent(_userId)),
               icon: const Icon(Icons.refresh),
             ),
             IconButton(
-              tooltip: 'Sign out',
+              tooltip: 'Cerrar sesion',
               onPressed: _signOut,
               icon: const Icon(Icons.logout),
             ),
@@ -71,16 +72,16 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
             if (state is FamilyPortalUnlinked) {
               return _MessageState(
                 icon: Icons.person_search_outlined,
-                title: 'No resident assigned',
+                title: 'Sin residente asignado',
                 message:
-                    'The nursing home administrator must link your account to a resident before information appears here.',
+                    'La casa de reposo debe vincular tu cuenta con un residente para mostrar su informacion.',
                 onRetry: () => _bloc.add(LoadFamilyPortalEvent(_userId)),
               );
             }
             if (state is FamilyPortalError) {
               return _MessageState(
                 icon: Icons.cloud_off_outlined,
-                title: 'Could not load portal',
+                title: 'No se pudo cargar la informacion',
                 message: state.message,
                 onRetry: () => _bloc.add(LoadFamilyPortalEvent(_userId)),
               );
@@ -111,17 +112,17 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
-              label: 'Overview',
+              label: 'Resumen',
             ),
             NavigationDestination(
               icon: Icon(Icons.monitor_heart_outlined),
               selectedIcon: Icon(Icons.monitor_heart),
-              label: 'Health',
+              label: 'Salud',
             ),
             NavigationDestination(
               icon: Icon(Icons.event_note_outlined),
               selectedIcon: Icon(Icons.event_note),
-              label: 'Activities',
+              label: 'Actividades',
             ),
           ],
         ),
@@ -138,6 +139,8 @@ class _OverviewView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resident = data.resident;
+    final profile = data.residentProfile;
+    final hasPhoto = profile.photo.startsWith('http');
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
@@ -150,10 +153,17 @@ class _OverviewView extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.white,
-                child: Icon(Icons.elderly, size: 34, color: Color(0xFF146C94)),
+                backgroundImage: hasPhoto ? NetworkImage(profile.photo) : null,
+                child: hasPhoto
+                    ? null
+                    : const Icon(
+                        Icons.elderly,
+                        size: 34,
+                        color: Color(0xFF146C94),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -171,8 +181,8 @@ class _OverviewView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       resident.roomId == null
-                          ? 'Room pending'
-                          : 'Room ${resident.roomId}',
+                          ? 'Habitacion pendiente'
+                          : 'Habitacion ${resident.roomId}',
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ],
@@ -184,35 +194,52 @@ class _OverviewView extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _SectionCard(
-          title: 'Resident information',
+          title: 'Informacion del residente',
           icon: Icons.badge_outlined,
           children: [
-            _DetailRow(label: 'Admission', value: resident.admissionDate),
+            _DetailRow(label: 'Estado', value: resident.status),
+            _DetailRow(label: 'DNI', value: profile.dni),
             _DetailRow(
-              label: 'Emergency contact',
+              label: 'Edad',
+              value: profile.age > 0 ? '${profile.age} anos' : '',
+            ),
+            _DetailRow(label: 'Fecha de nacimiento', value: profile.birthDate),
+            _DetailRow(label: 'Telefono', value: profile.phoneNumber),
+            _DetailRow(label: 'Correo', value: profile.emailAddress),
+            _DetailRow(
+              label: 'Contacto de emergencia',
               value: resident.emergencyContactName,
             ),
             _DetailRow(
-              label: 'Emergency phone',
+              label: 'Telefono de emergencia',
               value: resident.emergencyContactPhoneNumber,
             ),
           ],
         ),
         const SizedBox(height: 12),
         _SectionCard(
-          title: 'Current summary',
+          title: 'Mi vinculacion',
+          icon: Icons.family_restroom_outlined,
+          children: [
+            _DetailRow(label: 'Familiar', value: data.relative.fullName),
+            _DetailRow(label: 'Correo', value: data.relative.email),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _SectionCard(
+          title: 'Resumen actual',
           icon: Icons.insights_outlined,
           children: [
             _DetailRow(
-              label: 'Allergies',
+              label: 'Alergias',
               value: data.allergies.length.toString(),
             ),
             _DetailRow(
-              label: 'Medical conditions',
-              value: data.medicalConditions.length.toString(),
+              label: 'Medicamentos',
+              value: data.medications.length.toString(),
             ),
             _DetailRow(
-              label: 'Activities',
+              label: 'Actividades',
               value: data.activities.length.toString(),
             ),
           ],
@@ -234,10 +261,10 @@ class _HealthView extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _HealthSection<ResidentVitalSign>(
-          title: 'Vital signs',
+          title: 'Signos vitales',
           icon: Icons.monitor_heart_outlined,
           items: data.vitalSigns,
-          emptyText: 'No vital signs recorded.',
+          emptyText: 'No hay signos vitales registrados.',
           itemBuilder: (item) => ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(item.measurementId),
@@ -246,10 +273,10 @@ class _HealthView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _HealthSection<ResidentAllergy>(
-          title: 'Allergies',
+          title: 'Alergias',
           icon: Icons.warning_amber_outlined,
           items: data.allergies,
-          emptyText: 'No allergies registered.',
+          emptyText: 'No hay alergias registradas.',
           itemBuilder: (item) => ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(item.allergenName),
@@ -258,16 +285,33 @@ class _HealthView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        _HealthSection<ResidentMedicalCondition>(
-          title: 'Medical conditions',
-          icon: Icons.medical_information_outlined,
-          items: data.medicalConditions,
-          emptyText: 'No medical conditions registered.',
+        _HealthSection<FamilyMedication>(
+          title: 'Medicamentos',
+          icon: Icons.medication_outlined,
+          items: data.medications,
+          emptyText: 'No hay medicamentos registrados.',
           itemBuilder: (item) => ListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(item.diagnosisName),
-            subtitle: Text('${item.diagnosisDate}\n${item.notes}'),
-            isThreeLine: item.notes.isNotEmpty,
+            title: Text(item.name),
+            subtitle: Text(
+              [
+                item.dosage,
+                item.drugPresentation,
+                item.description,
+              ].where((value) => value.trim().isNotEmpty).join(' - '),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _HealthSection<FamilyDevice>(
+          title: 'Dispositivos',
+          icon: Icons.watch_outlined,
+          items: data.devices,
+          emptyText: 'No hay dispositivos asignados.',
+          itemBuilder: (item) => ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(item.deviceType),
+            subtitle: item.macAddress.isEmpty ? null : Text(item.macAddress),
             trailing: _StatusBadge(text: item.status),
           ),
         ),
@@ -286,7 +330,7 @@ class _ActivitiesView extends StatelessWidget {
     if (data.activities.isEmpty) {
       return const _EmptyList(
         icon: Icons.event_busy_outlined,
-        message: 'No activities scheduled for this resident.',
+        message: 'No hay actividades programadas para este residente.',
       );
     }
 
@@ -315,10 +359,10 @@ class _ActivitiesView extends StatelessWidget {
 
   String _activityStatus(ActivityStatus status) {
     return switch (status) {
-      ActivityStatus.pending => 'PENDING',
-      ActivityStatus.inProgress => 'IN PROGRESS',
-      ActivityStatus.completed => 'COMPLETED',
-      ActivityStatus.cancelled => 'CANCELLED',
+      ActivityStatus.pending => 'PENDIENTE',
+      ActivityStatus.inProgress => 'EN CURSO',
+      ActivityStatus.completed => 'COMPLETADA',
+      ActivityStatus.cancelled => 'CANCELADA',
     };
   }
 }
@@ -409,7 +453,7 @@ class _DetailRow extends StatelessWidget {
           const SizedBox(width: 12),
           Flexible(
             child: Text(
-              value.trim().isEmpty ? 'Not available' : value,
+              value.trim().isEmpty ? 'No disponible' : value,
               textAlign: TextAlign.end,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
@@ -471,7 +515,7 @@ class _MessageState extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try again'),
+              label: const Text('Reintentar'),
             ),
           ],
         ),
