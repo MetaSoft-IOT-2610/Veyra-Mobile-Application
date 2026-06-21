@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../../shared/core/config/app_capabilities.dart';
 import '../../domain/entities/staff_contract.dart';
 import '../../domain/entities/staff_member.dart';
 import '../bloc/staff_bloc.dart';
@@ -274,15 +275,16 @@ class _ContractsCard extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-                IconButton(
-                  tooltip: activeContract == null
-                      ? 'Add contract'
-                      : 'Active contract ends on ${activeContract.endDate}',
-                  onPressed: activeContract == null && !isLoading
-                      ? onAdd
-                      : null,
-                  icon: const Icon(Icons.add),
-                ),
+                if (!AppCapabilities.isReadOnly)
+                  IconButton(
+                    tooltip: activeContract == null
+                        ? 'Add contract'
+                        : 'Active contract ends on ${activeContract.endDate}',
+                    onPressed: activeContract == null && !isLoading
+                        ? onAdd
+                        : null,
+                    icon: const Icon(Icons.add),
+                  ),
               ],
             ),
             if (activeContract != null)

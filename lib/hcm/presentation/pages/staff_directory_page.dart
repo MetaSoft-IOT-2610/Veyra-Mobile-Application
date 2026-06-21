@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/di/dependency_injection.dart';
 import '../bloc/staff_bloc.dart';
-import 'create_staff_page.dart';
 import 'staff_detail_page.dart';
 
 class StaffDirectoryPage extends StatelessWidget {
@@ -23,24 +22,6 @@ class StaffDirectoryPage extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
           elevation: 0,
-        ),
-        floatingActionButton: Builder(
-          builder: (context) => FloatingActionButton.extended(
-            icon: const Icon(Icons.person_add_alt_1),
-            label: const Text('Registrar'),
-            onPressed: () async {
-              final created = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(
-                  builder: (_) => CreateStaffPage(nursingHomeId: nursingHomeId),
-                ),
-              );
-              if (created == true && context.mounted) {
-                context.read<StaffBloc>().add(
-                  LoadActiveStaffEvent(nursingHomeId),
-                );
-              }
-            },
-          ),
         ),
         body: BlocBuilder<StaffBloc, StaffState>(
           builder: (context, state) {
