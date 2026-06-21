@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
 import '../../../doctor/presentation/pages/doctor_portal_page.dart';
+import '../../../family/presentation/pages/family_portal_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
+import '../../../shared/presentation/pages/setup_required_page.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/login/login_card.dart';
 import '../widgets/login/login_footer_text.dart';
 import '../widgets/login/login_header.dart';
-import 'family_home_page.dart';
-import 'setup_required_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
         context,
         session.requiresPersonProfileSetup
             ? const SetupRequiredPage()
-            : const FamilyHomePage(),
+            : const FamilyPortalPage(),
       );
       return;
     }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
-import '../../../iam/presentation/pages/family_home_page.dart';
+import '../../../family/presentation/pages/family_portal_page.dart';
 import '../bloc/person_profile_bloc.dart';
 
 class CreatePersonProfilePage extends StatefulWidget {
@@ -93,7 +93,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
 
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) => FamilyHomePage(profile: state.profile),
+                  builder: (_) => const FamilyPortalPage(),
                 ),
               );
             }
