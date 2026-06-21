@@ -14,4 +14,6 @@ class AuthenticatedUser {
   bool get isAdministrator => roles.contains('ROLE_ADMIN');
 
   bool get isFamily => roles.contains('ROLE_FAMILIAR');
+
+  bool get isDoctor => roles.contains('ROLE_DOCTOR');
 }

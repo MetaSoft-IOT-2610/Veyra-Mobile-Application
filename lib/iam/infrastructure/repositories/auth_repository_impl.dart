@@ -78,6 +78,30 @@ class AuthRepositoryImpl implements IAuthRepository {
         }
       }
 
+      if (authenticatedUser.isDoctor) {
+        final staffId = authenticatedUser.entityId;
+        if (staffId == null) {
+          return Result.failure(
+            const ServerFailure(
+              'Staff profile was not found for this doctor account.',
+            ),
+          );
+        }
+
+        final nursingHomeId = await remoteDataSource.getStaffNursingHomeId(
+          staffId,
+        );
+        return Result.success(
+          AuthSession(
+            roles: authenticatedUser.roles,
+            userId: authenticatedUser.id,
+            username: authenticatedUser.username,
+            staffId: staffId,
+            nursingHomeId: nursingHomeId,
+          ),
+        );
+      }
+
       return Result.failure(
         const ServerFailure('This role is not supported in the mobile app.'),
       );
