@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app/di/dependency_injection.dart';
 import 'app/observers/app_bloc_observer.dart';
 import 'iam/presentation/pages/login_page.dart';
-import 'nursing/presentation/pages/admin_dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

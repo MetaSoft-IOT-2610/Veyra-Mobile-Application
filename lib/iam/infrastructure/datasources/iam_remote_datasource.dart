@@ -13,6 +13,9 @@ abstract class IamRemoteDataSource {
   /// Retrieves the Nursing Home ID managed by the specified [administratorId].
   Future<int> getNursingHomeId(int administratorId);
 
+  /// Retrieves the nursing home assigned to the specified staff member.
+  Future<int> getStaffNursingHomeId(int staffId);
+
   /// Checks whether a person profile already exists for a family email.
   Future<bool> hasPersonProfileForEmail(String email);
 
@@ -35,7 +38,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     String password,
   ) async {
     try {
-      print('[IAM] Starting login request...');
 
       // FIX: Removed '/api/v1/' to prevent URL duplication.
       // Dio automatically prepends the Base URL (http://10.0.2.2:8080/api/v1/).
@@ -43,13 +45,11 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         'authentication/sign-in',
         data: {'username': username, 'password': password},
       );
-      print('[IAM] JSON CRUDO DEL BACKEND: $response');
 
       if (response is Map) {
         // 1. Securely save the JWT token in memory
         if (response.containsKey('token')) {
           TokenManager.saveToken(response['token'] as String);
-          print('[IAM] Token saved successfully.');
         }
 
         final id = (response['id'] as num?)?.toInt();
@@ -65,7 +65,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         int? entityId;
         if (response['entityId'] != null) {
           entityId = (response['entityId'] as num).toInt();
-          print('[IAM] Successfully extracted entityId: $entityId');
           TokenManager.saveAdministratorId(entityId);
         }
 
@@ -80,7 +79,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         message: 'Authentication response could not be parsed.',
       );
     } catch (e) {
-      print('[IAM] Error in authenticate: $e');
       throw ServerException(
         message: 'Authentication failed. Please check your credentials.',
       );
@@ -105,7 +103,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
 
       throw ParsingException(message: 'User data could not be parsed.');
     } catch (e) {
-      print('[IAM] Error in signUp: $e');
       throw ServerException(message: 'Sign up failed. Please try again.');
     }
   }
@@ -128,7 +125,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         message: 'Administrator data could not be parsed.',
       );
     } catch (e) {
-      print('[IAM] Error in signUpAdministrator: $e');
       throw ServerException(
         message: 'Administrator sign up failed. Please try again.',
       );
@@ -138,7 +134,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
   @override
   Future<int> getNursingHomeId(int administratorId) async {
     try {
-      print('[IAM] Requesting nursing home for admin ID: $administratorId');
 
       final response = await client.get(
         'administrators/$administratorId/nursing-homes',
@@ -154,7 +149,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         message: 'Nursing Home data could not be parsed from the response.',
       );
     } catch (e) {
-      print('[IAM] Error en getNursingHomeId: $e');
 
       // Lanzamos la excepción real con código 404 para que la capa de presentación
       // pueda redirigir a la pantalla de "Requiere Configuración Web".
@@ -162,6 +156,25 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         message:
             'No se encontró una Casa de Reposo asignada. Requiere configuración inicial.',
         statusCode: 404,
+      );
+    }
+  }
+
+  @override
+  Future<int> getStaffNursingHomeId(int staffId) async {
+    try {
+      final response = await client.get('staff/$staffId/nursing-homes');
+      if (response is Map && response['businessProfileId'] is num) {
+        return (response['businessProfileId'] as num).toInt();
+      }
+      throw ParsingException(
+        message: 'The staff nursing home could not be parsed.',
+      );
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(
+        message: 'Failed to find the nursing home assigned to this doctor.',
       );
     }
   }
