@@ -53,41 +53,31 @@ class GetTodayActivitiesQuery {
   ///   (activities) => print('Activities found: ${activities.length}'),
   /// );
   /// ```
-  Future<Result<Failure, List<Activity>>> execute(
-      int nursingHomeId,
-      ) async {
+  Future<Result<Failure, List<Activity>>> execute(int nursingHomeId) async {
     if (nursingHomeId <= 0) {
       return Result.failure(
-        const ValidationFailure(
-          'Invalid nursing home identifier.',
-        ),
+        const ValidationFailure('Invalid nursing home identifier.'),
       );
     }
 
-    final result =
-    await _repository.getActivitiesByNursingHome(nursingHomeId);
+    final result = await _repository.getActivitiesByNursingHome(nursingHomeId);
 
-    return result.fold(
-          (failure) => Result.failure(failure),
-          (activities) {
-        final now = DateTime.now();
+    return result.fold((failure) => Result.failure(failure), (activities) {
+      final now = DateTime.now();
 
-        final todayActivities = activities.where((activity) {
-          final startTime = activity.schedule.startTime;
+      final todayActivities = activities.where((activity) {
+        final startTime = activity.schedule.startTime;
 
-          return startTime.year == now.year &&
-              startTime.month == now.month &&
-              startTime.day == now.day;
-        }).toList();
+        return startTime.year == now.year &&
+            startTime.month == now.month &&
+            startTime.day == now.day;
+      }).toList();
 
-        todayActivities.sort(
-              (a, b) => a.schedule.startTime.compareTo(
-            b.schedule.startTime,
-          ),
-        );
+      todayActivities.sort(
+        (a, b) => a.schedule.startTime.compareTo(b.schedule.startTime),
+      );
 
-        return Result.success(todayActivities);
-      },
-    );
+      return Result.success(todayActivities);
+    });
   }
 }
