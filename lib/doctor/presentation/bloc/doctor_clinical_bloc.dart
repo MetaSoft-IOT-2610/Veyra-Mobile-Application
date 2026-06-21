@@ -125,9 +125,8 @@ class DoctorClinicalBloc
     final result = await _getRecord.execute(residentId);
     result.fold(
       (failure) => emit(DoctorClinicalError(failure.message)),
-      (record) => emit(
-        DoctorClinicalLoaded(record, successMessage: successMessage),
-      ),
+      (record) =>
+          emit(DoctorClinicalLoaded(record, successMessage: successMessage)),
     );
   }
 }

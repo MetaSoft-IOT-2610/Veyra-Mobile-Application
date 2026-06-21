@@ -12,9 +12,7 @@ void initDoctorModule(GetIt locator) {
   locator.registerLazySingleton(
     () => GetResidentClinicalRecordQuery(locator()),
   );
-  locator.registerLazySingleton(
-    () => RegisterDoctorAllergyCommand(locator()),
-  );
+  locator.registerLazySingleton(() => RegisterDoctorAllergyCommand(locator()));
   locator.registerLazySingleton(
     () => RegisterDoctorMedicalConditionCommand(locator()),
   );
