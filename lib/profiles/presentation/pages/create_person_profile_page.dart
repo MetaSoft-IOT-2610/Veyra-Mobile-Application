@@ -6,7 +6,9 @@ import '../../../iam/presentation/pages/family_home_page.dart';
 import '../bloc/person_profile_bloc.dart';
 
 class CreatePersonProfilePage extends StatefulWidget {
-  const CreatePersonProfilePage({Key? key}) : super(key: key);
+  final String accountEmail;
+
+  const CreatePersonProfilePage({super.key, required this.accountEmail});
 
   @override
   State<CreatePersonProfilePage> createState() =>
@@ -21,7 +23,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  late final TextEditingController _emailController;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
@@ -33,6 +35,29 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
 
   bool get _isPersonalStep => _currentStep == 0;
   DateTime? _selectedBirthDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(text: widget.accountEmail);
+  }
+
+  @override
+  void dispose() {
+    _dniController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _birthDateController.dispose();
+    _ageController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _streetController.dispose();
+    _numberController.dispose();
+    _cityController.dispose();
+    _postalCodeController.dispose();
+    _countryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +172,7 @@ class _CreatePersonProfilePageState extends State<CreatePersonProfilePage> {
                               label: 'Email',
                               icon: Icons.email,
                               keyboardType: TextInputType.emailAddress,
+                              readOnly: true,
                             ),
                             const SizedBox(height: 12),
                             _textField(
