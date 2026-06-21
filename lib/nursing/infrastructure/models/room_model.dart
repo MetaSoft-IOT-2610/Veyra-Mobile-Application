@@ -34,7 +34,7 @@ class RoomModel {
     );
   }
 
-  /// Mapeador Anti-Corrupción interno para asegurar que los cambios de nomenclatura 
+  /// Mapeador Anti-Corrupción interno para asegurar que los cambios de nomenclatura
   /// en los strings del Backend no rompan el tipado fuerte de la aplicación móvil.
   RoomStatus _mapStatus(String rawStatus) {
     switch (rawStatus.toUpperCase()) {
