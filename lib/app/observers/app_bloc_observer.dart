@@ -15,14 +15,18 @@ class AppBlocObserver extends BlocObserver {
     developer.log(
       '[BLOC TRANSITION] -> ${bloc.runtimeType}\n'
       '   From: ${transition.currentState}\n'
-      '   Next: ${transition.nextState}'
+      '   Next: ${transition.nextState}',
     );
   }
 
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     super.onError(bloc, error, stackTrace);
-    developer.log('[BLOC CRITICAL ERROR] -> ${bloc.runtimeType} | Error: $error', error: error, stackTrace: stackTrace);
+    developer.log(
+      '[BLOC CRITICAL ERROR] -> ${bloc.runtimeType} | Error: $error',
+      error: error,
+      stackTrace: stackTrace,
+    );
     // Aquí se conectaría el servicio de telemetría corporativo (ej. Sentry/Crashlytics)
   }
 }
