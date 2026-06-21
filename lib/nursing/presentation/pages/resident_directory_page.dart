@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/di/dependency_injection.dart';
 import '../bloc/nursing_bloc.dart';
-import 'create_resident_page.dart';
 import 'resident_detail_page.dart';
 
 class ResidentDirectoryPage extends StatelessWidget {
@@ -23,26 +22,6 @@ class ResidentDirectoryPage extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
           elevation: 0,
-        ),
-        floatingActionButton: Builder(
-          builder: (context) => FloatingActionButton.extended(
-            icon: const Icon(Icons.person_add_alt_1),
-            label: const Text('Registrar'),
-            onPressed: () async {
-              final created = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      CreateResidentPage(nursingHomeId: nursingHomeId),
-                ),
-              );
-
-              if (created == true && context.mounted) {
-                context.read<NursingBloc>().add(
-                  LoadResidentListEvent(nursingHomeId: nursingHomeId),
-                );
-              }
-            },
-          ),
         ),
         body: BlocBuilder<NursingBloc, NursingState>(
           builder: (context, state) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../../shared/core/config/app_capabilities.dart';
 import '../../domain/entities/family_user.dart';
 import '../../domain/entities/relative.dart';
 import '../../domain/entities/resident.dart';
@@ -184,12 +185,14 @@ class _RoomTab extends StatelessWidget {
                   : 'Room ID: ${resident.roomId}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.edit_location_alt_outlined),
-              label: const Text('Assign room'),
-              onPressed: () => _showAssignRoomDialog(context),
-            ),
+            if (!AppCapabilities.isReadOnly) ...[
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.edit_location_alt_outlined),
+                label: const Text('Assign room'),
+                onPressed: () => _showAssignRoomDialog(context),
+              ),
+            ],
           ],
         ),
       ),
@@ -272,7 +275,9 @@ class _HealthTab extends StatelessWidget {
         _ListSection(
           title: 'Allergies',
           icon: Icons.warning_amber_outlined,
-          action: () => _showAllergyDialog(context),
+          action: AppCapabilities.isReadOnly
+              ? null
+              : () => _showAllergyDialog(context),
           emptyText: 'No allergies registered.',
           children: allergies
               .map(
@@ -287,7 +292,9 @@ class _HealthTab extends StatelessWidget {
         _ListSection(
           title: 'Medical conditions',
           icon: Icons.medical_information_outlined,
-          action: () => _showConditionDialog(context),
+          action: AppCapabilities.isReadOnly
+              ? null
+              : () => _showConditionDialog(context),
           emptyText: 'No medical conditions registered.',
           children: conditions
               .map(
@@ -495,7 +502,9 @@ class _FamilyTab extends StatelessWidget {
         _ListSection(
           title: 'Assigned family',
           icon: Icons.family_restroom_outlined,
-          action: () => _showRelativeDialog(context),
+          action: AppCapabilities.isReadOnly
+              ? null
+              : () => _showRelativeDialog(context),
           emptyText: 'No relatives assigned to this resident.',
           children: relatives
               .map(
