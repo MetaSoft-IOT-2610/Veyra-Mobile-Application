@@ -16,7 +16,7 @@ void main() async {
 }
 
 class VeyraEnterpriseApp extends StatelessWidget {
-  const VeyraEnterpriseApp({Key? key}) : super(key: key);
+  const VeyraEnterpriseApp({super.key});
 
   @override
   Widget build(BuildContext context) {
