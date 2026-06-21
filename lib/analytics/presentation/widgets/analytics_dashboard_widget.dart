@@ -1,67 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:veyra_mobile_app/analytics/presentation/bloc/analytics_state.dart'
-    show AnalyticsState, AnalyticsLoaded, AnalyticsLoading, AnalyticsError;
-import 'package:veyra_mobile_app/app/di/dependency_injection.dart';
 
+import '../../../app/di/dependency_injection.dart';
+import '../../../shared/presentation/theme/app_colors.dart';
 import '../bloc/analytics_bloc.dart';
 import '../bloc/analytics_event.dart';
+import '../bloc/analytics_state.dart';
+import 'analytics_error_view.dart';
 
 class AnalyticsDashboardWidget extends StatelessWidget {
-  final int nursingHomeId;
-
   const AnalyticsDashboardWidget({super.key, required this.nursingHomeId});
+
+  final int nursingHomeId;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AnalyticsBloc>(
-      create: (context) =>
+      create: (_) =>
           locator<AnalyticsBloc>()
             ..add(LoadOperationalMetricsEvent(nursingHomeId: nursingHomeId)),
       child: BlocBuilder<AnalyticsBloc, AnalyticsState>(
         builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Análisis Operativo',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Refresh',
-                    onPressed: () => context.read<AnalyticsBloc>().add(
-                      LoadOperationalMetricsEvent(nursingHomeId: nursingHomeId),
-                    ),
-                    icon: const Icon(Icons.refresh),
-                  ),
-                ],
+          if (state is AnalyticsLoading) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(),
               ),
-              const SizedBox(height: 12),
-              if (state is AnalyticsLoading)
-                const Center(child: CircularProgressIndicator()),
-              if (state is AnalyticsError)
-                Card(
-                  color: Colors.red.shade50,
-                  child: ListTile(
-                    leading: const Icon(Icons.error, color: Colors.red),
-                    title: Text('Error cargando métricas: ${state.message}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: () => context.read<AnalyticsBloc>().add(
-                        LoadOperationalMetricsEvent(
-                          nursingHomeId: nursingHomeId,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              if (state is AnalyticsLoaded) _MetricsGrid(state: state),
-            ],
-          );
+            );
+          }
+          if (state is AnalyticsError) {
+            return AnalyticsErrorView(
+              message: state.message,
+              onRetry: () => context.read<AnalyticsBloc>().add(
+                LoadOperationalMetricsEvent(nursingHomeId: nursingHomeId),
+              ),
+            );
+          }
+          return state is AnalyticsLoaded
+              ? _MetricsGrid(state: state)
+              : const SizedBox.shrink();
         },
       ),
     );
@@ -69,9 +47,9 @@ class AnalyticsDashboardWidget extends StatelessWidget {
 }
 
 class _MetricsGrid extends StatelessWidget {
-  final AnalyticsLoaded state;
-
   const _MetricsGrid({required this.state});
+
+  final AnalyticsLoaded state;
 
   @override
   Widget build(BuildContext context) {
@@ -86,94 +64,121 @@ class _MetricsGrid extends StatelessWidget {
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 1.55,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1.45,
           children: [
             _MetricCard(
-              title: 'Ingresos residentes',
-              value: state.admissionsCount.toString(),
-              icon: Icons.elderly,
-              color: Colors.blue,
+              'Ingresos',
+              '${state.admissionsCount}',
+              Icons.login_rounded,
             ),
             _MetricCard(
-              title: 'Altas staff',
-              value: state.hiresCount.toString(),
-              icon: Icons.badge_outlined,
-              color: Colors.green,
+              'Altas staff',
+              '${state.hiresCount}',
+              Icons.person_add_alt_outlined,
             ),
             _MetricCard(
-              title: 'Bajas staff',
-              value: state.terminationsCount.toString(),
-              icon: Icons.person_remove_alt_1_outlined,
-              color: state.terminationsCount > 0 ? Colors.orange : Colors.green,
+              'Bajas staff',
+              '${state.terminationsCount}',
+              Icons.person_remove_alt_1_outlined,
+              warning: state.terminationsCount > 0,
             ),
             _MetricCard(
-              title: 'Rotación',
-              value: '$turnover%',
-              icon: Icons.trending_down,
-              color: turnover > 80 ? Colors.red : Colors.indigo,
+              'Rotacion',
+              '$turnover%',
+              Icons.sync_alt_rounded,
+              warning: turnover > 80,
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Card(
-          child: ListTile(
-            leading: Icon(
-              balance >= 0 ? Icons.trending_up : Icons.warning_amber_outlined,
-              color: balance >= 0 ? Colors.green : Colors.orange,
-            ),
-            title: Text(balance >= 0 ? 'Staff estable' : 'Revisar cobertura'),
-            subtitle: Text(
-              balance >= 0
-                  ? 'Hay $balance contratos netos en el año.'
-                  : 'Hay ${balance.abs()} bajas más que altas en el año.',
-            ),
-          ),
-        ),
+        const SizedBox(height: 10),
+        _BalanceTile(balance: balance),
       ],
     );
   }
 }
 
 class _MetricCard extends StatelessWidget {
-  final String title;
+  const _MetricCard(this.label, this.value, this.icon, {this.warning = false});
+
+  final String label;
   final String value;
   final IconData icon;
-  final Color color;
-
-  const _MetricCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+  final bool warning;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+    final color = warning ? AppColors.warning : AppColors.primary;
+    final background = warning ? AppColors.warningSoft : AppColors.primaryLight;
+    return Container(
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BalanceTile extends StatelessWidget {
+  const _BalanceTile({required this.balance});
+
+  final int balance;
+
+  @override
+  Widget build(BuildContext context) {
+    final stable = balance >= 0;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: ListTile(
+        leading: Icon(
+          stable ? Icons.check_circle_outline : Icons.warning_amber,
+          color: stable ? AppColors.success : AppColors.warning,
+        ),
+        title: Text(
+          stable ? 'Cobertura estable' : 'Revisar cobertura',
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(
+          stable
+              ? '$balance contratos netos este ano'
+              : '${balance.abs()} bajas mas que altas',
         ),
       ),
     );
