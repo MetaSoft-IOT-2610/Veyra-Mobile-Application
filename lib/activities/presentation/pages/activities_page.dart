@@ -6,6 +6,7 @@ import '../../../hcm/domain/entities/staff_member.dart';
 import '../../../hcm/domain/repositories/i_staff_repository.dart';
 import '../../../nursing/domain/entities/resident.dart';
 import '../../../nursing/domain/repositories/i_nursing_repository.dart';
+import '../../../shared/core/config/app_capabilities.dart';
 import '../../domain/entities/activity.dart';
 import '../bloc/activities_bloc.dart';
 
@@ -59,11 +60,13 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateActivitySheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Crear'),
-      ),
+      floatingActionButton: AppCapabilities.isReadOnly
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _showCreateActivitySheet(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Crear'),
+            ),
       body: BlocConsumer<ActivitiesBloc, ActivitiesState>(
         listener: (context, state) {
           if (state is ActivitiesLoaded && state.message != null) {
@@ -153,7 +156,6 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _ActivityCard(
                             activity: activity,
-                            nursingHomeId: widget.nursingHomeId,
                             residentName: residentsById[activity.residentId],
                             staffName: staffById[activity.healthcareStaffId],
                           ),
@@ -179,6 +181,7 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
       ),
     );
   }
+
 }
 
 class _ActivitySummary extends StatelessWidget {
@@ -335,13 +338,11 @@ class _FilterChip extends StatelessWidget {
 
 class _ActivityCard extends StatelessWidget {
   final Activity activity;
-  final int nursingHomeId;
   final String? residentName;
   final String? staffName;
 
   const _ActivityCard({
     required this.activity,
-    required this.nursingHomeId,
     this.residentName,
     this.staffName,
   });
@@ -413,74 +414,12 @@ class _ActivityCard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                if (!activity.isRecurring)
-                  TextButton.icon(
-                    onPressed: activity.status == ActivityStatus.completed
-                        ? null
-                        : () => context.read<ActivitiesBloc>().add(
-                            AdvanceActivityStatusEvent(
-                              nursingHomeId: nursingHomeId,
-                              activityId: activity.id,
-                            ),
-                          ),
-                    icon: const Icon(Icons.skip_next_outlined),
-                    label: Text(
-                      activity.status == ActivityStatus.pending
-                          ? 'Iniciar'
-                          : 'Completar',
-                    ),
-                  )
-                else
-                  TextButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.event_repeat_outlined),
-                    label: const Text('Plantilla recurrente'),
-                  ),
-                const Spacer(),
-                IconButton(
-                  tooltip: 'Eliminar',
-                  onPressed: () => _confirmDelete(context),
-                  icon: const Icon(Icons.delete_outline),
-                ),
-              ],
-            ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Eliminar actividad'),
-        content: Text('Se eliminara "${activity.title}".'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldDelete == true && context.mounted) {
-      context.read<ActivitiesBloc>().add(
-        DeleteActivityEvent(
-          nursingHomeId: nursingHomeId,
-          activityId: activity.id,
-        ),
-      );
-    }
-  }
 }
 
 class _StatusChip extends StatelessWidget {
