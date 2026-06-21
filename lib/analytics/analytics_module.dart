@@ -7,18 +7,14 @@ import 'presentation/bloc/analytics_bloc.dart';
 
 void initAnalyticsModule(GetIt locator) {
   locator.registerLazySingleton<AnalyticsRemoteDataSource>(
-    () => AnalyticsRemoteDataSourceImpl(client: locator()), 
+    () => AnalyticsRemoteDataSourceImpl(client: locator()),
   );
 
   locator.registerLazySingleton<IAnalyticsRepository>(
     () => AnalyticsRepositoryImpl(remoteDataSource: locator()),
   );
 
-  locator.registerLazySingleton(
-    () => GetOperationalMetricsQuery(locator()),
-  );
+  locator.registerLazySingleton(() => GetOperationalMetricsQuery(locator()));
 
-  locator.registerFactory(
-    () => AnalyticsBloc(locator()),
-  );
+  locator.registerFactory(() => AnalyticsBloc(locator()));
 }
