@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
 import '../../../doctor/presentation/pages/doctor_portal_page.dart';
-import '../../../profiles/presentation/pages/create_person_profile_page.dart';
-import '../../../nursing/presentation/pages/create_nursing_home_page.dart';
 import '../../../shared/presentation/pages/admin_main_layout_page.dart';
 import '../bloc/auth_bloc.dart';
 import 'family_home_page.dart';
-import 'sign_up_page.dart';
 import 'setup_required_page.dart';
 
 /// Authentication page responsible for handling user login.
@@ -112,9 +109,7 @@ class LoginPage extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (_) =>
                                 state.session.requiresPersonProfileSetup
-                                ? CreatePersonProfilePage(
-                                    accountEmail: state.session.username ?? '',
-                                  )
+                                ? const SetupRequiredPage()
                                 : const FamilyHomePage(),
                           ),
                         );
@@ -125,9 +120,7 @@ class LoginPage extends StatelessWidget {
                           state.session.administratorId != null) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (_) => CreateNursingHomePage(
-                              administratorId: state.session.administratorId!,
-                            ),
+                            builder: (_) => const SetupRequiredPage(),
                           ),
                         );
                         return;
@@ -248,19 +241,6 @@ class LoginPage extends StatelessWidget {
                                     style: TextStyle(fontSize: 18),
                                   ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: state is AuthLoading
-                              ? null
-                              : () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => SignUpPage(),
-                                    ),
-                                  );
-                                },
-                          child: const Text('Create a new account'),
                         ),
                       ],
                     );
