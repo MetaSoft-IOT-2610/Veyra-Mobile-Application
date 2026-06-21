@@ -11,25 +11,21 @@ class TokenManager {
   /// Saves the [token] and makes it available for the HTTP client.
   static void saveToken(String token) {
     _token = token;
-    print('[TokenManager] Token updated: ${_token?.substring(0, 10)}...');
   }
 
   /// Saves the [administratorId] returned after authentication.
   static void saveAdministratorId(int id) {
     _administratorId = id;
-    print('[TokenManager] Administrator ID saved: $id');
   }
 
   /// Saves the nursing home identifier associated with the administrator.
   static void saveNursingHomeId(int id) {
     _nursingHomeId = id;
-    print('[TokenManager] Nursing Home ID saved: $id');
   }
 
   /// Saves the authenticated IAM user identifier.
   static void saveUserId(int id) {
     _userId = id;
-    print('[TokenManager] User ID saved: $id');
   }
 
   /// Retrieves the current token.
