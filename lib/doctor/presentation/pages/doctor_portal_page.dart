@@ -58,9 +58,8 @@ class _DoctorPortalPageState extends State<DoctorPortalPage> {
           actions: [
             IconButton(
               tooltip: 'Refresh',
-              onPressed: () => _bloc.add(
-                LoadDoctorResidentsEvent(widget.nursingHomeId),
-              ),
+              onPressed: () =>
+                  _bloc.add(LoadDoctorResidentsEvent(widget.nursingHomeId)),
               icon: const Icon(Icons.refresh),
             ),
             IconButton(
@@ -78,9 +77,8 @@ class _DoctorPortalPageState extends State<DoctorPortalPage> {
             if (state is DoctorError) {
               return _ErrorView(
                 message: state.message,
-                onRetry: () => _bloc.add(
-                  LoadDoctorResidentsEvent(widget.nursingHomeId),
-                ),
+                onRetry: () =>
+                    _bloc.add(LoadDoctorResidentsEvent(widget.nursingHomeId)),
               );
             }
 
@@ -140,7 +138,9 @@ class _DoctorOverview extends StatelessWidget {
     final active = residents
         .where((resident) => resident.status.toUpperCase() == 'ACTIVE')
         .length;
-    final withoutRoom = residents.where((resident) => resident.roomId == null).length;
+    final withoutRoom = residents
+        .where((resident) => resident.roomId == null)
+        .length;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -245,9 +245,9 @@ class _MetricTile extends StatelessWidget {
             Expanded(child: Text(label)),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),

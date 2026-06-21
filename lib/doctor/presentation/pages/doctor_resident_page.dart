@@ -50,8 +50,14 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
             bottom: const TabBar(
               tabs: [
                 Tab(icon: Icon(Icons.monitor_heart_outlined), text: 'Vitals'),
-                Tab(icon: Icon(Icons.warning_amber_outlined), text: 'Allergies'),
-                Tab(icon: Icon(Icons.medical_information_outlined), text: 'Conditions'),
+                Tab(
+                  icon: Icon(Icons.warning_amber_outlined),
+                  text: 'Allergies',
+                ),
+                Tab(
+                  icon: Icon(Icons.medical_information_outlined),
+                  text: 'Conditions',
+                ),
               ],
             ),
           ),
@@ -59,14 +65,14 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
             listener: (context, state) {
               if (state is DoctorClinicalLoaded &&
                   state.successMessage != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.successMessage!)),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.successMessage!)));
               }
               if (state is DoctorClinicalError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
               }
             },
             builder: (context, state) {
@@ -138,10 +144,10 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
                   initialValue: type,
                   decoration: const InputDecoration(labelText: 'Type'),
                   items: const ['FOOD', 'MEDICATION', 'ENVIRONMENTAL', 'OTHER']
-                      .map((value) => DropdownMenuItem(
-                            value: value,
-                            child: Text(value),
-                          ))
+                      .map(
+                        (value) =>
+                            DropdownMenuItem(value: value, child: Text(value)),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) setDialogState(() => type = value);
@@ -151,10 +157,10 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
                   initialValue: severity,
                   decoration: const InputDecoration(labelText: 'Severity'),
                   items: const ['MILD', 'MODERATE', 'SEVERE']
-                      .map((value) => DropdownMenuItem(
-                            value: value,
-                            child: Text(value),
-                          ))
+                      .map(
+                        (value) =>
+                            DropdownMenuItem(value: value, child: Text(value)),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) setDialogState(() => severity = value);
@@ -233,10 +239,10 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
                   initialValue: status,
                   decoration: const InputDecoration(labelText: 'Status'),
                   items: const ['ACTIVE', 'CONTROLLED', 'RESOLVED']
-                      .map((value) => DropdownMenuItem(
-                            value: value,
-                            child: Text(value),
-                          ))
+                      .map(
+                        (value) =>
+                            DropdownMenuItem(value: value, child: Text(value)),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) setDialogState(() => status = value);
@@ -391,8 +397,7 @@ class _ClinicalList<T> extends StatelessWidget {
                 separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) => itemBuilder(items[index]),
               ),
-        if (action != null)
-          Positioned(right: 16, bottom: 16, child: action!),
+        if (action != null) Positioned(right: 16, bottom: 16, child: action!),
       ],
     );
   }
