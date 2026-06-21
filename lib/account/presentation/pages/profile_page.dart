@@ -11,10 +11,10 @@ class ProfilePage extends StatelessWidget {
   final int administratorId;
 
   const ProfilePage({
-    Key? key,
+    super.key,
     required this.userId,
     required this.administratorId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

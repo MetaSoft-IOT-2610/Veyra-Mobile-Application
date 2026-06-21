@@ -21,10 +21,10 @@ class SubscriptionSetupPage extends StatefulWidget {
   final int nursingHomeId;
 
   const SubscriptionSetupPage({
-    Key? key,
+    super.key,
     required this.userId,
     required this.nursingHomeId,
-  }) : super(key: key);
+  });
 
   @override
   State<SubscriptionSetupPage> createState() => _SubscriptionSetupPageState();
