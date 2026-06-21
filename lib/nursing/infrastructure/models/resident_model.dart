@@ -35,11 +35,31 @@ class ResidentModel {
   /// Factory para construir el modelo desde el JSON del backend.
   /// Incluye salvaguardas por si el backend retorna valores nulos.
   factory ResidentModel.fromJson(Map<String, dynamic> json) {
+    final profile = json['personProfile'] is Map
+        ? json['personProfile'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+    final fullName =
+        (json['fullName'] as String?) ??
+        (json['name'] as String?) ??
+        (profile['fullName'] as String?) ??
+        '';
+    final nameParts = fullName.trim().split(RegExp(r'\s+'));
+    final parsedFirstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final parsedLastName = nameParts.length > 1
+        ? nameParts.skip(1).join(' ')
+        : '';
+
     return ResidentModel(
       id: (json['id'] as num? ?? 0).toInt(),
       personProfileId: (json['personProfileId'] as num? ?? 0).toInt(),
-      firstName: json['firstName'] as String? ?? '',
-      lastName: json['lastName'] as String? ?? '',
+      firstName:
+          json['firstName'] as String? ??
+          profile['firstName'] as String? ??
+          parsedFirstName,
+      lastName:
+          json['lastName'] as String? ??
+          profile['lastName'] as String? ??
+          parsedLastName,
       admissionDate: json['admissionDate'] as String? ?? '',
       status: json['status'] as String? ?? 'ACTIVE',
       legalRepresentativeFirstName:

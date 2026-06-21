@@ -29,10 +29,7 @@ class TodayActivitiesWidget extends StatelessWidget {
   ///
   /// Requires a valid [nursingHomeId] to retrieve
   /// activity information.
-  const TodayActivitiesWidget({
-    Key? key,
-    required this.nursingHomeId,
-  }) : super(key: key);
+  const TodayActivitiesWidget({super.key, required this.nursingHomeId});
 
   /// Formats a [DateTime] value into a user-friendly
   /// HH:mm representation.
@@ -59,12 +56,9 @@ class TodayActivitiesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ActivitiesBloc>(
-      create: (_) => locator<ActivitiesBloc>()
-        ..add(
-          FetchTodayActivitiesEvent(
-            nursingHomeId: nursingHomeId,
-          ),
-        ),
+      create: (_) =>
+          locator<ActivitiesBloc>()
+            ..add(FetchTodayActivitiesEvent(nursingHomeId: nursingHomeId)),
 
       child: BlocBuilder<ActivitiesBloc, ActivitiesState>(
         builder: (context, state) {
@@ -82,9 +76,7 @@ class TodayActivitiesWidget extends StatelessWidget {
           if (state is ActivitiesError) {
             return Text(
               'Error: ${state.message}',
-              style: const TextStyle(
-                color: Colors.red,
-              ),
+              style: const TextStyle(color: Colors.red),
             );
           }
 
@@ -103,14 +95,9 @@ class TodayActivitiesWidget extends StatelessWidget {
                   const ListTile(
                     title: Text(
                       'Today\'s Activities',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    trailing: Icon(
-                      Icons.calendar_today,
-                      color: Colors.blue,
-                    ),
+                    trailing: Icon(Icons.calendar_today, color: Colors.blue),
                   ),
 
                   const Divider(height: 1),
@@ -122,9 +109,7 @@ class TodayActivitiesWidget extends StatelessWidget {
                   if (activities.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        'No activities scheduled for today.',
-                      ),
+                      child: Text('No activities scheduled for today.'),
                     ),
 
                   /// Activity list.
@@ -134,11 +119,11 @@ class TodayActivitiesWidget extends StatelessWidget {
                   /// - Time range
                   /// - Completion indicator (if applicable)
                   ...activities.map((activity) {
-                    final startTimeStr =
-                    _formatTime(activity.schedule.startTime);
+                    final startTimeStr = _formatTime(
+                      activity.schedule.startTime,
+                    );
 
-                    final endTimeStr =
-                    _formatTime(activity.schedule.endTime);
+                    final endTimeStr = _formatTime(activity.schedule.endTime);
 
                     return ListTile(
                       /// Activity icon.
@@ -152,25 +137,21 @@ class TodayActivitiesWidget extends StatelessWidget {
                       /// Uses the domain entity's `title`
                       /// property, aligned with the backend's
                       /// ubiquitous language.
-                      title: Text(
-                        activity.title,
-                      ),
+                      title: Text(activity.title),
 
                       /// Scheduled time range.
-                      subtitle: Text(
-                        '$startTimeStr - $endTimeStr',
-                      ),
+                      subtitle: Text('$startTimeStr - $endTimeStr'),
 
                       /// Visual indicator for completed activities.
                       trailing: activity.status.name == 'completed'
                           ? const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 20,
-                      )
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 20,
+                            )
                           : null,
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             );
