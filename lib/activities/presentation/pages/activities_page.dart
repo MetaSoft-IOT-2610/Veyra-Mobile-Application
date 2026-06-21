@@ -181,7 +181,6 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
       ),
     );
   }
-
 }
 
 class _ActivitySummary extends StatelessWidget {
@@ -419,7 +418,6 @@ class _ActivityCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _StatusChip extends StatelessWidget {
