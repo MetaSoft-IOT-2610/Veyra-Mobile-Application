@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../domain/entities/family_user.dart';
 import '../../domain/entities/relative.dart';
 import '../../domain/entities/resident.dart';
 import '../../domain/entities/resident_health_record.dart';
@@ -108,6 +109,7 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                     nursingHomeId: widget.nursingHomeId,
                     resident: _resident,
                     isLoading: state is NursingLoading,
+                    familyUsers: details?.familyUsers ?? const [],
                     relatives: details?.relatives ?? const [],
                   ),
                 ],
@@ -472,12 +474,14 @@ class _FamilyTab extends StatelessWidget {
   final int nursingHomeId;
   final Resident resident;
   final bool isLoading;
+  final List<FamilyUser> familyUsers;
   final List<Relative> relatives;
 
   const _FamilyTab({
     required this.nursingHomeId,
     required this.resident,
     required this.isLoading,
+    required this.familyUsers,
     required this.relatives,
   });
 
@@ -517,73 +521,136 @@ class _FamilyTab extends StatelessWidget {
   void _showRelativeDialog(BuildContext context) {
     final bloc = context.read<NursingBloc>();
     final messenger = ScaffoldMessenger.of(context);
-    final firstName = TextEditingController();
-    final lastName = TextEditingController();
-    final email = TextEditingController();
+    FamilyUser? selectedUser;
 
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Assign family to ${resident.fullName}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: firstName,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'First name',
-                border: OutlineInputBorder(),
-              ),
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Assign family to ${resident.fullName}'),
+          content: SizedBox(
+            width: 420,
+            child: familyUsers.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text('No family accounts available.'),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 320),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: familyUsers.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final user = familyUsers[index];
+                            final selected = selectedUser?.id == user.id;
+                            return ListTile(
+                              selected: selected,
+                              onTap: () => setState(() => selectedUser = user),
+                              title: Text(user.displayName),
+                              subtitle: Text(
+                                user.hasEmailUsername
+                                    ? user.email
+                                    : 'Email not available: ${user.username}',
+                              ),
+                              trailing: Icon(
+                                selected
+                                    ? Icons.check_circle
+                                    : Icons.person_outline,
+                                color: selected ? Colors.blue : null,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      if (selectedUser != null) ...[
+                        const SizedBox(height: 12),
+                        _SelectedFamilyPreview(user: selectedUser!),
+                      ],
+                    ],
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: lastName,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Last name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: email,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
+            ElevatedButton(
+              onPressed: familyUsers.isEmpty
+                  ? null
+                  : () {
+                      final user = selectedUser;
+                      if (user == null) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Select a family account.'),
+                          ),
+                        );
+                        return;
+                      }
+                      if (!user.hasEmailUsername) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'The selected account must use an email username.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      bloc.add(
+                        CreateResidentRelativeEvent(
+                          nursingHomeId: nursingHomeId,
+                          residentId: resident.id,
+                          familyUser: user,
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    },
+              child: const Text('Assign'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (firstName.text.trim().isEmpty ||
-                  lastName.text.trim().isEmpty ||
-                  email.text.trim().isEmpty) {
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('Complete all family fields.')),
-                );
-                return;
-              }
+      ),
+    );
+  }
+}
 
-              bloc.add(
-                CreateResidentRelativeEvent(
-                  nursingHomeId: nursingHomeId,
-                  residentId: resident.id,
-                  firstName: firstName.text,
-                  lastName: lastName.text,
-                  email: email.text,
+class _SelectedFamilyPreview extends StatelessWidget {
+  final FamilyUser user;
+
+  const _SelectedFamilyPreview({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.person_add_alt_1, color: Colors.blue.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.displayName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              );
-              Navigator.of(context).pop();
-            },
-            child: const Text('Assign'),
+                Text(user.hasEmailUsername ? user.email : user.username),
+              ],
+            ),
           ),
         ],
       ),
