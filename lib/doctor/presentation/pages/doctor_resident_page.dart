@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
 import '../../../nursing/domain/entities/resident.dart';
 import '../../../nursing/domain/entities/resident_health_record.dart';
+import '../../../shared/core/config/app_capabilities.dart';
 import '../../domain/entities/resident_clinical_record.dart';
 import '../bloc/doctor_clinical_bloc.dart';
 
@@ -91,11 +92,15 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
                   _VitalSignsTab(record: record),
                   _AllergiesTab(
                     record: record,
-                    onAdd: () => _showAllergyDialog(context),
+                    onAdd: AppCapabilities.isReadOnly
+                        ? null
+                        : () => _showAllergyDialog(context),
                   ),
                   _ConditionsTab(
                     record: record,
-                    onAdd: () => _showConditionDialog(context),
+                    onAdd: AppCapabilities.isReadOnly
+                        ? null
+                        : () => _showConditionDialog(context),
                   ),
                 ],
               );
@@ -302,7 +307,7 @@ class _VitalSignsTab extends StatelessWidget {
 
 class _AllergiesTab extends StatelessWidget {
   final ResidentClinicalRecord record;
-  final VoidCallback onAdd;
+  final VoidCallback? onAdd;
 
   const _AllergiesTab({required this.record, required this.onAdd});
 
@@ -311,11 +316,13 @@ class _AllergiesTab extends StatelessWidget {
     return _ClinicalList<ResidentAllergy>(
       items: record.allergies,
       emptyMessage: 'No allergies registered.',
-      action: FloatingActionButton(
-        tooltip: 'Register allergy',
-        onPressed: onAdd,
-        child: const Icon(Icons.add),
-      ),
+      action: onAdd == null
+          ? null
+          : FloatingActionButton(
+              tooltip: 'Register allergy',
+              onPressed: onAdd,
+              child: const Icon(Icons.add),
+            ),
       itemBuilder: (item) => ListTile(
         leading: const Icon(Icons.warning_amber_outlined),
         title: Text(item.allergenName),
@@ -328,7 +335,7 @@ class _AllergiesTab extends StatelessWidget {
 
 class _ConditionsTab extends StatelessWidget {
   final ResidentClinicalRecord record;
-  final VoidCallback onAdd;
+  final VoidCallback? onAdd;
 
   const _ConditionsTab({required this.record, required this.onAdd});
 
@@ -337,11 +344,13 @@ class _ConditionsTab extends StatelessWidget {
     return _ClinicalList<ResidentMedicalCondition>(
       items: record.medicalConditions,
       emptyMessage: 'No medical conditions registered.',
-      action: FloatingActionButton(
-        tooltip: 'Register medical condition',
-        onPressed: onAdd,
-        child: const Icon(Icons.add),
-      ),
+      action: onAdd == null
+          ? null
+          : FloatingActionButton(
+              tooltip: 'Register medical condition',
+              onPressed: onAdd,
+              child: const Icon(Icons.add),
+            ),
       itemBuilder: (item) => ListTile(
         leading: const Icon(Icons.medical_information_outlined),
         title: Text(item.diagnosisName),
