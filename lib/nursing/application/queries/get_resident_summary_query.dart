@@ -22,7 +22,9 @@ class GetResidentSummaryQuery {
       return Result.failure(const ServerFailure('Error obteniendo residentes'));
     }
     if (roomsResult.isFailure) {
-      return Result.failure(const ServerFailure('Error obteniendo habitaciones'));
+      return Result.failure(
+        const ServerFailure('Error obteniendo habitaciones'),
+      );
     }
 
     int residentsCount = 0;
@@ -30,22 +32,21 @@ class GetResidentSummaryQuery {
     int availableCount = 0;
 
     residentsResult.fold(
-      (f) {}, 
+      (f) {},
       (residents) => residentsCount = residents.length,
     );
 
-    roomsResult.fold(
-      (f) {}, 
-      (rooms) {
-        roomsCount = rooms.length;
-        availableCount = rooms.where((r) => r.isAvailable).length;
-      },
-    );
+    roomsResult.fold((f) {}, (rooms) {
+      roomsCount = rooms.length;
+      availableCount = rooms.where((r) => r.isAvailable).length;
+    });
 
-    return Result.success(ResidentSummaryDto(
-      totalResidents: residentsCount,
-      totalRooms: roomsCount,
-      availableRooms: availableCount,
-    ));
+    return Result.success(
+      ResidentSummaryDto(
+        totalResidents: residentsCount,
+        totalRooms: roomsCount,
+        availableRooms: availableCount,
+      ),
+    );
   }
 }

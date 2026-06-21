@@ -8,5 +8,7 @@ class ResidentSummaryDto {
     required this.totalResidents,
     required this.totalRooms,
     required this.availableRooms,
-  }) : occupancyRate = totalRooms == 0 ? 0.0 : ((totalRooms - availableRooms) / totalRooms) * 100;
+  }) : occupancyRate = totalRooms == 0
+           ? 0.0
+           : ((totalRooms - availableRooms) / totalRooms) * 100;
 }
