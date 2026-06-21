@@ -11,13 +11,4 @@ abstract class IAuthRepository {
   ///
   /// Returns a [Result] containing the authenticated session destination.
   Future<Result<Failure, AuthSession>> login(String username, String password);
-
-  /// Registers a new family user.
-  Future<Result<Failure, void>> signUp(String username, String password);
-
-  /// Registers a new administrator and returns its aggregate identifier.
-  Future<Result<Failure, int>> signUpAdministrator(
-    String username,
-    String password,
-  );
 }

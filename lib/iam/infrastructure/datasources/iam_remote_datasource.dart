@@ -19,11 +19,6 @@ abstract class IamRemoteDataSource {
   /// Checks whether a person profile already exists for a family email.
   Future<bool> hasPersonProfileForEmail(String email);
 
-  /// Registers a new family user in IAM.
-  Future<void> signUp(String username, String password);
-
-  /// Registers a new administrator user and aggregate.
-  Future<int> signUpAdministrator(String username, String password);
 }
 
 /// Implementation of [IamRemoteDataSource] using the corporate HTTP client.
@@ -80,52 +75,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     } catch (e) {
       throw ServerException(
         message: 'Authentication failed. Please check your credentials.',
-      );
-    }
-  }
-
-  @override
-  Future<void> signUp(String username, String password) async {
-    try {
-      final response = await client.post(
-        'authentication/sign-up',
-        data: {
-          'username': username,
-          'password': password,
-          'roles': ['ROLE_FAMILIAR'],
-        },
-      );
-
-      if (response is Map && response.containsKey('id')) {
-        return;
-      }
-
-      throw ParsingException(message: 'User data could not be parsed.');
-    } catch (e) {
-      throw ServerException(message: 'Sign up failed. Please try again.');
-    }
-  }
-
-  @override
-  Future<int> signUpAdministrator(String username, String password) async {
-    try {
-      final response = await client.post(
-        'administrators',
-        data: {'username': username, 'password': password},
-      );
-
-      if (response is Map && response.containsKey('id')) {
-        final administratorId = (response['id'] as num).toInt();
-        TokenManager.saveAdministratorId(administratorId);
-        return administratorId;
-      }
-
-      throw ParsingException(
-        message: 'Administrator data could not be parsed.',
-      );
-    } catch (e) {
-      throw ServerException(
-        message: 'Administrator sign up failed. Please try again.',
       );
     }
   }
