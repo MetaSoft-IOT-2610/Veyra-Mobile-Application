@@ -355,6 +355,36 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
     required int userId,
   }) async {
     try {
+      final normalizedEmail = email.trim().toLowerCase();
+      final existingRelatives = await getRelatives(nursingHomeId);
+      final existingRelative = _findRelativeByEmail(
+        existingRelatives,
+        normalizedEmail,
+      );
+
+      if (existingRelative != null) {
+        if (existingRelative.residentId != residentId) {
+          throw ServerException(
+            message:
+                'This family account is already assigned to another resident.',
+          );
+        }
+
+        if (existingRelative.userId != null &&
+            existingRelative.userId != userId) {
+          throw ServerException(
+            message:
+                'This relative is already linked to another family account.',
+          );
+        }
+
+        if (existingRelative.userId == userId) {
+          return existingRelative;
+        }
+
+        return await _linkUserToRelative(email: email, userId: userId);
+      }
+
       final response = await client.post(
         'nursing-homes/$nursingHomeId/relatives',
         data: {
@@ -365,19 +395,40 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
         },
       );
       if (response is Map<String, dynamic>) {
-        final linkedResponse = await client.post(
-          'relatives/user-link',
-          data: {'email': email, 'userId': userId},
-        );
-        if (linkedResponse is Map<String, dynamic>) {
-          return RelativeModel.fromJson(linkedResponse);
-        }
-        return RelativeModel.fromJson(response);
+        return await _linkUserToRelative(email: email, userId: userId);
       }
       throw ParsingException(message: 'Relative data could not be parsed.');
     } catch (e) {
       throw ServerException(message: 'Error creating relative: $e');
     }
+  }
+
+  Future<RelativeModel> _linkUserToRelative({
+    required String email,
+    required int userId,
+  }) async {
+    final linkedResponse = await client.post(
+      'relatives/user-link',
+      data: {'email': email, 'userId': userId},
+    );
+    if (linkedResponse is Map<String, dynamic>) {
+      return RelativeModel.fromJson(linkedResponse);
+    }
+    throw ParsingException(
+      message: 'Linked relative data could not be parsed.',
+    );
+  }
+
+  RelativeModel? _findRelativeByEmail(
+    List<RelativeModel> relatives,
+    String normalizedEmail,
+  ) {
+    for (final relative in relatives) {
+      if (relative.email.trim().toLowerCase() == normalizedEmail) {
+        return relative;
+      }
+    }
+    return null;
   }
 
   List<dynamic> _extractList(dynamic response) {
