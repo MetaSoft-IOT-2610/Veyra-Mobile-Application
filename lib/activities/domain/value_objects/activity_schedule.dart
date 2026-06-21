@@ -25,7 +25,9 @@ class ActivitySchedule extends ValueObject {
     required DateTime endTime,
   }) {
     if (endTime.isBefore(startTime)) {
-      throw ArgumentError('La fecha de fin no puede ser anterior a la fecha de inicio.');
+      throw ArgumentError(
+        'La fecha de fin no puede ser anterior a la fecha de inicio.',
+      );
     }
     return ActivitySchedule._(startTime, endTime);
   }
