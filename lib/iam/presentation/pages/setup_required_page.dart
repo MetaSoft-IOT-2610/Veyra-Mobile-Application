@@ -31,17 +31,13 @@ class SetupRequiredPage extends StatelessWidget {
     /// Clears the authentication token from local storage.
     TokenManager.clear();
 
-    debugPrint(
-      '[Auth] User session terminated. Authentication token removed.',
-    );
+    debugPrint('[Auth] User session terminated. Authentication token removed.');
 
     /// Navigates to the login page while removing all
     /// previous routes from the navigation stack.
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => LoginPage(),
-      ),
-          (Route<dynamic> route) => false,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -85,10 +81,7 @@ class SetupRequiredPage extends StatelessWidget {
               /// Welcome message shown to newly authenticated users.
               const Text(
                 'Welcome to Veyra Mobile App!',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
 
@@ -98,13 +91,10 @@ class SetupRequiredPage extends StatelessWidget {
               /// and provides onboarding instructions.
               const Text(
                 'Your nursing home has not been configured yet.\n\n'
-                    'Please access the web platform from a desktop computer '
-                    'to register your facility, staff members, and residents '
-                    'before using the mobile application.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
+                'Please access the web platform from a desktop computer '
+                'to register your facility, staff members, and residents '
+                'before using the mobile application.',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
                 textAlign: TextAlign.center,
               ),
 
@@ -117,13 +107,9 @@ class SetupRequiredPage extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () => _performLogout(context),
 
-                icon: const Icon(
-                  Icons.logout,
-                ),
+                icon: const Icon(Icons.logout),
 
-                label: const Text(
-                  'Sign Out',
-                ),
+                label: const Text('Sign Out'),
 
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(

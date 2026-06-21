@@ -38,7 +38,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     String password,
   ) async {
     try {
-
       // FIX: Removed '/api/v1/' to prevent URL duplication.
       // Dio automatically prepends the Base URL (http://10.0.2.2:8080/api/v1/).
       final response = await client.post(
@@ -134,7 +133,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
   @override
   Future<int> getNursingHomeId(int administratorId) async {
     try {
-
       final response = await client.get(
         'administrators/$administratorId/nursing-homes',
       );
@@ -149,7 +147,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         message: 'Nursing Home data could not be parsed from the response.',
       );
     } catch (e) {
-
       // Lanzamos la excepción real con código 404 para que la capa de presentación
       // pueda redirigir a la pantalla de "Requiere Configuración Web".
       throw ServerException(
