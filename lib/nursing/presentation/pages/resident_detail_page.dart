@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/di/dependency_injection.dart';
+import '../../domain/entities/relative.dart';
 import '../../domain/entities/resident.dart';
 import '../../domain/entities/resident_health_record.dart';
 import '../bloc/nursing_bloc.dart';
@@ -32,11 +33,15 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          locator<NursingBloc>()
-            ..add(LoadResidentDetailsEvent(residentId: _resident.id)),
+      create: (_) => locator<NursingBloc>()
+        ..add(
+          LoadResidentDetailsEvent(
+            nursingHomeId: widget.nursingHomeId,
+            residentId: _resident.id,
+          ),
+        ),
       child: DefaultTabController(
-        length: 3,
+        length: 4,
         child: Scaffold(
           backgroundColor: Colors.blue.shade50,
           appBar: AppBar(
@@ -45,10 +50,12 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
             foregroundColor: Colors.black87,
             elevation: 0,
             bottom: const TabBar(
+              isScrollable: true,
               tabs: [
                 Tab(icon: Icon(Icons.info_outline), text: 'Details'),
                 Tab(icon: Icon(Icons.meeting_room_outlined), text: 'Room'),
                 Tab(icon: Icon(Icons.monitor_heart_outlined), text: 'Health'),
+                Tab(icon: Icon(Icons.family_restroom_outlined), text: 'Family'),
               ],
             ),
           ),
@@ -74,7 +81,10 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                   ),
                 );
                 context.read<NursingBloc>().add(
-                  LoadResidentDetailsEvent(residentId: _resident.id),
+                  LoadResidentDetailsEvent(
+                    nursingHomeId: widget.nursingHomeId,
+                    residentId: _resident.id,
+                  ),
                 );
               }
             },
@@ -93,6 +103,12 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                     allergies: details?.allergies ?? const [],
                     conditions: details?.medicalConditions ?? const [],
                     vitalSigns: details?.vitalSigns ?? const [],
+                  ),
+                  _FamilyTab(
+                    nursingHomeId: widget.nursingHomeId,
+                    resident: _resident,
+                    isLoading: state is NursingLoading,
+                    relatives: details?.relatives ?? const [],
                   ),
                 ],
               );
@@ -447,6 +463,129 @@ class _HealthTab extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FamilyTab extends StatelessWidget {
+  final int nursingHomeId;
+  final Resident resident;
+  final bool isLoading;
+  final List<Relative> relatives;
+
+  const _FamilyTab({
+    required this.nursingHomeId,
+    required this.resident,
+    required this.isLoading,
+    required this.relatives,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) return const Center(child: CircularProgressIndicator());
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _ListSection(
+          title: 'Assigned family',
+          icon: Icons.family_restroom_outlined,
+          action: () => _showRelativeDialog(context),
+          emptyText: 'No relatives assigned to this resident.',
+          children: relatives
+              .map(
+                (relative) => ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.shade50,
+                    foregroundColor: Colors.blue.shade700,
+                    child: const Icon(Icons.person_outline),
+                  ),
+                  title: Text(relative.fullName),
+                  subtitle: Text(relative.email),
+                  trailing: _Badge(
+                    relative.hasUser ? 'User #${relative.userId}' : 'Pending',
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  void _showRelativeDialog(BuildContext context) {
+    final bloc = context.read<NursingBloc>();
+    final messenger = ScaffoldMessenger.of(context);
+    final firstName = TextEditingController();
+    final lastName = TextEditingController();
+    final email = TextEditingController();
+
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Assign family to ${resident.fullName}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: firstName,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'First name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: lastName,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Last name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: email,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (firstName.text.trim().isEmpty ||
+                  lastName.text.trim().isEmpty ||
+                  email.text.trim().isEmpty) {
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Complete all family fields.')),
+                );
+                return;
+              }
+
+              bloc.add(
+                CreateResidentRelativeEvent(
+                  nursingHomeId: nursingHomeId,
+                  residentId: resident.id,
+                  firstName: firstName.text,
+                  lastName: lastName.text,
+                  email: email.text,
+                ),
+              );
+              Navigator.of(context).pop();
+            },
+            child: const Text('Assign'),
+          ),
+        ],
       ),
     );
   }
