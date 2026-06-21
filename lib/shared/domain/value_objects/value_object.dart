@@ -7,8 +7,8 @@ abstract class ValueObject {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ValueObject) return false;
-    
-    return other.props.toString() == props.toString(); 
+
+    return other.props.toString() == props.toString();
   }
 
   @override
