@@ -49,6 +49,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (session) => emit(AuthSuccess(session)),
       );
     });
-
   }
 }

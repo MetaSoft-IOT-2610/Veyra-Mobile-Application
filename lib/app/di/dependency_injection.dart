@@ -37,7 +37,7 @@ void _initSharedKernel() {
   const baseUrl = String.fromEnvironment(
     'API_BASE_URL',
     defaultValue:
-        'https://veyra-backend-production-f22c.up.railway.app/api/v1/',
+        'https://veyra-backend.redwave-e7e23e62.canadacentral.azurecontainerapps.io/api/v1/',
   );
 
   // Register the corporate HTTP client pointing to the Spring Boot backend

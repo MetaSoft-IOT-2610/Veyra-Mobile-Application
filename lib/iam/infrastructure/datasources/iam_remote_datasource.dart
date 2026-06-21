@@ -18,7 +18,6 @@ abstract class IamRemoteDataSource {
 
   /// Checks whether a person profile already exists for a family email.
   Future<bool> hasPersonProfileForEmail(String email);
-
 }
 
 /// Implementation of [IamRemoteDataSource] using the corporate HTTP client.
@@ -34,7 +33,7 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
   ) async {
     try {
       // FIX: Removed '/api/v1/' to prevent URL duplication.
-      // Dio automatically prepends the Base URL (http://10.0.2.2:8080/api/v1/).
+
       final response = await client.post(
         'authentication/sign-in',
         data: {'username': username, 'password': password},
