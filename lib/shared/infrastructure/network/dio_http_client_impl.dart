@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../application/contracts/i_http_client.dart';
 import '../../core/exceptions/exceptions.dart';
 import '../local/token_manager.dart';
@@ -7,11 +8,13 @@ class DioHttpClientImpl implements IHttpClient {
   final Dio _dio;
 
   DioHttpClientImpl(String baseUrl)
-      : _dio = Dio(BaseOptions(
-    baseUrl: baseUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  )) {
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      ) {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -20,9 +23,11 @@ class DioHttpClientImpl implements IHttpClient {
           if (token != null && token.isNotEmpty) {
             // Force the header directly onto the map
             options.headers['Authorization'] = 'Bearer $token';
-            print('🚀 [DIO] Sending request ${options.path} with valid Token');
+            debugPrint(
+              '[DIO] Sending request ${options.path} with valid token',
+            );
           } else {
-            print('⚠️ [DIO] Sending request ${options.path} WITHOUT Token');
+            debugPrint('[DIO] Sending request ${options.path} without token');
           }
 
           return handler.next(options); // Continue request
@@ -32,7 +37,10 @@ class DioHttpClientImpl implements IHttpClient {
   }
 
   @override
-  Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
       final response = await _dio.get(path, queryParameters: queryParameters);
       return response.data;
@@ -44,9 +52,17 @@ class DioHttpClientImpl implements IHttpClient {
   }
 
   @override
-  Future<dynamic> post(String path, {dynamic data, Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      final response = await _dio.post(path, data: data, queryParameters: queryParameters);
+      final response = await _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
       return response.data;
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -68,6 +84,18 @@ class DioHttpClientImpl implements IHttpClient {
   }
 
   @override
+  Future<dynamic> patch(String path, {dynamic data}) async {
+    try {
+      final response = await _dio.patch(path, data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw ServerException(message: 'Unexpected error executing PATCH: $e');
+    }
+  }
+
+  @override
   Future<dynamic> delete(String path, {dynamic data}) async {
     try {
       final response = await _dio.delete(path, data: data);
@@ -81,14 +109,16 @@ class DioHttpClientImpl implements IHttpClient {
 
   ServerException _handleDioError(DioException e) {
     if (e.response != null) {
-      print('❌ [DIO] Error del servidor: ${e.response?.statusCode} - ${e.response?.data}');
+      debugPrint(
+        '[DIO] Server error: ${e.response?.statusCode} - ${e.response?.data}',
+      );
       return ServerException(
-        message: 'Server Error: ${e.response?.statusMessage ?? "Unknown payload"}',
+        message:
+            'Server Error: ${e.response?.statusMessage ?? "Unknown payload"}',
         statusCode: e.response?.statusCode,
       );
-    }
-    else {
-      print('❌ [DIO] Error de red puro: $e');
+    } else {
+      debugPrint('[DIO] Network error: $e');
       return ServerException(
         message: 'Network Error: Failed to connect to the server.',
       );
