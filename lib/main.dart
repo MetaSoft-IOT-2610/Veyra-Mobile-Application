@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'app/di/dependency_injection.dart';
 import 'app/observers/app_bloc_observer.dart';
 import 'iam/presentation/pages/login_page.dart';
+import 'shared/presentation/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,13 +22,10 @@ class VeyraEnterpriseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // <-- Agrega esta línea
+      debugShowCheckedModeBanner: false,
       title: 'Veyra Mobile App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: LoginPage(),
+      theme: AppTheme.light,
+      home: const LoginPage(),
     );
   }
 }

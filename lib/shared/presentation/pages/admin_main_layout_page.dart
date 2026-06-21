@@ -6,15 +6,12 @@ import '../../../hcm/presentation/pages/staff_directory_page.dart';
 import '../../../nursing/presentation/pages/admin_dashboard_page.dart';
 import '../../../nursing/presentation/pages/resident_directory_page.dart';
 import '../../../shared/infrastructure/local/token_manager.dart';
+import '../theme/app_colors.dart';
 
-/// Main application layout for nursing home administrators.
-///
-/// Acts as the navigation shell after a successful authentication.
-/// Lazily builds each tab the first time it is opened and then preserves its state.
 class AdminMainLayoutPage extends StatefulWidget {
-  final int nursingHomeId;
-
   const AdminMainLayoutPage({super.key, required this.nursingHomeId});
+
+  final int nursingHomeId;
 
   @override
   State<AdminMainLayoutPage> createState() => _AdminMainLayoutPageState();
@@ -29,11 +26,11 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
   @override
   void initState() {
     super.initState();
+
     TokenManager.saveNursingHomeId(widget.nursingHomeId);
 
-    // These IDs are stored during authentication and used by the profile tab.
-    final int userId = TokenManager.getUserId() ?? 0;
-    final int administratorId = TokenManager.getAdministratorId() ?? 0;
+    final userId = TokenManager.getUserId() ?? 0;
+    final administratorId = TokenManager.getAdministratorId() ?? 0;
 
     _pageBuilders = [
       (_) => AdminDashboardPage(
@@ -45,8 +42,16 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
       (_) => ActivitiesPage(nursingHomeId: widget.nursingHomeId),
       (_) => ProfilePage(userId: userId, administratorId: administratorId),
     ];
+
     _pages = List<Widget?>.filled(_pageBuilders.length, null);
     _pages[_currentIndex] = _pageBuilders[_currentIndex](context);
+  }
+
+  void _selectTab(int index) {
+    setState(() {
+      _pages[index] ??= _pageBuilders[index](context);
+      _currentIndex = index;
+    });
   }
 
   @override
@@ -56,48 +61,47 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
         index: _currentIndex,
         children: [for (final page in _pages) page ?? const SizedBox.shrink()],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          _selectTab(index);
-        },
-        backgroundColor: Colors.white,
-        indicatorColor: Colors.blue.shade100,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: const Border(top: BorderSide(color: AppColors.border)),
+          boxShadow: AppColors.softShadow,
+        ),
+        child: SafeArea(
+          top: false,
+          child: NavigationBar(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: _selectTab,
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.grid_view_outlined),
+                selectedIcon: Icon(Icons.grid_view_rounded),
+                label: 'Resumen',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.elderly_outlined),
+                selectedIcon: Icon(Icons.elderly_rounded),
+                label: 'Residentes',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.badge_outlined),
+                selectedIcon: Icon(Icons.badge_rounded),
+                label: 'Personal',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.event_note_outlined),
+                selectedIcon: Icon(Icons.event_note_rounded),
+                label: 'Agenda',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outline_rounded),
+                selectedIcon: Icon(Icons.person_rounded),
+                label: 'Perfil',
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.elderly_outlined),
-            selectedIcon: Icon(Icons.elderly),
-            label: 'Residentes',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.badge_outlined),
-            selectedIcon: Icon(Icons.badge),
-            label: 'Personal',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.event_note_outlined),
-            selectedIcon: Icon(Icons.event_note),
-            label: 'Actividades',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-        ],
+        ),
       ),
     );
-  }
-
-  void _selectTab(int index) {
-    setState(() {
-      _pages[index] ??= _pageBuilders[index](context);
-      _currentIndex = index;
-    });
   }
 }
