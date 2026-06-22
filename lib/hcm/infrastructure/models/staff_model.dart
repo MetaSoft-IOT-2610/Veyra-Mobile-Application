@@ -13,6 +13,7 @@ class StaffModel {
   final String emergencyContactFirstName;
   final String emergencyContactLastName;
   final String emergencyContactPhoneNumber;
+  final String photo;
 
   const StaffModel({
     required this.id,
@@ -27,6 +28,7 @@ class StaffModel {
     required this.emergencyContactFirstName,
     required this.emergencyContactLastName,
     required this.emergencyContactPhoneNumber,
+    this.photo = '',
   });
 
   factory StaffModel.fromJson(Map<String, dynamic> json) {
@@ -53,6 +55,7 @@ class StaffModel {
           json['emergencyContactLastName'] as String? ?? '',
       emergencyContactPhoneNumber:
           json['emergencyContactPhoneNumber'] as String? ?? '',
+      photo: json['photo'] as String? ?? '',
     );
   }
 
@@ -69,5 +72,6 @@ class StaffModel {
     emergencyContactFirstName: emergencyContactFirstName,
     emergencyContactLastName: emergencyContactLastName,
     emergencyContactPhoneNumber: emergencyContactPhoneNumber,
+    photo: photo,
   );
 }

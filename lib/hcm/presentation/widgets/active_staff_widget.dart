@@ -54,6 +54,7 @@ class ActiveStaffWidget extends StatelessWidget {
                       initials: item.firstName.isEmpty
                           ? '#'
                           : item.firstName[0].toUpperCase(),
+                      photo: item.photo,
                       name: item.fullName,
                       subtitle: item.emailAddress.isNotEmpty
                           ? item.emailAddress
@@ -101,11 +102,13 @@ class ActiveStaffWidget extends StatelessWidget {
 class _StaffTile extends StatelessWidget {
   const _StaffTile({
     required this.initials,
+    required this.photo,
     required this.name,
     required this.subtitle,
   });
 
   final String initials;
+  final String photo;
   final String name;
   final String subtitle;
 
@@ -123,13 +126,18 @@ class _StaffTile extends StatelessWidget {
         CircleAvatar(
           radius: 20,
           backgroundColor: AppColors.primaryLight,
-          child: Text(
-            initials,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          backgroundImage: photo.startsWith('http')
+              ? NetworkImage(photo)
+              : null,
+          child: photo.startsWith('http')
+              ? null
+              : Text(
+                  initials,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
         ),
         const SizedBox(width: 11),
         Expanded(

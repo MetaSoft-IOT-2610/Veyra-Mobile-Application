@@ -12,6 +12,7 @@ class StaffMember extends Entity<int> {
   final String emergencyContactFirstName;
   final String emergencyContactLastName;
   final String emergencyContactPhoneNumber;
+  final String photo;
 
   const StaffMember({
     required super.id,
@@ -26,6 +27,7 @@ class StaffMember extends Entity<int> {
     this.emergencyContactFirstName = '',
     this.emergencyContactLastName = '',
     this.emergencyContactPhoneNumber = '',
+    this.photo = '',
   });
 
   String get fullName {

@@ -69,6 +69,7 @@ class StaffDirectoryPage extends StatelessWidget {
                   initial: employee.firstName.isEmpty
                       ? '#'
                       : employee.firstName[0].toUpperCase(),
+                  photo: employee.photo,
                   status: employee.status,
                   role: employee.role,
                   email: employee.emailAddress,
@@ -98,6 +99,7 @@ class _StaffCard extends StatelessWidget {
   const _StaffCard({
     required this.name,
     required this.initial,
+    required this.photo,
     required this.status,
     required this.role,
     required this.email,
@@ -106,6 +108,7 @@ class _StaffCard extends StatelessWidget {
 
   final String name;
   final String initial;
+  final String photo;
   final String status;
   final String role;
   final String email;
@@ -123,13 +126,18 @@ class _StaffCard extends StatelessWidget {
             CircleAvatar(
               radius: 23,
               backgroundColor: AppColors.primaryLight,
-              child: Text(
-                initial,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+              backgroundImage: photo.startsWith('http')
+                  ? NetworkImage(photo)
+                  : null,
+              child: photo.startsWith('http')
+                  ? null
+                  : Text(
+                      initial,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
             ),
             const SizedBox(width: 12),
             Expanded(
