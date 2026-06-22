@@ -6,6 +6,7 @@ import '../local/token_manager.dart';
 
 class DioHttpClientImpl implements IHttpClient {
   final Dio _dio;
+  final Map<String, Future<dynamic>> _inFlightGets = {};
 
   DioHttpClientImpl(String baseUrl)
     : _dio = Dio(
@@ -21,16 +22,17 @@ class DioHttpClientImpl implements IHttpClient {
           final token = TokenManager.getToken();
 
           if (token != null && token.isNotEmpty) {
-            // Force the header directly onto the map
             options.headers['Authorization'] = 'Bearer $token';
-            debugPrint(
-              '[DIO] Sending request ${options.path} with valid token',
-            );
-          } else {
+            if (kDebugMode) {
+              debugPrint(
+                '[DIO] Sending request ${options.path} with valid token',
+              );
+            }
+          } else if (kDebugMode) {
             debugPrint('[DIO] Sending request ${options.path} without token');
           }
 
-          return handler.next(options); // Continue request
+          return handler.next(options);
         },
       ),
     );
@@ -41,6 +43,26 @@ class DioHttpClientImpl implements IHttpClient {
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
+    final key = _getRequestKey(path, queryParameters);
+    final activeRequest = _inFlightGets[key];
+    if (activeRequest != null) return activeRequest;
+
+    final request = _executeGet(path, queryParameters);
+    _inFlightGets[key] = request;
+
+    try {
+      return await request;
+    } finally {
+      if (identical(_inFlightGets[key], request)) {
+        _inFlightGets.remove(key);
+      }
+    }
+  }
+
+  Future<dynamic> _executeGet(
+    String path,
+    Map<String, dynamic>? queryParameters,
+  ) async {
     try {
       final response = await _dio.get(path, queryParameters: queryParameters);
       return response.data;
@@ -49,6 +71,13 @@ class DioHttpClientImpl implements IHttpClient {
     } catch (e) {
       throw ServerException(message: 'Unexpected error executing GET: $e');
     }
+  }
+
+  String _getRequestKey(String path, Map<String, dynamic>? queryParameters) {
+    if (queryParameters == null || queryParameters.isEmpty) return path;
+    final keys = queryParameters.keys.toList()..sort();
+    final query = keys.map((key) => '$key=${queryParameters[key]}').join('&');
+    return '$path?$query';
   }
 
   @override
@@ -109,16 +138,18 @@ class DioHttpClientImpl implements IHttpClient {
 
   ServerException _handleDioError(DioException e) {
     if (e.response != null) {
-      debugPrint(
-        '[DIO] Server error: ${e.response?.statusCode} - ${e.response?.data}',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '[DIO] Server error: ${e.response?.statusCode} - ${e.response?.data}',
+        );
+      }
       return ServerException(
         message:
             'Server Error: ${e.response?.statusMessage ?? "Unknown payload"}',
         statusCode: e.response?.statusCode,
       );
     } else {
-      debugPrint('[DIO] Network error: $e');
+      if (kDebugMode) debugPrint('[DIO] Network error: $e');
       return ServerException(
         message: 'Network Error: Failed to connect to the server.',
       );

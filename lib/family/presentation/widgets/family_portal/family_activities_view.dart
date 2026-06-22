@@ -11,15 +11,19 @@ class FamilyActivitiesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    final contentCount = data.activities.isEmpty ? 1 : data.activities.length;
+    return ListView.builder(
       key: const PageStorageKey('family-activities'),
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-      children: [
-        FamilyAgendaHeader(activities: data.activities),
-        const SizedBox(height: 14),
-        if (data.activities.isEmpty)
-          const FamilySectionCard(
+      itemCount: contentCount + 2,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return FamilyAgendaHeader(activities: data.activities);
+        }
+        if (index == 1) return const SizedBox(height: 14);
+        if (data.activities.isEmpty) {
+          return const FamilySectionCard(
             title: 'Agenda del residente',
             icon: Icons.event_available_outlined,
             children: [
@@ -27,15 +31,15 @@ class FamilyActivitiesView extends StatelessWidget {
                 message: 'No hay actividades programadas para este residente.',
               ),
             ],
-          )
-        else
-          ...data.activities.map(
-            (activity) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: FamilyActivityCard(activity: activity),
-            ),
-          ),
-      ],
+          );
+        }
+
+        final activity = data.activities[index - 2];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: FamilyActivityCard(activity: activity),
+        );
+      },
     );
   }
 }
