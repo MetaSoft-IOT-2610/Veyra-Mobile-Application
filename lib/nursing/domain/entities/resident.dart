@@ -13,6 +13,7 @@ class Resident extends Entity<int> {
   final String emergencyContactLastName;
   final String emergencyContactPhoneNumber;
   final int? roomId;
+  final String photo;
 
   const Resident({
     required super.id,
@@ -25,9 +26,10 @@ class Resident extends Entity<int> {
     this.legalRepresentativeLastName = '',
     this.legalRepresentativePhoneNumber = '',
     this.emergencyContactFirstName = '',
-    this.emergencyContactLastName = '',
     this.emergencyContactPhoneNumber = '',
+    this.emergencyContactLastName = '',
     this.roomId,
+    this.photo = '',
   });
 
   String get fullName {

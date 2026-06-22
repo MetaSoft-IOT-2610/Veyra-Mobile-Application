@@ -31,13 +31,18 @@ class ResidentListTile extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: const Color(0xFFE6F4F3),
-          child: Text(
-            initial,
-            style: const TextStyle(
-              color: Color(0xFF176B70),
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          backgroundImage: resident.photo.startsWith('http')
+              ? NetworkImage(resident.photo)
+              : null,
+          child: resident.photo.startsWith('http')
+              ? null
+              : Text(
+                  initial,
+                  style: const TextStyle(
+                    color: Color(0xFF176B70),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
         ),
         title: Text(
           resident.fullName,

@@ -15,6 +15,7 @@ class ResidentModel {
   final String emergencyContactLastName;
   final String emergencyContactPhoneNumber;
   final int? roomId;
+  final String photo;
 
   const ResidentModel({
     required this.id,
@@ -30,6 +31,7 @@ class ResidentModel {
     required this.emergencyContactLastName,
     required this.emergencyContactPhoneNumber,
     this.roomId,
+    this.photo = '',
   });
 
   /// Factory para construir el modelo desde el JSON del backend.
@@ -75,6 +77,10 @@ class ResidentModel {
       emergencyContactPhoneNumber:
           json['emergencyContactPhoneNumber'] as String? ?? '',
       roomId: (json['roomId'] as num?)?.toInt(),
+      photo:
+          json['photo'] as String? ??
+          profile['photo'] as String? ??
+          '',
     );
   }
 
@@ -94,6 +100,7 @@ class ResidentModel {
       emergencyContactLastName: emergencyContactLastName,
       emergencyContactPhoneNumber: emergencyContactPhoneNumber,
       roomId: roomId,
+      photo: photo,
     );
   }
 }
