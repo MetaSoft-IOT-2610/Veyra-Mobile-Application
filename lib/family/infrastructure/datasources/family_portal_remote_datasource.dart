@@ -73,7 +73,6 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
 
       final results = await Future.wait<dynamic>([
         _getOptionalList('residents/${resident.id}/allergies'),
-        _getOptionalList('residents/${resident.id}/medications'),
         _getOptionalList('residents/${resident.id}/devices'),
         _getOptionalList('resident/${resident.id}/vital-signs'),
         _getOptionalList('nursing-homes/${relative.nursingHomeId}/activities'),
@@ -89,25 +88,20 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
                   ResidentAllergyModel.fromJson(json as Map<String, dynamic>),
             )
             .toList(),
-        medications: (results[1] as List<dynamic>)
-            .map(
-              (json) =>
-                  FamilyMedicationModel.fromJson(json as Map<String, dynamic>),
-            )
-            .toList(),
-        devices: (results[2] as List<dynamic>)
+        medications: const [],
+        devices: (results[1] as List<dynamic>)
             .map(
               (json) =>
                   FamilyDeviceModel.fromJson(json as Map<String, dynamic>),
             )
             .toList(),
-        vitalSigns: (results[3] as List<dynamic>)
+        vitalSigns: (results[2] as List<dynamic>)
             .map(
               (json) =>
                   ResidentVitalSignModel.fromJson(json as Map<String, dynamic>),
             )
             .toList(),
-        activities: (results[4] as List<dynamic>)
+        activities: (results[3] as List<dynamic>)
             .map((json) => ActivityModel.fromJson(json as Map<String, dynamic>))
             .where((activity) => activity.residentId == resident.id)
             .toList(),
