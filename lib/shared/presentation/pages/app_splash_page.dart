@@ -26,6 +26,7 @@ class _AppSplashPageState extends State<AppSplashPage>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
+      reverseDuration: const Duration(milliseconds: 500),
     );
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _scale = Tween<double>(
@@ -33,10 +34,12 @@ class _AppSplashPageState extends State<AppSplashPage>
       end: 1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward();
-    _timer = Timer(const Duration(seconds: 2), _openDestination);
+    _timer = Timer(const Duration(seconds: 3), _openDestination);
   }
 
-  void _openDestination() {
+  Future<void> _openDestination() async {
+    if (!mounted) return;
+    await _controller.reverse();
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
