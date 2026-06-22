@@ -77,10 +77,7 @@ class ResidentModel {
       emergencyContactPhoneNumber:
           json['emergencyContactPhoneNumber'] as String? ?? '',
       roomId: (json['roomId'] as num?)?.toInt(),
-      photo:
-          json['photo'] as String? ??
-          profile['photo'] as String? ??
-          '',
+      photo: json['photo'] as String? ?? profile['photo'] as String? ?? '',
     );
   }
 

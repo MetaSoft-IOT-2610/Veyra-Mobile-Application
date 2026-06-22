@@ -51,18 +51,6 @@ abstract class NursingRemoteDataSource {
     required String severityLevel,
   });
 
-  Future<List<ResidentMedicalConditionModel>> getMedicalConditions(
-    int residentId,
-  );
-
-  Future<ResidentMedicalConditionModel> registerMedicalCondition({
-    required int residentId,
-    required String diagnosisName,
-    required DateTime diagnosisDate,
-    required String status,
-    required String notes,
-  });
-
   Future<List<ResidentVitalSignModel>> getVitalSigns(int residentId);
 
   Future<List<FamilyUserModel>> getFamilyUsers();
@@ -99,7 +87,9 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
     }
   }
 
-  Future<ResidentModel> _enrichResident(Map<String, dynamic> residentJson) async {
+  Future<ResidentModel> _enrichResident(
+    Map<String, dynamic> residentJson,
+  ) async {
     final enrichedJson = Map<String, dynamic>.from(residentJson);
     final personProfileId =
         (residentJson['personProfileId'] as num?)?.toInt() ?? 0;
@@ -273,56 +263,6 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
   }
 
   @override
-  Future<List<ResidentMedicalConditionModel>> getMedicalConditions(
-    int residentId,
-  ) async {
-    try {
-      final response = await client.get(
-        'residents/$residentId/medical-conditions',
-      );
-      final data = _extractList(response);
-      return data
-          .map(
-            (json) => ResidentMedicalConditionModel.fromJson(
-              json as Map<String, dynamic>,
-            ),
-          )
-          .toList();
-    } catch (e) {
-      throw ServerException(message: 'Error fetching medical conditions: $e');
-    }
-  }
-
-  @override
-  Future<ResidentMedicalConditionModel> registerMedicalCondition({
-    required int residentId,
-    required String diagnosisName,
-    required DateTime diagnosisDate,
-    required String status,
-    required String notes,
-  }) async {
-    try {
-      final response = await client.post(
-        'residents/$residentId/medical-conditions',
-        data: {
-          'diagnosisName': diagnosisName,
-          'diagnosisDate': _formatDate(diagnosisDate),
-          'status': status,
-          'notes': notes,
-        },
-      );
-      if (response is Map<String, dynamic>) {
-        return ResidentMedicalConditionModel.fromJson(response);
-      }
-      throw ParsingException(
-        message: 'Medical condition data could not be parsed.',
-      );
-    } catch (e) {
-      throw ServerException(message: 'Error registering medical condition: $e');
-    }
-  }
-
-  @override
   Future<List<ResidentVitalSignModel>> getVitalSigns(int residentId) async {
     try {
       final response = await client.get('resident/$residentId/vital-signs');
@@ -350,6 +290,9 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
       return data
           .map((json) => RelativeModel.fromJson(json as Map<String, dynamic>))
           .toList();
+    } on ServerException catch (e) {
+      if (e.statusCode == 404) return [];
+      rethrow;
     } catch (e) {
       throw ServerException(message: 'Error fetching relatives: $e');
     }

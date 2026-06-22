@@ -9,7 +9,6 @@ import '../../activities/activities.dart';
 import '../../nursing/nursing.dart';
 import '../../hcm/hcm.dart';
 import '../../iam/iam.dart';
-import '../../profiles/profiles.dart';
 import '../../family/family.dart';
 import '../../doctor/doctor.dart';
 
@@ -27,7 +26,6 @@ Future<void> initDependencies() async {
   initHcmModule(locator);
   initIamModule(locator);
   initAccountModule(locator);
-  initProfilesModule(locator);
   initFamilyModule(locator);
   initDoctorModule(locator);
 }

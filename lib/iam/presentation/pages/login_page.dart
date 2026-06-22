@@ -86,12 +86,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (session.isFamily) {
-      _goToPage(
-        context,
-        session.requiresPersonProfileSetup
-            ? const SetupRequiredPage()
-            : const FamilyPortalPage(),
-      );
+      _goToPage(context, const FamilyPortalPage());
       return;
     }
 

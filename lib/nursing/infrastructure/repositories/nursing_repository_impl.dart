@@ -140,36 +140,6 @@ class NursingRepositoryImpl implements INursingRepository {
   }
 
   @override
-  Future<Result<Failure, List<ResidentMedicalCondition>>> getMedicalConditions(
-    int residentId,
-  ) async {
-    return _run(() async {
-      final models = await remoteDataSource.getMedicalConditions(residentId);
-      return models.map((model) => model.toEntity()).toList();
-    });
-  }
-
-  @override
-  Future<Result<Failure, ResidentMedicalCondition>> registerMedicalCondition({
-    required int residentId,
-    required String diagnosisName,
-    required DateTime diagnosisDate,
-    required String status,
-    required String notes,
-  }) async {
-    return _run(() async {
-      final model = await remoteDataSource.registerMedicalCondition(
-        residentId: residentId,
-        diagnosisName: diagnosisName,
-        diagnosisDate: diagnosisDate,
-        status: status,
-        notes: notes,
-      );
-      return model.toEntity();
-    });
-  }
-
-  @override
   Future<Result<Failure, List<ResidentVitalSign>>> getVitalSigns(
     int residentId,
   ) async {

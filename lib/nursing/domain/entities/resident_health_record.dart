@@ -14,22 +14,6 @@ class ResidentAllergy {
   });
 }
 
-class ResidentMedicalCondition {
-  final int id;
-  final String diagnosisName;
-  final String diagnosisDate;
-  final String status;
-  final String notes;
-
-  const ResidentMedicalCondition({
-    required this.id,
-    required this.diagnosisName,
-    required this.diagnosisDate,
-    required this.status,
-    required this.notes,
-  });
-}
-
 class ResidentVitalSign {
   final int id;
   final String measurementId;

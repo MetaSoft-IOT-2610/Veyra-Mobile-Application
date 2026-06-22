@@ -53,18 +53,6 @@ abstract class INursingRepository {
     required String severityLevel,
   });
 
-  Future<Result<Failure, List<ResidentMedicalCondition>>> getMedicalConditions(
-    int residentId,
-  );
-
-  Future<Result<Failure, ResidentMedicalCondition>> registerMedicalCondition({
-    required int residentId,
-    required String diagnosisName,
-    required DateTime diagnosisDate,
-    required String status,
-    required String notes,
-  });
-
   Future<Result<Failure, List<ResidentVitalSign>>> getVitalSigns(
     int residentId,
   );
