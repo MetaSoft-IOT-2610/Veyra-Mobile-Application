@@ -26,14 +26,11 @@ class AuthRepositoryImpl implements IAuthRepository {
       );
 
       if (authenticatedUser.isFamily) {
-        final hasPersonProfile = await remoteDataSource
-            .hasPersonProfileForEmail(authenticatedUser.username);
         return Result.success(
           AuthSession(
             roles: authenticatedUser.roles,
             userId: authenticatedUser.id,
             username: authenticatedUser.username,
-            requiresPersonProfileSetup: !hasPersonProfile,
           ),
         );
       }
