@@ -91,12 +91,36 @@ class NursingRemoteDataSourceImpl implements NursingRemoteDataSource {
         'nursing-homes/$nursingHomeId/residents',
       );
       final data = _extractList(response);
-      return data
-          .map((json) => ResidentModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      return Future.wait(
+        data.map((json) => _enrichResident(json as Map<String, dynamic>)),
+      );
     } catch (e) {
       throw ServerException(message: 'Error fetching residents: $e');
     }
+  }
+
+  Future<ResidentModel> _enrichResident(Map<String, dynamic> residentJson) async {
+    final enrichedJson = Map<String, dynamic>.from(residentJson);
+    final personProfileId =
+        (residentJson['personProfileId'] as num?)?.toInt() ?? 0;
+
+    if (personProfileId > 0) {
+      try {
+        final profileResponse = await client.get(
+          'person-profiles/$personProfileId',
+        );
+        if (profileResponse is Map) {
+          final photo = profileResponse['photo'] as String?;
+          if (photo != null && photo.isNotEmpty) {
+            enrichedJson['photo'] = photo;
+          }
+        }
+      } on ServerException catch (e) {
+        if (e.statusCode != 404) rethrow;
+      }
+    }
+
+    return ResidentModel.fromJson(enrichedJson);
   }
 
   @override
