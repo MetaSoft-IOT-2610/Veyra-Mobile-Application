@@ -46,9 +46,48 @@ class StaffDetailPage extends StatelessWidget {
                 : <StaffContract>[];
             final isLoading = state is StaffLoading;
 
+            final hasPhoto = staffMember.photo.startsWith('http');
+            final initial = staffMember.firstName.isEmpty
+                ? '?'
+                : staffMember.firstName[0].toUpperCase();
+
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 52,
+                          backgroundColor: Colors.blue.shade100,
+                          backgroundImage: hasPhoto
+                              ? NetworkImage(staffMember.photo)
+                              : null,
+                          child: hasPhoto
+                              ? null
+                              : Text(
+                                  initial,
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          staffMember.fullName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 _InfoCard(
                   title: 'Staff member',
                   icon: Icons.badge_outlined,

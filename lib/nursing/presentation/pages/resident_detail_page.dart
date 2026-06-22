@@ -127,9 +127,48 @@ class _DetailsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasPhoto = resident.photo.startsWith('http');
+    final initial = resident.firstName.isEmpty
+        ? '?'
+        : resident.firstName[0].toUpperCase();
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 52,
+                  backgroundColor: Colors.blue.shade100,
+                  backgroundImage: hasPhoto
+                      ? NetworkImage(resident.photo)
+                      : null,
+                  child: hasPhoto
+                      ? null
+                      : Text(
+                          initial,
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  resident.fullName,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         _InfoCard(
           title: 'Resident',
           icon: Icons.elderly,
