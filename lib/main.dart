@@ -8,6 +8,7 @@ import 'family/presentation/pages/family_portal_page.dart';
 import 'iam/presentation/pages/login_page.dart';
 import 'shared/infrastructure/local/token_manager.dart';
 import 'shared/presentation/pages/admin_main_layout_page.dart';
+import 'shared/presentation/pages/app_splash_page.dart';
 import 'shared/presentation/pages/setup_required_page.dart';
 import 'shared/presentation/theme/app_theme.dart';
 
@@ -31,7 +32,7 @@ class VeyraEnterpriseApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Veyra Mobile App',
       theme: AppTheme.light,
-      home: _initialPage(),
+      home: AppSplashPage(destination: _initialPage()),
     );
   }
 
