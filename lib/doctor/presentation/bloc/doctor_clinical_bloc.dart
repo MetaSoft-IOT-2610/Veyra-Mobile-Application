@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../application/commands/register_doctor_allergy_command.dart';
-import '../../application/commands/register_doctor_medical_condition_command.dart';
 import '../../application/queries/get_resident_clinical_record_query.dart';
 import '../../domain/entities/resident_clinical_record.dart';
 
@@ -29,22 +28,6 @@ class RegisterDoctorAllergyEvent extends DoctorClinicalEvent {
   });
 }
 
-class RegisterDoctorMedicalConditionEvent extends DoctorClinicalEvent {
-  final int residentId;
-  final String diagnosisName;
-  final DateTime diagnosisDate;
-  final String status;
-  final String notes;
-
-  RegisterDoctorMedicalConditionEvent({
-    required this.residentId,
-    required this.diagnosisName,
-    required this.diagnosisDate,
-    required this.status,
-    required this.notes,
-  });
-}
-
 abstract class DoctorClinicalState {}
 
 class DoctorClinicalInitial extends DoctorClinicalState {}
@@ -68,13 +51,9 @@ class DoctorClinicalBloc
     extends Bloc<DoctorClinicalEvent, DoctorClinicalState> {
   final GetResidentClinicalRecordQuery _getRecord;
   final RegisterDoctorAllergyCommand _registerAllergy;
-  final RegisterDoctorMedicalConditionCommand _registerCondition;
 
-  DoctorClinicalBloc(
-    this._getRecord,
-    this._registerAllergy,
-    this._registerCondition,
-  ) : super(DoctorClinicalInitial()) {
+  DoctorClinicalBloc(this._getRecord, this._registerAllergy)
+    : super(DoctorClinicalInitial()) {
     on<LoadDoctorClinicalRecordEvent>((event, emit) async {
       await _load(event.residentId, emit);
     });
@@ -93,24 +72,6 @@ class DoctorClinicalBloc
           event.residentId,
           emit,
           successMessage: 'Allergy registered successfully.',
-        ),
-      );
-    });
-    on<RegisterDoctorMedicalConditionEvent>((event, emit) async {
-      emit(DoctorClinicalLoading());
-      final result = await _registerCondition.execute(
-        residentId: event.residentId,
-        diagnosisName: event.diagnosisName,
-        diagnosisDate: event.diagnosisDate,
-        status: event.status,
-        notes: event.notes,
-      );
-      await result.fold(
-        (failure) async => emit(DoctorClinicalError(failure.message)),
-        (_) => _load(
-          event.residentId,
-          emit,
-          successMessage: 'Medical condition registered successfully.',
         ),
       );
     });

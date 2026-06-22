@@ -19,21 +19,15 @@ class GetResidentClinicalRecordQuery {
     }
 
     final allergyResult = await _repository.getAllergies(residentId);
-    final conditionResult = await _repository.getMedicalConditions(residentId);
     final vitalResult = await _repository.getVitalSigns(residentId);
 
     Failure? failure;
     var allergies = <ResidentAllergy>[];
-    var conditions = <ResidentMedicalCondition>[];
     var vitalSigns = <ResidentVitalSign>[];
 
     allergyResult.fold(
       (value) => failure ??= value,
       (value) => allergies = value,
-    );
-    conditionResult.fold(
-      (value) => failure ??= value,
-      (value) => conditions = value,
     );
     vitalResult.fold(
       (value) => failure ??= value,
@@ -42,11 +36,7 @@ class GetResidentClinicalRecordQuery {
 
     if (failure != null) return Result.failure(failure!);
     return Result.success(
-      ResidentClinicalRecord(
-        allergies: allergies,
-        medicalConditions: conditions,
-        vitalSigns: vitalSigns,
-      ),
+      ResidentClinicalRecord(allergies: allergies, vitalSigns: vitalSigns),
     );
   }
 }

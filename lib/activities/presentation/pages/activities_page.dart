@@ -108,43 +108,48 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
 
           return FutureBuilder<ActivityDirectoryOptions>(
             future: _options,
-            builder: (context, snapshot) => RefreshIndicator(
-              onRefresh: () async => _refresh(),
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-                children: [
-                  ActivitySummary(activities: activities),
-                  const SizedBox(height: 14),
-                  ActivityFilters(
-                    selected: _selectedStatus,
-                    onChanged: (value) =>
-                        setState(() => _selectedStatus = value),
-                  ),
-                  const SizedBox(height: 14),
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    const LinearProgressIndicator(),
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    const SizedBox(height: 12),
-                  if (visible.isEmpty)
-                    const ActivityEmptyState()
-                  else
-                    ...visible.map(
-                      (activity) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: ActivityDashboardCard(
-                          activity: activity,
-                          residentName:
-                              snapshot.data?.residentNames[activity.residentId],
-                          staffName: snapshot
-                              .data
-                              ?.staffNames[activity.healthcareStaffId],
-                        ),
+            builder: (context, snapshot) {
+              final header = <Widget>[
+                ActivitySummary(activities: activities),
+                const SizedBox(height: 14),
+                ActivityFilters(
+                  selected: _selectedStatus,
+                  onChanged: (value) => setState(() => _selectedStatus = value),
+                ),
+                const SizedBox(height: 14),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  const LinearProgressIndicator(),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  const SizedBox(height: 12),
+              ];
+              final contentCount = visible.isEmpty ? 1 : visible.length;
+
+              return RefreshIndicator(
+                onRefresh: () async => _refresh(),
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                  itemCount: header.length + contentCount,
+                  itemBuilder: (context, index) {
+                    if (index < header.length) return header[index];
+                    if (visible.isEmpty) return const ActivityEmptyState();
+
+                    final activity = visible[index - header.length];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: ActivityDashboardCard(
+                        activity: activity,
+                        residentName:
+                            snapshot.data?.residentNames[activity.residentId],
+                        staffName: snapshot
+                            .data
+                            ?.staffNames[activity.healthcareStaffId],
                       ),
-                    ),
-                ],
-              ),
-            ),
+                    );
+                  },
+                ),
+              );
+            },
           );
         },
       ),

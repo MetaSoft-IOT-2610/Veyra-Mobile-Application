@@ -6,7 +6,6 @@ class AuthSession {
   final int? nursingHomeId;
   final List<String> roles;
   final bool requiresNursingHomeSetup;
-  final bool requiresPersonProfileSetup;
 
   const AuthSession({
     required this.roles,
@@ -16,12 +15,14 @@ class AuthSession {
     this.staffId,
     this.nursingHomeId,
     this.requiresNursingHomeSetup = false,
-    this.requiresPersonProfileSetup = false,
   });
 
-  bool get isAdministrator => roles.contains('ROLE_ADMIN');
+  bool get isAdministrator => _hasRole('ROLE_ADMIN');
 
-  bool get isFamily => roles.contains('ROLE_FAMILIAR');
+  bool get isFamily => _hasRole('ROLE_FAMILIAR');
 
-  bool get isDoctor => roles.contains('ROLE_DOCTOR');
+  bool get isDoctor => _hasRole('ROLE_DOCTOR');
+
+  bool _hasRole(String role) =>
+      roles.any((value) => value.trim().toUpperCase() == role);
 }

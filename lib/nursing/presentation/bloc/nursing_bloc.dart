@@ -105,22 +105,6 @@ class RegisterResidentAllergyEvent extends NursingEvent {
   });
 }
 
-class RegisterMedicalConditionEvent extends NursingEvent {
-  final int residentId;
-  final String diagnosisName;
-  final DateTime diagnosisDate;
-  final String status;
-  final String notes;
-
-  RegisterMedicalConditionEvent({
-    required this.residentId,
-    required this.diagnosisName,
-    required this.diagnosisDate,
-    required this.status,
-    required this.notes,
-  });
-}
-
 class CreateResidentRelativeEvent extends NursingEvent {
   final int nursingHomeId;
   final int residentId;
@@ -159,14 +143,12 @@ class ResidentDetailsLoaded extends NursingState {
   final List<FamilyUser> familyUsers;
   final List<Relative> relatives;
   final List<ResidentAllergy> allergies;
-  final List<ResidentMedicalCondition> medicalConditions;
   final List<ResidentVitalSign> vitalSigns;
 
   ResidentDetailsLoaded({
     required this.familyUsers,
     required this.relatives,
     required this.allergies,
-    required this.medicalConditions,
     required this.vitalSigns,
   });
 }
@@ -209,7 +191,6 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     on<LoadResidentDetailsEvent>(_onLoadResidentDetails);
     on<AssignResidentRoomEvent>(_onAssignRoom);
     on<RegisterResidentAllergyEvent>(_onRegisterAllergy);
-    on<RegisterMedicalConditionEvent>(_onRegisterMedicalCondition);
     on<CreateResidentRelativeEvent>(_onCreateRelative);
   }
 
@@ -284,24 +265,19 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     );
     final familyUsersResult = await _getFamilyUsersQuery.execute();
     final allergiesResult = await _repository.getAllergies(event.residentId);
-    final conditionsResult = await _repository.getMedicalConditions(
-      event.residentId,
-    );
     final vitalsResult = await _repository.getVitalSigns(event.residentId);
 
-    String? error;
     List<FamilyUser> familyUsers = [];
     List<Relative> relatives = [];
     List<ResidentAllergy> allergies = [];
-    List<ResidentMedicalCondition> conditions = [];
     List<ResidentVitalSign> vitals = [];
 
-    relativesResult.fold((failure) => error ??= failure.message, (value) {
+    relativesResult.fold((_) {}, (value) {
       relatives = value
           .where((relative) => relative.residentId == event.residentId)
           .toList();
     });
-    familyUsersResult.fold((failure) => error ??= failure.message, (value) {
+    familyUsersResult.fold((_) {}, (value) {
       final assignedUserIds = relativesResult.fold(
         (_) => <int>{},
         (allRelatives) => allRelatives
@@ -316,27 +292,18 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
           )
           .toList();
     });
-    allergiesResult.fold((failure) => error ??= failure.message, (value) {
+    allergiesResult.fold((_) {}, (value) {
       allergies = value;
     });
-    conditionsResult.fold((failure) => error ??= failure.message, (value) {
-      conditions = value;
-    });
-    vitalsResult.fold((failure) => error ??= failure.message, (value) {
+    vitalsResult.fold((_) {}, (value) {
       vitals = value;
     });
-
-    if (error != null) {
-      emit(NursingError(error!));
-      return;
-    }
 
     emit(
       ResidentDetailsLoaded(
         familyUsers: familyUsers,
         relatives: relatives,
         allergies: allergies,
-        medicalConditions: conditions,
         vitalSigns: vitals,
       ),
     );
@@ -394,26 +361,6 @@ class NursingBloc extends Bloc<NursingEvent, NursingState> {
     result.fold(
       (failure) => emit(NursingError(failure.message)),
       (_) => emit(ResidentActionSuccess('Allergy registered successfully.')),
-    );
-  }
-
-  Future<void> _onRegisterMedicalCondition(
-    RegisterMedicalConditionEvent event,
-    Emitter<NursingState> emit,
-  ) async {
-    emit(NursingLoading());
-    final result = await _repository.registerMedicalCondition(
-      residentId: event.residentId,
-      diagnosisName: event.diagnosisName.trim(),
-      diagnosisDate: event.diagnosisDate,
-      status: event.status,
-      notes: event.notes.trim(),
-    );
-    result.fold(
-      (failure) => emit(NursingError(failure.message)),
-      (_) => emit(
-        ResidentActionSuccess('Medical condition registered successfully.'),
-      ),
     );
   }
 }
