@@ -1,3 +1,5 @@
+import 'dart:math' show max;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -165,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight - 48,
+                          minHeight: max(0.0, constraints.maxHeight - 48),
                         ),
                         child: Center(
                           child: ConstrainedBox(
