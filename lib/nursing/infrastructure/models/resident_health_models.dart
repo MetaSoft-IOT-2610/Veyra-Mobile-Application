@@ -34,40 +34,6 @@ class ResidentAllergyModel {
   );
 }
 
-class ResidentMedicalConditionModel {
-  final int id;
-  final String diagnosisName;
-  final String diagnosisDate;
-  final String status;
-  final String notes;
-
-  const ResidentMedicalConditionModel({
-    required this.id,
-    required this.diagnosisName,
-    required this.diagnosisDate,
-    required this.status,
-    required this.notes,
-  });
-
-  factory ResidentMedicalConditionModel.fromJson(Map<String, dynamic> json) {
-    return ResidentMedicalConditionModel(
-      id: (json['id'] as num? ?? 0).toInt(),
-      diagnosisName: json['diagnosisName'] as String? ?? '',
-      diagnosisDate: json['diagnosisDate'] as String? ?? '',
-      status: json['status'] as String? ?? 'ACTIVE',
-      notes: json['notes'] as String? ?? '',
-    );
-  }
-
-  ResidentMedicalCondition toEntity() => ResidentMedicalCondition(
-    id: id,
-    diagnosisName: diagnosisName,
-    diagnosisDate: diagnosisDate,
-    status: status,
-    notes: notes,
-  );
-}
-
 class ResidentVitalSignModel {
   final int id;
   final String measurementId;
