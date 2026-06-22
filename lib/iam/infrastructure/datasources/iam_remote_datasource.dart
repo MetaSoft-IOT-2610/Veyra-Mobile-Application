@@ -52,11 +52,17 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
             .map(_normalizeRole)
             .where((role) => role.isNotEmpty)
             .toList();
+        TokenManager.saveRoles(roles);
 
         int? entityId;
         if (response['entityId'] != null) {
           entityId = (response['entityId'] as num).toInt();
-          TokenManager.saveAdministratorId(entityId);
+          if (roles.contains('ROLE_ADMIN')) {
+            TokenManager.saveAdministratorId(entityId);
+          }
+          if (roles.contains('ROLE_DOCTOR')) {
+            TokenManager.saveStaffId(entityId);
+          }
         }
 
         return AuthenticatedUser(
@@ -126,7 +132,9 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     try {
       final response = await client.get('staff/$staffId/nursing-homes');
       if (response is Map && response['businessProfileId'] is num) {
-        return (response['businessProfileId'] as num).toInt();
+        final nursingHomeId = (response['businessProfileId'] as num).toInt();
+        TokenManager.saveNursingHomeId(nursingHomeId);
+        return nursingHomeId;
       }
       throw ParsingException(
         message: 'The staff nursing home could not be parsed.',
