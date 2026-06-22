@@ -43,7 +43,7 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
     return BlocProvider.value(
       value: _bloc,
       child: DefaultTabController(
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             title: Text(widget.resident.fullName),
@@ -53,10 +53,6 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
                 Tab(
                   icon: Icon(Icons.warning_amber_outlined),
                   text: 'Allergies',
-                ),
-                Tab(
-                  icon: Icon(Icons.medical_information_outlined),
-                  text: 'Conditions',
                 ),
               ],
             ),
@@ -101,12 +97,6 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
                     onAdd: AppCapabilities.isReadOnly
                         ? null
                         : () => _showAllergyDialog(context),
-                  ),
-                  _ConditionsTab(
-                    record: record,
-                    onAdd: AppCapabilities.isReadOnly
-                        ? null
-                        : () => _showConditionDialog(context),
                   ),
                 ],
               );
@@ -197,99 +187,6 @@ class _DoctorResidentPageState extends State<DoctorResidentPage> {
     allergen.dispose();
     reaction.dispose();
   }
-
-  Future<void> _showConditionDialog(BuildContext context) async {
-    final diagnosis = TextEditingController();
-    final notes = TextEditingController();
-    var diagnosisDate = DateTime.now();
-    var status = 'ACTIVE';
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Register medical condition'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: diagnosis,
-                  decoration: const InputDecoration(labelText: 'Diagnosis'),
-                ),
-                const SizedBox(height: 8),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Diagnosis date'),
-                  subtitle: Text(_formatDate(diagnosisDate)),
-                  trailing: const Icon(Icons.calendar_month),
-                  onTap: () async {
-                    final selected = await showDatePicker(
-                      context: context,
-                      initialDate: diagnosisDate,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (selected != null) {
-                      setDialogState(() => diagnosisDate = selected);
-                    }
-                  },
-                ),
-                DropdownButtonFormField<String>(
-                  initialValue: status,
-                  decoration: const InputDecoration(labelText: 'Status'),
-                  items: const ['ACTIVE', 'CONTROLLED', 'RESOLVED']
-                      .map(
-                        (value) =>
-                            DropdownMenuItem(value: value, child: Text(value)),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) setDialogState(() => status = value);
-                  },
-                ),
-                TextField(
-                  controller: notes,
-                  maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      _bloc.add(
-        RegisterDoctorMedicalConditionEvent(
-          residentId: widget.resident.id,
-          diagnosisName: diagnosis.text,
-          diagnosisDate: diagnosisDate,
-          status: status,
-          notes: notes.text,
-        ),
-      );
-    }
-    diagnosis.dispose();
-    notes.dispose();
-  }
-
-  String _formatDate(DateTime date) {
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '${date.year}-$month-$day';
-  }
 }
 
 class _VitalSignsTab extends StatelessWidget {
@@ -334,39 +231,6 @@ class _AllergiesTab extends StatelessWidget {
         title: Text(item.allergenName),
         subtitle: Text('${item.typeOfAllergy} - ${item.reaction}'),
         trailing: _StatusChip(item.severityLevel),
-      ),
-    );
-  }
-}
-
-class _ConditionsTab extends StatelessWidget {
-  final ResidentClinicalRecord record;
-  final VoidCallback? onAdd;
-
-  const _ConditionsTab({required this.record, required this.onAdd});
-
-  @override
-  Widget build(BuildContext context) {
-    return _ClinicalList<ResidentMedicalCondition>(
-      items: record.medicalConditions,
-      emptyMessage: 'No medical conditions registered.',
-      action: onAdd == null
-          ? null
-          : FloatingActionButton(
-              tooltip: 'Register medical condition',
-              onPressed: onAdd,
-              child: const Icon(Icons.add),
-            ),
-      itemBuilder: (item) => ListTile(
-        leading: const Icon(Icons.medical_information_outlined),
-        title: Text(item.diagnosisName),
-        subtitle: Text(
-          item.notes.isEmpty
-              ? item.diagnosisDate
-              : '${item.diagnosisDate}\n${item.notes}',
-        ),
-        isThreeLine: item.notes.isNotEmpty,
-        trailing: _StatusChip(item.status),
       ),
     );
   }
