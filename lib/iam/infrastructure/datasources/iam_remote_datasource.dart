@@ -15,9 +15,6 @@ abstract class IamRemoteDataSource {
 
   /// Retrieves the nursing home assigned to the specified staff member.
   Future<int> getStaffNursingHomeId(int staffId);
-
-  /// Checks whether a person profile already exists for a family email.
-  Future<bool> hasPersonProfileForEmail(String email);
 }
 
 /// Implementation of [IamRemoteDataSource] using the corporate HTTP client.
@@ -52,13 +49,20 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         TokenManager.saveUserId(id);
 
         final roles = (response['roles'] as List<dynamic>? ?? [])
-            .map((role) => role.toString())
+            .map(_normalizeRole)
+            .where((role) => role.isNotEmpty)
             .toList();
+        TokenManager.saveRoles(roles);
 
         int? entityId;
         if (response['entityId'] != null) {
           entityId = (response['entityId'] as num).toInt();
-          TokenManager.saveAdministratorId(entityId);
+          if (roles.contains('ROLE_ADMIN')) {
+            TokenManager.saveAdministratorId(entityId);
+          }
+          if (roles.contains('ROLE_DOCTOR')) {
+            TokenManager.saveStaffId(entityId);
+          }
         }
 
         return AuthenticatedUser(
@@ -76,6 +80,24 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
         message: 'Authentication failed. Please check your credentials.',
       );
     }
+  }
+
+  String _normalizeRole(dynamic value) {
+    final rawRole = value is Map
+        ? value['name'] ?? value['authority'] ?? value['role'] ?? ''
+        : value;
+    final role = rawRole.toString().trim().toUpperCase();
+
+    return switch (role) {
+      'FAMILIAR' ||
+      'FAMILY' ||
+      'RELATIVE' ||
+      'ROLE_FAMILY' ||
+      'ROLE_RELATIVE' => 'ROLE_FAMILIAR',
+      'ADMIN' || 'ADMINISTRATOR' || 'ROLE_ADMINISTRATOR' => 'ROLE_ADMIN',
+      'DOCTOR' => 'ROLE_DOCTOR',
+      _ => role,
+    };
   }
 
   @override
@@ -110,7 +132,9 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
     try {
       final response = await client.get('staff/$staffId/nursing-homes');
       if (response is Map && response['businessProfileId'] is num) {
-        return (response['businessProfileId'] as num).toInt();
+        final nursingHomeId = (response['businessProfileId'] as num).toInt();
+        TokenManager.saveNursingHomeId(nursingHomeId);
+        return nursingHomeId;
       }
       throw ParsingException(
         message: 'The staff nursing home could not be parsed.',
@@ -121,24 +145,6 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
       throw ServerException(
         message: 'Failed to find the nursing home assigned to this doctor.',
       );
-    }
-  }
-
-  @override
-  Future<bool> hasPersonProfileForEmail(String email) async {
-    try {
-      final response = await client.get('person-profiles');
-      if (response is! List) return false;
-
-      final normalizedEmail = email.trim().toLowerCase();
-      return response.whereType<Map>().any(
-        (profile) =>
-            profile['emailAddress']?.toString().trim().toLowerCase() ==
-            normalizedEmail,
-      );
-    } on ServerException catch (e) {
-      if (e.statusCode == 404) return false;
-      rethrow;
     }
   }
 }

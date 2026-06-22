@@ -100,7 +100,6 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                     resident: _resident,
                     isLoading: state is NursingLoading,
                     allergies: details?.allergies ?? const [],
-                    conditions: details?.medicalConditions ?? const [],
                     vitalSigns: details?.vitalSigns ?? const [],
                   ),
                   _FamilyTab(
@@ -277,14 +276,12 @@ class _HealthTab extends StatelessWidget {
   final Resident resident;
   final bool isLoading;
   final List<ResidentAllergy> allergies;
-  final List<ResidentMedicalCondition> conditions;
   final List<ResidentVitalSign> vitalSigns;
 
   const _HealthTab({
     required this.resident,
     required this.isLoading,
     required this.allergies,
-    required this.conditions,
     required this.vitalSigns,
   });
 
@@ -321,23 +318,6 @@ class _HealthTab extends StatelessWidget {
                   title: Text(item.allergenName),
                   subtitle: Text('${item.typeOfAllergy} - ${item.reaction}'),
                   trailing: _Badge(item.severityLevel),
-                ),
-              )
-              .toList(),
-        ),
-        _ListSection(
-          title: 'Medical conditions',
-          icon: Icons.medical_information_outlined,
-          action: AppCapabilities.isReadOnly
-              ? null
-              : () => _showConditionDialog(context),
-          emptyText: 'No medical conditions registered.',
-          children: conditions
-              .map(
-                (item) => ListTile(
-                  title: Text(item.diagnosisName),
-                  subtitle: Text('${item.diagnosisDate} - ${item.notes}'),
-                  trailing: _Badge(item.status),
                 ),
               )
               .toList(),
@@ -419,87 +399,6 @@ class _HealthTab extends StatelessWidget {
                     reaction: reaction.text,
                     typeOfAllergy: type,
                     severityLevel: severity,
-                  ),
-                );
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showConditionDialog(BuildContext context) {
-    final bloc = context.read<NursingBloc>();
-    final messenger = ScaffoldMessenger.of(context);
-    final diagnosis = TextEditingController();
-    final notes = TextEditingController();
-    var status = 'ACTIVE';
-    var date = DateTime.now();
-    showDialog<void>(
-      context: context,
-      builder: (_) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Register condition'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: diagnosis,
-                decoration: const InputDecoration(labelText: 'Diagnosis'),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
-                ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: date,
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) setState(() => date = picked);
-                },
-              ),
-              DropdownButtonFormField<String>(
-                initialValue: status,
-                items: const ['ACTIVE', 'RESOLVED', 'CHRONIC']
-                    .map((v) => DropdownMenuItem(value: v, child: Text(v)))
-                    .toList(),
-                onChanged: (v) => setState(() => status = v ?? status),
-                decoration: const InputDecoration(labelText: 'Status'),
-              ),
-              TextField(
-                controller: notes,
-                decoration: const InputDecoration(labelText: 'Notes'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (diagnosis.text.trim().isEmpty) {
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Complete diagnosis name.')),
-                  );
-                  return;
-                }
-                bloc.add(
-                  RegisterMedicalConditionEvent(
-                    residentId: resident.id,
-                    diagnosisName: diagnosis.text,
-                    diagnosisDate: date,
-                    status: status,
-                    notes: notes.text,
                   ),
                 );
                 Navigator.of(context).pop();
