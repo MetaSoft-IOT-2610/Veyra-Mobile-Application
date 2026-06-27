@@ -75,10 +75,10 @@ class IamRemoteDataSourceImpl implements IamRemoteDataSource {
       throw ParsingException(
         message: 'Authentication response could not be parsed.',
       );
+    } on ServerException {
+      rethrow;
     } catch (e) {
-      throw ServerException(
-        message: 'Authentication failed. Please check your credentials.',
-      );
+      throw ServerException(message: 'Error inesperado al autenticar: $e');
     }
   }
 
