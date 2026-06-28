@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "676323475057",
+    "project_id": "metasoft-iot-2601-17157",
+    "storage_bucket": "metasoft-iot-2601-17157.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676323475057:android:e840d889916c618888a5d0",
+        "android_client_info": {
+          "package_name": "com.metasoft.veyra_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlzt3CVcsb6D9r2bnWFLybgYO7k2DccVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
