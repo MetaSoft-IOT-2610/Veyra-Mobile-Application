@@ -1,8 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/di/dependency_injection.dart';
+import '../../../iam/presentation/pages/login_page.dart';
+import '../../../shared/infrastructure/local/token_manager.dart';
 import '../../domain/entities/subscription.dart';
 import '../bloc/account_bloc.dart';
+
+Future<void> _handleSignOut(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Cerrar sesión'),
+      content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          child: const Text('Cerrar sesión'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true && context.mounted) {
+    TokenManager.clear();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (_) => false,
+    );
+  }
+}
 
 class ProfilePage extends StatelessWidget {
   final int userId;
@@ -21,7 +52,16 @@ class ProfilePage extends StatelessWidget {
           locator<AccountBloc>()..add(LoadActiveSubscriptionEvent(userId)),
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
-        appBar: AppBar(title: const Text('Mi Cuenta')),
+        appBar: AppBar(
+          title: const Text('Mi Cuenta'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Cerrar sesión',
+              onPressed: () => _handleSignOut(context),
+            ),
+          ],
+        ),
         body: BlocBuilder<AccountBloc, AccountState>(
           builder: (context, state) {
             if (state is AccountLoading) {
@@ -84,31 +124,33 @@ class _NoSubscriptionContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.workspace_premium_outlined,
-              color: Colors.blue.shade700,
-              size: 56,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No active subscription',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Subscription information is not available for this account.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade700),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
+          Icon(
+            Icons.workspace_premium_outlined,
+            color: Colors.blue.shade700,
+            size: 56,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No active subscription',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Subscription information is not available for this account.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey.shade700),
+          ),
+          const Spacer(),
+          _SignOutButton(),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
@@ -135,6 +177,9 @@ class _AccountContent extends StatelessWidget {
           _SubscriptionCard(subscription: subscription),
           const SizedBox(height: 16),
           _ReadOnlyNotice(),
+          const SizedBox(height: 24),
+          _SignOutButton(),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -322,6 +367,32 @@ class _ReadOnlyNotice extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SignOutButton extends StatelessWidget {
+  const _SignOutButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        icon: const Icon(Icons.logout, color: Colors.red),
+        label: const Text(
+          'Cerrar sesión',
+          style: TextStyle(color: Colors.red),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Colors.red),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onPressed: () => _handleSignOut(context),
       ),
     );
   }
