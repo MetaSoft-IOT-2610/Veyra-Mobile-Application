@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'app/di/dependency_injection.dart';
 import 'app/observers/app_bloc_observer.dart';
@@ -16,6 +17,9 @@ import 'shared/presentation/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp();
+
+  Bloc.observer = AppBlocObserver();
   if (kDebugMode) Bloc.observer = AppBlocObserver();
 
   await TokenManager.initialize();
