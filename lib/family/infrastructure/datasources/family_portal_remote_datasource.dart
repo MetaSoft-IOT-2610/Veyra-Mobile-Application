@@ -15,6 +15,7 @@ class FamilyPortalRemoteData {
   final List<FamilyDeviceModel> devices;
   final List<ResidentVitalSignModel> vitalSigns;
   final List<ActivityModel> activities;
+  final List<MeasurementModel> measurements;
 
   const FamilyPortalRemoteData({
     required this.relative,
@@ -25,6 +26,7 @@ class FamilyPortalRemoteData {
     required this.devices,
     required this.vitalSigns,
     required this.activities,
+    required this.measurements,
   });
 }
 
@@ -78,6 +80,25 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
         _getOptionalList('nursing-homes/${relative.nursingHomeId}/activities'),
       ]);
 
+      final devices = (results[1] as List<dynamic>)
+          .map(
+            (json) =>
+                FamilyDeviceModel.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+
+      final List<MeasurementModel> measurements = [];
+      if (devices.isNotEmpty) {
+        final measurementsResults = await Future.wait(
+          devices.map((device) => _getOptionalList('devices/${device.id}/measurements')),
+        );
+        for (final list in measurementsResults) {
+          measurements.addAll(
+            list.map((json) => MeasurementModel.fromJson(json as Map<String, dynamic>)),
+          );
+        }
+      }
+
       return FamilyPortalRemoteData(
         relative: relative,
         resident: resident,
@@ -89,12 +110,7 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
             )
             .toList(),
         medications: const [],
-        devices: (results[1] as List<dynamic>)
-            .map(
-              (json) =>
-                  FamilyDeviceModel.fromJson(json as Map<String, dynamic>),
-            )
-            .toList(),
+        devices: devices,
         vitalSigns: (results[2] as List<dynamic>)
             .map(
               (json) =>
@@ -105,6 +121,7 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
             .map((json) => ActivityModel.fromJson(json as Map<String, dynamic>))
             .where((activity) => activity.residentId == resident.id)
             .toList(),
+        measurements: measurements,
       );
     } on ServerException {
       rethrow;
