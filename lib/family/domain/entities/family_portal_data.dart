@@ -11,7 +11,7 @@ class FamilyPortalData {
   final List<ResidentAllergy> allergies;
   final List<FamilyMedication> medications;
   final List<FamilyDevice> devices;
-  final List<ResidentVitalSign> vitalSigns;
+  final List<FamilyMeasurement> measurements;
   final List<Activity> activities;
 
   const FamilyPortalData({
@@ -21,7 +21,7 @@ class FamilyPortalData {
     required this.allergies,
     required this.medications,
     required this.devices,
-    required this.vitalSigns,
+    required this.measurements,
     required this.activities,
   });
 }
