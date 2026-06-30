@@ -6,12 +6,12 @@ import 'family_components.dart';
 class FamilyHealthHeader extends StatelessWidget {
   const FamilyHealthHeader({
     super.key,
-    required this.vitalSigns,
+    required this.measurements,
     required this.allergies,
     required this.devices,
   });
 
-  final int vitalSigns;
+  final int measurements;
   final int allergies;
   final int devices;
 
@@ -51,7 +51,7 @@ class FamilyHealthHeader extends StatelessWidget {
           ),
         ),
         Text(
-          '$vitalSigns signos\n$allergies alergias',
+          '$measurements mediciones\n$allergies alergias',
           textAlign: TextAlign.end,
           style: const TextStyle(
             color: Colors.white,

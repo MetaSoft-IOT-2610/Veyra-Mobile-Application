@@ -22,7 +22,7 @@ class FamilyPortalRepositoryImpl implements IFamilyPortalRepository {
           allergies: data.allergies.map((item) => item.toEntity()).toList(),
           medications: data.medications.map((item) => item.toEntity()).toList(),
           devices: data.devices.map((item) => item.toEntity()).toList(),
-          vitalSigns: data.vitalSigns.map((item) => item.toEntity()).toList(),
+          measurements: data.measurements.map((item) => item.toEntity()).toList(),
           activities: data.activities.map((item) => item.toEntity()).toList(),
         ),
       );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/entities/family_health_data.dart';
 import '../../../domain/entities/family_portal_data.dart';
 import 'family_components.dart';
 import 'family_health_components.dart';
@@ -17,28 +18,42 @@ class FamilyHealthView extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
       children: [
         FamilyHealthHeader(
-          vitalSigns: data.vitalSigns.length,
+          measurements: data.measurements.length,
           allergies: data.allergies.length,
           devices: data.devices.length,
         ),
         const SizedBox(height: 14),
         FamilySectionCard(
           title: 'Signos vitales',
-          subtitle: 'Ultimas mediciones disponibles',
+          subtitle: 'Última medición disponible',
           icon: Icons.monitor_heart_outlined,
-          children: data.vitalSigns.isEmpty
-              ? const [
-                  FamilyEmptySection(message: 'Sin mediciones registradas.'),
-                ]
-              : data.vitalSigns
-                    .map(
-                      (item) => FamilyHealthTile(
-                        icon: Icons.favorite_outline,
-                        title: item.measurementId,
-                        badge: item.severityLevel,
-                      ),
-                    )
-                    .toList(),
+          children: () {
+            if (data.measurements.isEmpty) {
+              return const [
+                FamilyEmptySection(message: 'Sin mediciones registradas.'),
+              ];
+            }
+            final sorted = List<FamilyMeasurement>.from(data.measurements)
+              ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+            final latest = sorted.first;
+            return [
+              FamilyHealthTile(
+                icon: Icons.favorite_outline,
+                title: 'Frecuencia cardíaca',
+                subtitle: latest.heartRate != null ? '${latest.heartRate} bpm' : '-- bpm',
+              ),
+              FamilyHealthTile(
+                icon: Icons.thermostat_outlined,
+                title: 'Temperatura ambiente',
+                subtitle: latest.ambientTemperature != null ? '${latest.ambientTemperature!.toStringAsFixed(1)} °C' : '-- °C',
+              ),
+              FamilyHealthTile(
+                icon: Icons.opacity_outlined,
+                title: 'Saturación de oxígeno',
+                subtitle: latest.oxygenSaturation != null ? '${latest.oxygenSaturation}%' : '--%',
+              ),
+            ];
+          }(),
         ),
         const SizedBox(height: 12),
         FamilySectionCard(

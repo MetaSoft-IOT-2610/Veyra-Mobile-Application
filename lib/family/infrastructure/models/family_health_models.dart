@@ -127,3 +127,46 @@ int _asInt(dynamic value) {
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString() ?? '') ?? 0;
 }
+
+class MeasurementModel {
+
+  final String id;
+  final int deviceId;
+  final double? ambientTemperature;
+  final int? heartRate;
+  final int? oxygenSaturation;
+  final DateTime timestamp;
+
+  const MeasurementModel({
+    required this.id,
+    required this.deviceId,
+    required this.ambientTemperature,
+    required this.heartRate,
+    required this.oxygenSaturation,
+    required this.timestamp,
+  });
+
+  factory MeasurementModel.fromJson(Map<String, dynamic> json) {
+    return MeasurementModel(
+      id: json['id'] as String? ?? '',
+      deviceId: _asInt(json['deviceId']),
+      ambientTemperature: (json['ambientTemperature'] as num?)?.toDouble(),
+      heartRate: _asInt(json['heartRate']),
+      oxygenSaturation: _asInt(json['oxygenSaturation'] ?? json['oxigenSaturation']),
+      timestamp:
+          DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  FamilyMeasurement toEntity() => FamilyMeasurement(
+    id: id,
+    deviceId: deviceId,
+    ambientTemperature: ambientTemperature,
+    heartRate: heartRate,
+    oxygenSaturation: oxygenSaturation,
+    timestamp: timestamp,
+  );
+
+  
+}

@@ -55,3 +55,21 @@ class FamilyDevice {
     required this.macAddress,
   });
 }
+
+class FamilyMeasurement {
+  final String id;
+  final int deviceId;
+  final double? ambientTemperature;
+  final int? heartRate;
+  final int? oxygenSaturation;
+  final DateTime timestamp;
+
+  const FamilyMeasurement({
+    required this.id,
+    required this.deviceId,
+    required this.ambientTemperature,
+    required this.heartRate,
+    required this.oxygenSaturation,
+    required this.timestamp,
+  });
+}
