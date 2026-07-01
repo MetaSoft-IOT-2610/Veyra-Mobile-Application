@@ -32,6 +32,8 @@ class FamilyPortalRemoteData {
 
 abstract class FamilyPortalRemoteDataSource {
   Future<FamilyPortalRemoteData> getPortalData(int userId);
+
+  Future<List<MeasurementModel>> getMeasurementsForDevices(List<int> deviceIds);
 }
 
 class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
@@ -83,18 +85,20 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
       final devices = (results[1] as List<dynamic>)
           .map(
             (json) =>
-                FamilyDeviceModel.fromJson(json as Map<String, dynamic>),
-          )
+            FamilyDeviceModel.fromJson(json as Map<String, dynamic>),
+      )
           .toList();
 
       final List<MeasurementModel> measurements = [];
       if (devices.isNotEmpty) {
         final measurementsResults = await Future.wait(
-          devices.map((device) => _getOptionalList('devices/${device.id}/measurements')),
+          devices.map((device) =>
+              _getOptionalList('devices/${device.id}/measurements')),
         );
         for (final list in measurementsResults) {
           measurements.addAll(
-            list.map((json) => MeasurementModel.fromJson(json as Map<String, dynamic>)),
+            list.map((json) =>
+                MeasurementModel.fromJson(json as Map<String, dynamic>)),
           );
         }
       }
@@ -106,16 +110,16 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
         allergies: (results[0] as List<dynamic>)
             .map(
               (json) =>
-                  ResidentAllergyModel.fromJson(json as Map<String, dynamic>),
-            )
+              ResidentAllergyModel.fromJson(json as Map<String, dynamic>),
+        )
             .toList(),
         medications: const [],
         devices: devices,
         vitalSigns: (results[2] as List<dynamic>)
             .map(
               (json) =>
-                  ResidentVitalSignModel.fromJson(json as Map<String, dynamic>),
-            )
+              ResidentVitalSignModel.fromJson(json as Map<String, dynamic>),
+        )
             .toList(),
         activities: (results[3] as List<dynamic>)
             .map((json) => ActivityModel.fromJson(json as Map<String, dynamic>))
@@ -177,5 +181,25 @@ class FamilyPortalRemoteDataSourceImpl implements FamilyPortalRemoteDataSource {
     if (value is int) return value;
     if (value is num) return value.toInt();
     return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  @override
+  Future<List<MeasurementModel>> getMeasurementsForDevices(List<int> deviceIds) async {
+    try {
+      final List<MeasurementModel> measurements = [];
+
+      final results = await Future.wait(
+        deviceIds.map((id) => _getOptionalList('devices/$id/measurements')),
+      );
+
+      for (final list in results) {
+        measurements.addAll(
+          list.map((json) => MeasurementModel.fromJson(json as Map<String, dynamic>)),
+        );
+      }
+      return measurements;
+    } catch (e) {
+      throw ServerException(message: 'Error al actualizar mediciones: $e');
+    }
   }
 }
