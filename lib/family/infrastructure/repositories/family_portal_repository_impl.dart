@@ -1,6 +1,7 @@
 import '../../../shared/core/exceptions/exceptions.dart';
 import '../../../shared/core/failures/failures.dart';
 import '../../../shared/core/result/result.dart';
+import '../../domain/entities/family_health_data.dart';
 import '../../domain/entities/family_portal_data.dart';
 import '../../domain/repositories/i_family_portal_repository.dart';
 import '../datasources/family_portal_remote_datasource.dart';
@@ -34,6 +35,17 @@ class FamilyPortalRepositoryImpl implements IFamilyPortalRepository {
       return Result.failure(
         ServerFailure('Unexpected family portal error: $e'),
       );
+    }
+  }
+
+  @override
+  Future<Result<Failure, List<FamilyMeasurement>>> getMeasurementsOnly(List<int> deviceIds) async {
+    try {
+      final models = await remoteDataSource.getMeasurementsForDevices(deviceIds);
+      final entities = models.map((m) => m.toEntity()).toList();
+      return Result.success(entities);
+    } on ServerException catch (e) {
+      return Result.failure(ServerFailure(e.message));
     }
   }
 }
