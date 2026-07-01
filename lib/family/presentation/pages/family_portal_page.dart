@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,15 +25,25 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
   late final FamilyPortalBloc _bloc;
   late final int _userId;
 
+  Timer? _pollingTimer;
+
   @override
   void initState() {
     super.initState();
     _userId = TokenManager.getUserId() ?? 0;
     _bloc = locator<FamilyPortalBloc>()..add(LoadFamilyPortalEvent(_userId));
+
+    _pollingTimer = Timer.periodic(const Duration(seconds: 50), (timer) {
+      if (!_bloc.isClosed) {
+        _bloc.add(PollMeasurementsEvent());
+      }
+    });
   }
 
   @override
   void dispose() {
+
+    _pollingTimer?.cancel();
     _bloc.close();
     super.dispose();
   }
