@@ -14,5 +14,5 @@ void initFamilyModule(GetIt locator) {
     () => FamilyPortalRepositoryImpl(remoteDataSource: locator()),
   );
   locator.registerLazySingleton(() => GetFamilyPortalQuery(locator()));
-  locator.registerFactory(() => FamilyPortalBloc(locator()));
+  locator.registerFactory(() => FamilyPortalBloc(locator(), locator()));
 }
