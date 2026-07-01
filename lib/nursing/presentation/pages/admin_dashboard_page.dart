@@ -34,24 +34,24 @@ class AdminDashboardPage extends StatelessWidget {
                 ResidentSummaryWidget(nursingHomeId: nursingHomeId),
                 const SizedBox(height: 16),
                 DashboardSection(
-                  title: 'Analisis operativo',
-                  subtitle: 'Ingresos, altas y rotacion del equipo',
+                  title: 'Operational Analysis',
+                  subtitle: 'Revenue, New Hires, and Staff Turnover',
                   icon: Icons.insights_outlined,
                   initiallyExpanded: true,
                   child: AnalyticsDashboardWidget(nursingHomeId: nursingHomeId),
                 ),
                 const SizedBox(height: 12),
                 DashboardSection(
-                  title: 'Actividades de hoy',
-                  subtitle: 'Agenda diaria de la residencia',
+                  title: 'Today\'s Activities',
+                  subtitle: 'Daily schedule of the nursing home',
                   icon: Icons.event_available_outlined,
                   initiallyExpanded: true,
                   child: TodayActivitiesWidget(nursingHomeId: nursingHomeId),
                 ),
                 const SizedBox(height: 12),
                 DashboardSection(
-                  title: 'Personal activo',
-                  subtitle: 'Equipo disponible en la residencia',
+                  title: 'Active Staff',
+                  subtitle: 'Available staff in the nursing home',
                   icon: Icons.medical_services_outlined,
                   child: ActiveStaffWidget(
                     nursingHomeId: nursingHomeId,
@@ -76,10 +76,10 @@ class _DashboardAppBarTitle extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Resumen clinico'),
+        Text('Clinical Summary'),
         SizedBox(height: 2),
         Text(
-          'Centro de operaciones',
+          'Operations Center',
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 11,

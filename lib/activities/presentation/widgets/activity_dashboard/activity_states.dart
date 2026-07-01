@@ -8,8 +8,8 @@ class ActivityEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const ClinicalStateView(
     icon: Icons.event_available_outlined,
-    title: 'Agenda libre',
-    message: 'No hay actividades para mostrar con este filtro.',
+    title: 'Open agenda',
+    message: 'No activities to display with this filter.',
   );
 }
 
@@ -26,7 +26,7 @@ class ActivityErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClinicalStateView(
     icon: Icons.cloud_off_outlined,
-    title: 'No se pudo cargar la agenda',
+    title: 'Failed to load agenda',
     message: message,
     isError: true,
     onRetry: onRetry,

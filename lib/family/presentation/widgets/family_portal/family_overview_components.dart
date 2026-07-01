@@ -54,7 +54,7 @@ class FamilyResidentHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  room == null ? 'Habitacion pendiente' : 'Habitacion $room',
+                  room == null ? 'Pending Room' : 'Room $room',
                   style: const TextStyle(color: Colors.white70),
                 ),
               ],

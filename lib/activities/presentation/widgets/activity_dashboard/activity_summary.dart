@@ -17,7 +17,7 @@ class ActivitySummary extends StatelessWidget {
       children: [
         Expanded(
           child: _Metric(
-            label: 'Pendientes',
+            label: 'Pending',
             value: count(ActivityStatus.pending),
             icon: Icons.schedule_outlined,
             color: AppColors.warning,
@@ -27,7 +27,7 @@ class ActivitySummary extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _Metric(
-            label: 'En curso',
+            label: 'In Progress',
             value: count(ActivityStatus.inProgress),
             icon: Icons.play_circle_outline,
             color: AppColors.cyan,
@@ -37,7 +37,7 @@ class ActivitySummary extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _Metric(
-            label: 'Completas',
+            label: 'Completed',
             value: count(ActivityStatus.completed),
             icon: Icons.check_circle_outline,
             color: AppColors.success,

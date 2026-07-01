@@ -61,10 +61,10 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Agenda'),
+            Text('Schedule'),
             SizedBox(height: 2),
             Text(
-              'Actividades de hoy',
+              'Today\'s Activities',
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 11,
@@ -75,7 +75,7 @@ class _ActivitiesViewState extends State<_ActivitiesView> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Actualizar',
+            tooltip: 'Refresh',
             onPressed: _refresh,
             icon: const Icon(Icons.refresh),
           ),

@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   bool _isSetupRequiredError(String message) {
-    return message.contains('Requiere configuración inicial') ||
+    return message.contains('Initial configuration is required') ||
         message.contains('404');
   }
 
@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
       if (staffId == null || nursingHomeId == null) {
         _showErrorMessage(
           context,
-          'No se pudo cargar la información del doctor.',
+          'Unable to load the doctor\'s information.',
         );
         return;
       }
@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
     if (nursingHomeId == null) {
       _showErrorMessage(
         context,
-        'No se pudo cargar la casa de reposo asociada a esta cuenta.',
+        'Unable to load the nursing home information associated with this account.',
       );
       return;
     }

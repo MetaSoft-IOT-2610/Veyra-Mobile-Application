@@ -69,12 +69,12 @@ class ActivityDashboardCard extends StatelessWidget {
             const SizedBox(height: 12),
             _InfoLine(
               icon: Icons.elderly_outlined,
-              text: residentName ?? 'Residente no encontrado',
+              text: residentName ?? 'Resident not found',
             ),
             const SizedBox(height: 6),
             _InfoLine(
               icon: Icons.badge_outlined,
-              text: staffName ?? 'Personal no encontrado',
+              text: staffName ?? 'Staff member not found',
             ),
             if (activity.isRecurring) ...[
               const SizedBox(height: 12),
@@ -82,7 +82,7 @@ class ActivityDashboardCard extends StatelessWidget {
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  const _RecurringBadge(label: 'Recurrente', repeat: true),
+                  const _RecurringBadge(label: 'Recurring', repeat: true),
                   ...activity.recurringDays.map(
                     (day) => _RecurringBadge(label: activityDayLabel(day)),
                   ),

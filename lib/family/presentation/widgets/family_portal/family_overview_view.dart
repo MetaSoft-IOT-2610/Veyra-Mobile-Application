@@ -30,7 +30,7 @@ class FamilyOverviewView extends StatelessWidget {
           children: [
             Expanded(
               child: FamilyOverviewMetric(
-                label: 'Alergias',
+                label: 'Allergies',
                 value: data.allergies.length,
                 icon: Icons.warning_amber_outlined,
                 color: AppColors.warning,
@@ -39,7 +39,7 @@ class FamilyOverviewView extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: FamilyOverviewMetric(
-                label: 'Dispositivos',
+                label: 'Devices',
                 value: data.devices.length,
                 icon: Icons.sensors_outlined,
                 color: AppColors.cyan,
@@ -48,7 +48,7 @@ class FamilyOverviewView extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: FamilyOverviewMetric(
-                label: 'Actividades',
+                label: 'Activities',
                 value: data.activities.length,
                 icon: Icons.event_note_outlined,
                 color: AppColors.success,
@@ -58,42 +58,42 @@ class FamilyOverviewView extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         FamilySectionCard(
-          title: 'Informacion personal',
-          subtitle: 'Datos registrados por la residencia',
+          title: 'Personal Information',
+          subtitle: 'Data recorded by the nursing home',
           icon: Icons.badge_outlined,
           children: [
             FamilyDetailRow(label: 'DNI', value: profile.dni),
             FamilyDetailRow(
-              label: 'Edad',
-              value: profile.age > 0 ? '${profile.age} anos' : '',
+              label: 'Age',
+              value: profile.age > 0 ? '${profile.age} years' : '',
             ),
-            FamilyDetailRow(label: 'Nacimiento', value: profile.birthDate),
-            FamilyDetailRow(label: 'Telefono', value: profile.phoneNumber),
-            FamilyDetailRow(label: 'Correo', value: profile.emailAddress),
+            FamilyDetailRow(label: 'Birth Date', value: profile.birthDate),
+            FamilyDetailRow(label: 'Phone Number', value: profile.phoneNumber),
+            FamilyDetailRow(label: 'Email', value: profile.emailAddress),
           ],
         ),
         const SizedBox(height: 12),
         FamilySectionCard(
-          title: 'Contacto de emergencia',
+          title: 'Emergency Contact',
           icon: Icons.contact_emergency_outlined,
           children: [
             FamilyDetailRow(
-              label: 'Nombre',
+              label: 'Name',
               value: resident.emergencyContactName,
             ),
             FamilyDetailRow(
-              label: 'Telefono',
+              label: 'Phone Number',
               value: resident.emergencyContactPhoneNumber,
             ),
           ],
         ),
         const SizedBox(height: 12),
         FamilySectionCard(
-          title: 'Mi vinculacion',
+          title: 'My Connection',
           icon: Icons.family_restroom_outlined,
           children: [
-            FamilyDetailRow(label: 'Familiar', value: data.relative.fullName),
-            FamilyDetailRow(label: 'Correo', value: data.relative.email),
+            FamilyDetailRow(label: 'Relative', value: data.relative.fullName),
+            FamilyDetailRow(label: 'Email', value: data.relative.email),
           ],
         ),
       ],

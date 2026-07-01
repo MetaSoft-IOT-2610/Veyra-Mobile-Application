@@ -69,23 +69,23 @@ class _MetricsGrid extends StatelessWidget {
           childAspectRatio: 1.45,
           children: [
             _MetricCard(
-              'Ingresos',
+              'Incoming',
               '${state.admissionsCount}',
               Icons.login_rounded,
             ),
             _MetricCard(
-              'Altas staff',
+              'New Hires',
               '${state.hiresCount}',
               Icons.person_add_alt_outlined,
             ),
             _MetricCard(
-              'Bajas staff',
+              'Terminations',
               '${state.terminationsCount}',
               Icons.person_remove_alt_1_outlined,
               warning: state.terminationsCount > 0,
             ),
             _MetricCard(
-              'Rotacion',
+              'Turnover',
               '$turnover%',
               Icons.sync_alt_rounded,
               warning: turnover > 80,
@@ -172,13 +172,13 @@ class _BalanceTile extends StatelessWidget {
           color: stable ? AppColors.success : AppColors.warning,
         ),
         title: Text(
-          stable ? 'Cobertura estable' : 'Revisar cobertura',
+          stable ? 'Stable coverage' : 'Review coverage',
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         subtitle: Text(
           stable
-              ? '$balance contratos netos este ano'
-              : '${balance.abs()} bajas mas que altas',
+              ? '$balance net contracts this year'
+              : '${balance.abs()} terminations more than new hires',
         ),
       ),
     );

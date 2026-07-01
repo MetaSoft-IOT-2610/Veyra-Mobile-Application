@@ -41,7 +41,7 @@ class ActiveStaffWidget extends StatelessWidget {
               .toList();
           if (staff.isEmpty) {
             return const _StaffMessage(
-              text: 'No hay personal activo asignado actualmente.',
+              text: 'There are currently no active staff members assigned.',
             );
           }
 
@@ -59,7 +59,7 @@ class ActiveStaffWidget extends StatelessWidget {
                       subtitle: item.emailAddress.isNotEmpty
                           ? item.emailAddress
                           : item.role == 'Unassigned'
-                          ? 'Perfil #${item.personProfileId}'
+                          ? 'Profile #${item.personProfileId}'
                           : item.role,
                     ),
                   ),
@@ -69,7 +69,7 @@ class ActiveStaffWidget extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => _openDirectory(context),
                   icon: const Icon(Icons.badge_outlined),
-                  label: const Text('Ver directorio completo'),
+                  label: const Text('View complete directory'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 13),
                   ),

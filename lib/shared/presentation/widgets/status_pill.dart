@@ -18,7 +18,7 @@ class StatusPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(9),
       ),
       child: Text(
-        active ? 'ACTIVO' : 'INACTIVO',
+        active ? 'ACTIVE' : 'INACTIVE',
         style: TextStyle(
           color: color,
           fontSize: 9,

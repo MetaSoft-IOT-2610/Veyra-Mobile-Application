@@ -24,13 +24,13 @@ class FamilyHealthView extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         FamilySectionCard(
-          title: 'Signos vitales',
-          subtitle: 'Última medición disponible',
+          title: 'Vital Signs',
+          subtitle: 'Latest measurement available',
           icon: Icons.monitor_heart_outlined,
           children: () {
             if (data.measurements.isEmpty) {
               return const [
-                FamilyEmptySection(message: 'Sin mediciones registradas.'),
+                FamilyEmptySection(message: 'No measurements registered.'),
               ];
             }
             final sorted = List<FamilyMeasurement>.from(data.measurements)
@@ -39,17 +39,17 @@ class FamilyHealthView extends StatelessWidget {
             return [
               FamilyHealthTile(
                 icon: Icons.favorite_outline,
-                title: 'Frecuencia cardíaca',
+                title: 'Heart Rate',
                 subtitle: latest.heartRate != null ? '${latest.heartRate} bpm' : '-- bpm',
               ),
               FamilyHealthTile(
                 icon: Icons.thermostat_outlined,
-                title: 'Temperatura ambiente',
+                title: 'Ambient Temperature',
                 subtitle: latest.ambientTemperature != null ? '${latest.ambientTemperature!.toStringAsFixed(1)} °C' : '-- °C',
               ),
               FamilyHealthTile(
                 icon: Icons.opacity_outlined,
-                title: 'Saturación de oxígeno',
+                title: 'Oxygen Saturation',
                 subtitle: latest.oxygenSaturation != null ? '${latest.oxygenSaturation}%' : '--%',
               ),
             ];
@@ -57,11 +57,11 @@ class FamilyHealthView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         FamilySectionCard(
-          title: 'Alergias',
-          subtitle: 'Alertas importantes para el cuidado',
+          title: 'Allergies',
+          subtitle: 'Important Care Alerts',
           icon: Icons.warning_amber_outlined,
           children: data.allergies.isEmpty
-              ? const [FamilyEmptySection(message: 'Sin alergias registradas.')]
+              ? const [FamilyEmptySection(message: 'No allergies registered.')]
               : data.allergies
                     .map(
                       (item) => FamilyHealthTile(
@@ -78,12 +78,12 @@ class FamilyHealthView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         FamilySectionCard(
-          title: 'Dispositivos',
-          subtitle: 'Equipos asociados al residente',
+          title: 'Devices',
+          subtitle: 'Devices associated with the resident',
           icon: Icons.watch_outlined,
           children: data.devices.isEmpty
               ? const [
-                  FamilyEmptySection(message: 'Sin dispositivos asignados.'),
+                  FamilyEmptySection(message: 'No devices assigned.'),
                 ]
               : data.devices
                     .map(

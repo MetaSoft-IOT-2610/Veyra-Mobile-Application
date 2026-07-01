@@ -15,10 +15,10 @@ class AnalyticsErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
     leading: const Icon(Icons.error_outline, color: AppColors.danger),
-    title: const Text('No se cargaron las metricas'),
+    title: const Text('No metrics loaded'),
     subtitle: Text(message),
     trailing: IconButton(
-      tooltip: 'Reintentar',
+      tooltip: 'Retry',
       onPressed: onRetry,
       icon: const Icon(Icons.refresh),
     ),

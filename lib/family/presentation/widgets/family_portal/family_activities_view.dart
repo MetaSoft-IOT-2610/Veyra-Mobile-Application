@@ -24,11 +24,11 @@ class FamilyActivitiesView extends StatelessWidget {
         if (index == 1) return const SizedBox(height: 14);
         if (data.activities.isEmpty) {
           return const FamilySectionCard(
-            title: 'Agenda del residente',
+            title: 'Resident\'s schedule',
             icon: Icons.event_available_outlined,
             children: [
               FamilyEmptySection(
-                message: 'No hay actividades programadas para este residente.',
+                message: 'No activities scheduled for this resident.',
               ),
             ],
           );

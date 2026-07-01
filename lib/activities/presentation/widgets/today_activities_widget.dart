@@ -37,7 +37,7 @@ class TodayActivitiesWidget extends StatelessWidget {
           if (state.todayActivities.isEmpty) {
             return const _Message(
               icon: Icons.event_available_outlined,
-              text: 'No hay actividades programadas para hoy.',
+              text: 'No activities scheduled today',
               color: AppColors.primary,
             );
           }
@@ -135,7 +135,7 @@ class _ActivityTile extends StatelessWidget {
             ),
           ),
           if (ongoing && !completed)
-            const _StatusLabel(text: 'EN CURSO', color: AppColors.cyan),
+            const _StatusLabel(text: 'IN PROGRESS', color: AppColors.cyan),
         ],
       ),
     );

@@ -57,7 +57,7 @@ class ClinicalStateView extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar'),
+                label: const Text('Try again'),
               ),
             ],
           ],

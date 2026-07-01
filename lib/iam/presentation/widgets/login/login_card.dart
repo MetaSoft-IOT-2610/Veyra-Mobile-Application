@@ -79,7 +79,7 @@ class _LoginCardState extends State<LoginCard> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Iniciar sesión',
+            'Sign in',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -91,7 +91,7 @@ class _LoginCardState extends State<LoginCard> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Ingresa tus credenciales para acceder al sistema.',
+            'Enter your credentials to log in to the system.',
             style: TextStyle(
               fontSize: 14,
               height: 1.4,
@@ -107,13 +107,13 @@ class _LoginCardState extends State<LoginCard> {
     return LoginTextField(
       controller: widget.usernameController,
       enabled: !widget.isLoading,
-      label: 'Usuario',
-      hint: 'Ingresa tu usuario',
+      label: 'Username',
+      hint: 'Enter your username',
       icon: Icons.person_outline_rounded,
       textInputAction: TextInputAction.next,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Ingrese su usuario.';
+          return 'Please enter your username.';
         }
 
         return null;
@@ -129,15 +129,15 @@ class _LoginCardState extends State<LoginCard> {
       controller: widget.passwordController,
       focusNode: widget.passwordFocusNode,
       enabled: !widget.isLoading,
-      label: 'Contraseña',
-      hint: 'Ingresa tu contraseña',
+      label: 'Password',
+      hint: 'Enter your password',
       icon: Icons.lock_outline_rounded,
       obscureText: !_isPasswordVisible,
       textInputAction: TextInputAction.done,
       suffixIcon: IconButton(
         tooltip: _isPasswordVisible
-            ? 'Ocultar contraseña'
-            : 'Mostrar contraseña',
+            ? 'Hide password'
+            : 'Show password',
         icon: Icon(
           _isPasswordVisible
               ? Icons.visibility_off_outlined

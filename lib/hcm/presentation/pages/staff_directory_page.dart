@@ -21,7 +21,7 @@ class StaffDirectoryPage extends StatelessWidget {
           locator<StaffBloc>()..add(LoadActiveStaffEvent(nursingHomeId)),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: const Text('Personal')),
+        appBar: AppBar(title: const Text('Staff')),
         body: BlocBuilder<StaffBloc, StaffState>(
           builder: (context, state) {
             if (state is StaffLoading) {
@@ -30,7 +30,7 @@ class StaffDirectoryPage extends StatelessWidget {
             if (state is StaffError) {
               return ClinicalStateView(
                 icon: Icons.cloud_off_outlined,
-                title: 'No se pudo cargar el personal',
+                title: 'Unable to load the staff',
                 message: state.message,
                 isError: true,
                 onRetry: () => context.read<StaffBloc>().add(
@@ -42,8 +42,8 @@ class StaffDirectoryPage extends StatelessWidget {
             if (state.staffMembers.isEmpty) {
               return const ClinicalStateView(
                 icon: Icons.badge_outlined,
-                title: 'Sin personal',
-                message: 'No hay personal registrado en esta sede.',
+                title: 'No staff members',
+                message: 'There are no staff members registered at this nursing home.',
               );
             }
 
@@ -58,8 +58,8 @@ class StaffDirectoryPage extends StatelessWidget {
                 if (index == 0) {
                   return DirectoryHeader(
                     icon: Icons.medical_services_outlined,
-                    title: 'Equipo asistencial',
-                    subtitle: '$active activos de ${state.staffMembers.length}',
+                    title: 'Assistive Staff',
+                    subtitle: '$active active of ${state.staffMembers.length}',
                     count: state.staffMembers.length,
                   );
                 }
@@ -155,7 +155,7 @@ class _StaffCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    role == 'Unassigned' ? 'Rol no asignado' : role,
+                    role == 'Unassigned' ? 'Role not assigned' : role,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,

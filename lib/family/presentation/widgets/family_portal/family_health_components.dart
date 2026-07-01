@@ -36,7 +36,7 @@ class FamilyHealthHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Estado de salud',
+                'Health Status',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 17,
@@ -44,14 +44,14 @@ class FamilyHealthHeader extends StatelessWidget {
                 ),
               ),
               Text(
-                'Informacion compartida por la residencia',
+                'Information shared by the residence',
                 style: TextStyle(color: Colors.white70, fontSize: 11),
               ),
             ],
           ),
         ),
         Text(
-          '$measurements mediciones\n$allergies alergias',
+          '$measurements measurements\n$allergies allergies',
           textAlign: TextAlign.end,
           style: const TextStyle(
             color: Colors.white,

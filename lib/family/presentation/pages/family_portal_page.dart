@@ -69,10 +69,10 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Mi familiar'),
+              Text('My relative'),
               SizedBox(height: 2),
               Text(
-                'Informacion de cuidado',
+                'Care Information',
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 11,
@@ -83,12 +83,12 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
           ),
           actions: [
             IconButton(
-              tooltip: 'Actualizar',
+              tooltip: 'Refresh',
               onPressed: _refresh,
               icon: const Icon(Icons.refresh),
             ),
             IconButton(
-              tooltip: 'Cerrar sesion',
+              tooltip: 'Sign out',
               onPressed: _signOut,
               icon: const Icon(Icons.logout),
             ),
@@ -103,16 +103,16 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
             if (state is FamilyPortalUnlinked) {
               return ClinicalStateView(
                 icon: Icons.person_search_outlined,
-                title: 'Sin residente asignado',
+                title: 'No resident assigned',
                 message:
-                    'La residencia debe vincular tu cuenta con un residente.',
+                    'The nursing home must link your account with a resident.',
                 onRetry: _refresh,
               );
             }
             if (state is FamilyPortalError) {
               return ClinicalStateView(
                 icon: Icons.cloud_off_outlined,
-                title: 'No se pudo cargar la informacion',
+                title: 'Failed to load information',
                 message: state.message,
                 isError: true,
                 onRetry: _refresh,
@@ -146,17 +146,17 @@ class _FamilyPortalPageState extends State<FamilyPortalPage> {
                 NavigationDestination(
                   icon: Icon(Icons.home_outlined),
                   selectedIcon: Icon(Icons.home_rounded),
-                  label: 'Resumen',
+                  label: 'Overview',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.monitor_heart_outlined),
                   selectedIcon: Icon(Icons.monitor_heart_rounded),
-                  label: 'Salud',
+                  label: 'Health',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.event_note_outlined),
                   selectedIcon: Icon(Icons.event_note_rounded),
-                  label: 'Actividades',
+                  label: 'Activities',
                 ),
               ],
             ),

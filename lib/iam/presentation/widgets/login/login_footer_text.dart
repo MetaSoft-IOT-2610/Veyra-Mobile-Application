@@ -6,7 +6,7 @@ class LoginFooterText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Cuidado, seguimiento y administración en un solo lugar.',
+      'Care, monitoring and management in one place.',
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 13,

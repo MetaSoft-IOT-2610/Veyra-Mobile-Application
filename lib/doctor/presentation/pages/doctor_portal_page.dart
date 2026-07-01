@@ -69,7 +69,7 @@ class _DoctorPortalPageState extends State<DoctorPortalPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Portal clinico',
+                'Clinical Portal',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
@@ -77,7 +77,7 @@ class _DoctorPortalPageState extends State<DoctorPortalPage> {
               ),
               SizedBox(height: 2),
               Text(
-                'Atencion de residentes',
+                'Resident Services',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,

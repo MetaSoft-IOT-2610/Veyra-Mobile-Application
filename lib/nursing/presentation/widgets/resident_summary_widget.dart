@@ -64,7 +64,7 @@ class _SummaryCard extends StatelessWidget {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Censo actual',
+                  'Current Census',
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 17,
@@ -73,7 +73,7 @@ class _SummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'EN VIVO',
+                'LIVE',
                 style: TextStyle(
                   color: AppColors.success,
                   fontSize: 10,
@@ -86,16 +86,16 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _Metric('Residentes', residents, Icons.elderly_outlined),
+                child: _Metric('Residents', residents, Icons.elderly_outlined),
               ),
               const _Divider(),
               Expanded(
-                child: _Metric('Camas libres', rooms, Icons.bed_outlined),
+                child: _Metric('Available Rooms', rooms, Icons.bed_outlined),
               ),
               const _Divider(),
               Expanded(
                 child: _Metric(
-                  'Ocupacion',
+                  'Occupancy',
                   occupancy,
                   Icons.donut_large_outlined,
                 ),
@@ -184,7 +184,7 @@ class _ErrorCard extends StatelessWidget {
     color: AppColors.dangerSoft,
     child: ListTile(
       leading: const Icon(Icons.error_outline, color: AppColors.danger),
-      title: const Text('No se pudo cargar el censo'),
+      title: const Text('Failed to load census'),
       subtitle: Text(message),
     ),
   );

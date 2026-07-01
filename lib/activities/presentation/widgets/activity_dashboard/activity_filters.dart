@@ -16,10 +16,10 @@ class ActivityFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final options = <(String, ActivityStatus?)>[
-      ('Todas', null),
-      ('Pendientes', ActivityStatus.pending),
-      ('En curso', ActivityStatus.inProgress),
-      ('Completadas', ActivityStatus.completed),
+      ('All', null),
+      ('Pending', ActivityStatus.pending),
+      ('In Progress', ActivityStatus.inProgress),
+      ('Completed', ActivityStatus.completed),
     ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

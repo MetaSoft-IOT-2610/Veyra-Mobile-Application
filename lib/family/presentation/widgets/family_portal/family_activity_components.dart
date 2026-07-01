@@ -35,7 +35,7 @@ class FamilyAgendaHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Agenda de cuidados',
+                  'Resident\'s schedule',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -43,7 +43,7 @@ class FamilyAgendaHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Actividades compartidas por la residencia',
+                  'Activities shared by the residence',
                   style: TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ],
@@ -122,7 +122,7 @@ class FamilyActivityCard extends StatelessWidget {
                       spacing: 5,
                       runSpacing: 5,
                       children: [
-                        const _DayBadge(text: 'Recurrente', repeat: true),
+                        const _DayBadge(text: 'Recurring', repeat: true),
                         ...activity.recurringDays.map(
                           (day) => _DayBadge(text: familyActivityDay(day)),
                         ),

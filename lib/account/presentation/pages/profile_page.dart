@@ -10,17 +10,17 @@ Future<void> _handleSignOut(BuildContext context) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('Cerrar sesión'),
-      content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+      title: const Text('Sign out'),
+      content: const Text('Are you sure you want to sign out?'),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: const Text('Cancelar'),
+          child: const Text('Cancel'),
         ),
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(true),
           style: TextButton.styleFrom(foregroundColor: Colors.red),
-          child: const Text('Cerrar sesión'),
+          child: const Text('Sign out'),
         ),
       ],
     ),
@@ -53,11 +53,11 @@ class ProfilePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
-          title: const Text('Mi Cuenta'),
+          title: const Text('My Account'),
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
-              tooltip: 'Cerrar sesión',
+              tooltip: 'Sign out',
               onPressed: () => _handleSignOut(context),
             ),
           ],
@@ -89,7 +89,7 @@ class ProfilePage extends StatelessWidget {
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Reintentar'),
+                        label: const Text('Retry'),
                         onPressed: () => context.read<AccountBloc>().add(
                           LoadActiveSubscriptionEvent(userId),
                         ),
@@ -268,7 +268,7 @@ class _SubscriptionCard extends StatelessWidget {
             const SizedBox(height: 14),
             _InfoRow(
               icon: Icons.calendar_today_outlined,
-              label: 'Fecha de inicio',
+              label: 'Start Date',
               value: subscription.startDate.isEmpty
                   ? 'N/A'
                   : subscription.startDate,
@@ -276,7 +276,7 @@ class _SubscriptionCard extends StatelessWidget {
             const SizedBox(height: 14),
             _InfoRow(
               icon: Icons.event_outlined,
-              label: 'Vencimiento',
+              label: 'Expiration Date',
               value: subscription.endDate.isEmpty
                   ? 'N/A'
                   : subscription.endDate,
@@ -305,7 +305,7 @@ class _StatusBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        isActive ? 'Activo' : 'Inactivo',
+        isActive ? 'Active' : 'Inactive',
         style: TextStyle(
           color: isActive ? Colors.green.shade700 : Colors.red.shade700,
           fontSize: 12,
@@ -362,7 +362,7 @@ class _ReadOnlyNotice extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Para gestionar tu plan o renovar tu suscripción, accede a la plataforma web.',
+              'To manage your plan or renew your subscription, log in to the web platform.',
               style: TextStyle(color: Colors.blue.shade700, fontSize: 13),
             ),
           ),
@@ -382,7 +382,7 @@ class _SignOutButton extends StatelessWidget {
       child: OutlinedButton.icon(
         icon: const Icon(Icons.logout, color: Colors.red),
         label: const Text(
-          'Cerrar sesión',
+          'Sign out',
           style: TextStyle(color: Colors.red),
         ),
         style: OutlinedButton.styleFrom(

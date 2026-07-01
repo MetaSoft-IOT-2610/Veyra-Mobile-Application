@@ -16,7 +16,7 @@ class LoginSecurityLabel extends StatelessWidget {
         const SizedBox(width: 6),
         Flexible(
           child: Text(
-            'Acceso seguro para personal autorizado',
+            'Secure access for authorized staff',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12.5,

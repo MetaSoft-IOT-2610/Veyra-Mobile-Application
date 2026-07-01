@@ -8,21 +8,21 @@ String familyActivityTime(DateTime value) =>
     '${value.minute.toString().padLeft(2, '0')}';
 
 String familyActivityType(String value) => switch (value.toUpperCase()) {
-  'MEAL' => 'Comida',
-  'BATH' => 'Bano',
-  'RISK_PROFILE' => 'Perfil de riesgo',
-  'RECREATIONAL' => 'Recreativa',
+  'MEAL' => 'Meal',
+  'BATH' => 'Bath',
+  'RISK_PROFILE' => 'Risk Profile',
+  'RECREATIONAL' => 'Recreational',
   _ => value,
 };
 
 String familyActivityDay(String value) => switch (value.toUpperCase()) {
-  'MON' || 'MONDAY' => 'Lun',
-  'TUE' || 'TUESDAY' => 'Mar',
-  'WED' || 'WEDNESDAY' => 'Mie',
-  'THU' || 'THURSDAY' => 'Jue',
-  'FRI' || 'FRIDAY' => 'Vie',
-  'SAT' || 'SATURDAY' => 'Sab',
-  'SUN' || 'SUNDAY' => 'Dom',
+  'MON' || 'MONDAY' => 'Mon',
+  'TUE' || 'TUESDAY' => 'Tue',
+  'WED' || 'WEDNESDAY' => 'Wed',
+  'THU' || 'THURSDAY' => 'Thu',
+  'FRI' || 'FRIDAY' => 'Fri',
+  'SAT' || 'SATURDAY' => 'Sat',
+  'SUN' || 'SUNDAY' => 'Sun',
   _ => value,
 };
 
@@ -30,22 +30,22 @@ String familyActivityDay(String value) => switch (value.toUpperCase()) {
   ActivityStatus status,
 ) => switch (status) {
   ActivityStatus.pending => (
-    label: 'PENDIENTE',
+    label: 'PENDING',
     icon: Icons.schedule_outlined,
     color: AppColors.warning,
   ),
   ActivityStatus.inProgress => (
-    label: 'EN CURSO',
+    label: 'IN PROGRESS',
     icon: Icons.play_circle_outline,
     color: AppColors.cyan,
   ),
   ActivityStatus.completed => (
-    label: 'COMPLETADA',
+    label: 'COMPLETED',
     icon: Icons.check_circle_outline,
     color: AppColors.success,
   ),
   ActivityStatus.cancelled => (
-    label: 'CANCELADA',
+    label: 'CANCELLED',
     icon: Icons.cancel_outlined,
     color: AppColors.danger,
   ),

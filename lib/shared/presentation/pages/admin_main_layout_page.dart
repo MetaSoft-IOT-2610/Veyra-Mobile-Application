@@ -76,17 +76,17 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
               NavigationDestination(
                 icon: Icon(Icons.grid_view_outlined),
                 selectedIcon: Icon(Icons.grid_view_rounded),
-                label: 'Resumen',
+                label: 'Summary',
               ),
               NavigationDestination(
                 icon: Icon(Icons.elderly_outlined),
                 selectedIcon: Icon(Icons.elderly_rounded),
-                label: 'Residentes',
+                label: 'Residents',
               ),
               NavigationDestination(
                 icon: Icon(Icons.badge_outlined),
                 selectedIcon: Icon(Icons.badge_rounded),
-                label: 'Personal',
+                label: 'Staff',
               ),
               NavigationDestination(
                 icon: Icon(Icons.event_note_outlined),
@@ -96,7 +96,7 @@ class _AdminMainLayoutPageState extends State<AdminMainLayoutPage> {
               NavigationDestination(
                 icon: Icon(Icons.person_outline_rounded),
                 selectedIcon: Icon(Icons.person_rounded),
-                label: 'Perfil',
+                label: 'Profile',
               ),
             ],
           ),

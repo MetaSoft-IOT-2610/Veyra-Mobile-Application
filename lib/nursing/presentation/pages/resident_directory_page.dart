@@ -22,7 +22,7 @@ class ResidentDirectoryPage extends StatelessWidget {
             ..add(LoadResidentListEvent(nursingHomeId: nursingHomeId)),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: const Text('Residentes')),
+        appBar: AppBar(title: const Text('Residents')),
         body: BlocBuilder<NursingBloc, NursingState>(
           builder: (context, state) {
             if (state is NursingLoading) {
@@ -31,7 +31,7 @@ class ResidentDirectoryPage extends StatelessWidget {
             if (state is NursingError) {
               return ClinicalStateView(
                 icon: Icons.cloud_off_outlined,
-                title: 'No se pudo cargar el directorio',
+                title: 'The directory could not be loaded',
                 message: state.message,
                 isError: true,
                 onRetry: () => context.read<NursingBloc>().add(
@@ -43,8 +43,8 @@ class ResidentDirectoryPage extends StatelessWidget {
             if (state.residents.isEmpty) {
               return const ClinicalStateView(
                 icon: Icons.elderly_outlined,
-                title: 'Sin residentes',
-                message: 'No hay residentes registrados en esta sede.',
+                title: 'No Residents Found',
+                message: 'There are no residents registered in this nursing home.',
               );
             }
 
@@ -56,8 +56,8 @@ class ResidentDirectoryPage extends StatelessWidget {
                 if (index == 0) {
                   return DirectoryHeader(
                     icon: Icons.elderly_outlined,
-                    title: 'Censo de residentes',
-                    subtitle: 'Informacion y seguimiento clinico',
+                    title: 'Residents Directory',
+                    subtitle: 'Information and clinical monitoring',
                     count: state.residents.length,
                   );
                 }
@@ -149,7 +149,7 @@ class _ResidentCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    room == null ? 'Habitacion pendiente' : 'Habitacion $room',
+                    room == null ? 'Room pending' : 'Room $room',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -157,7 +157,7 @@ class _ResidentCard extends StatelessWidget {
                   ),
                   if (contact.isNotEmpty)
                     Text(
-                      'Emergencia: $contact',
+                      'Emergency: $contact',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

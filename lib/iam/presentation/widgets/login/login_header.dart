@@ -40,7 +40,7 @@ class LoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Gestión integral para casas de reposo',
+          'Comprehensive Management for Nursing Homes',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,

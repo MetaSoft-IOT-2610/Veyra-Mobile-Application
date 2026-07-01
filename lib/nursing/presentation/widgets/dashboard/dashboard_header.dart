@@ -41,7 +41,7 @@ class DashboardHeader extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Casa de reposo #$nursingHomeId',
+                      'Nursing Home #$nursingHomeId',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -55,7 +55,7 @@ class DashboardHeader extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Todo bajo control',
+            'Everything\'s under control',
             style: TextStyle(
               color: Colors.white,
               fontSize: 23,
@@ -65,7 +65,7 @@ class DashboardHeader extends StatelessWidget {
           ),
           const SizedBox(height: 7),
           const Text(
-            'Consulta residentes, operacion, agenda y equipo desde un solo lugar.',
+            'Check resident information, operations, schedules, and equipment all in one place.',
             style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
           ),
           const SizedBox(height: 18),
@@ -78,7 +78,7 @@ class DashboardHeader extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Hoy, $date',
+                'Today, $date',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -126,7 +126,7 @@ class _OnlineBadge extends StatelessWidget {
         children: [
           Icon(Icons.circle, color: Color(0xFF8CE0B5), size: 9),
           SizedBox(width: 6),
-          Text('En linea', style: TextStyle(color: Colors.white, fontSize: 11)),
+          Text('Online', style: TextStyle(color: Colors.white, fontSize: 11)),
         ],
       ),
     );
